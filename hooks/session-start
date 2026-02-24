@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# SessionStart hook: check if Document Builder is installed
+# Outputs a message only if NOT installed (silent on success)
+
+SETTINGS_FILE=".claude/gerdsenai-md-to-pdf-suite.local.md"
+
+# Quick check: does the settings file exist?
+if [[ ! -f "$SETTINGS_FILE" ]]; then
+  echo "GerdsenAI Document Builder is not configured. Run /gerdsenai-md-to-pdf-suite:setup to set it up."
+  exit 0
+fi
+
+# Quick check: does the configured path exist?
+DOC_BUILDER_PATH=""
+in_frontmatter=false
+while IFS= read -r line; do
+  if [[ "$line" == "---" ]]; then
+    if $in_frontmatter; then
+      break
+    else
+      in_frontmatter=true
+      continue
+    fi
+  fi
+  if $in_frontmatter; then
+    if [[ "$line" =~ ^document_builder_path:[[:space:]]*\"?([^\"]*)\"? ]]; then
+      DOC_BUILDER_PATH="${BASH_REMATCH[1]}"
+    fi
+  fi
+done < "$SETTINGS_FILE"
+
+if [[ -z "$DOC_BUILDER_PATH" ]] || [[ ! -f "$DOC_BUILDER_PATH/document_builder_reportlab.py" ]]; then
+  echo "GerdsenAI Document Builder installation appears broken. Run /gerdsenai-md-to-pdf-suite:setup to fix it."
+  exit 0
+fi
+
+# Installed and working - stay silent
+exit 0

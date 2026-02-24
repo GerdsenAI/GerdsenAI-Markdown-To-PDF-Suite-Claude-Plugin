@@ -1,0 +1,13 @@
+{
+  "name": "gerdsenai-md-to-pdf-suite",
+  "version": "0.1.0",
+  "description": "Professional Markdown-to-PDF document creation and building powered by GerdsenAI Document Builder",
+  "author": {
+    "name": "Garrett Gerdsen",
+    "email": "garrett@gerdsen.ai"
+  },
+  "homepage": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin",
+  "repository": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin",
+  "license": "MIT",
+  "keywords": ["pdf", "markdown", "document-builder", "reports", "mermaid"]
+}
