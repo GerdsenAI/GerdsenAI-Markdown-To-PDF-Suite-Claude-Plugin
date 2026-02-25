@@ -1,6 +1,6 @@
 ---
 name: pdf-document-authoring
-description: "Use when creating markdown documents intended for PDF generation, writing reports, building professional documents, generating formatted output, or when the user mentions PDF, document builder, or formatted reports. Provides best practices for YAML front matter, document structure, code blocks, Mermaid diagrams, and formatting."
+description: "This skill should be used when the user asks to create a PDF, write a report, build a professional document, generate formatted documentation, author a technical spec for PDF output, or mentions GerdsenAI Document Builder. Covers trigger phrases like 'make me a PDF', 'write a report', 'create a document', 'format this for PDF', 'build a PDF from markdown', and 'generate a formatted report'. Provides rules for YAML front matter, heading hierarchy, code blocks, Mermaid diagrams, tables, and page layout."
 ---
 
 # PDF Document Authoring
@@ -27,7 +27,7 @@ Required fields:
 title: "Document Title"
 subtitle: "Optional Subtitle"
 author: "Author Name"
-date: "February 24, 2026"
+date: "January 15, 2026"  # Always use the current date
 version: "1.0.0"
 ---
 ```
@@ -65,17 +65,16 @@ Rules:
 - For long labels, use `<br>` for line breaks within nodes
 - If a diagram fails to render, the builder falls back to showing it as a code block (configurable)
 
-Example:
-```
-```mermaid
-flowchart TD
-    A[Start] --> B{Decision}
-    B -->|Yes| C[Action One]
-    B -->|No| D[Action Two]
-    C --> E[End]
-    D --> E
-`` `
-```
+Example flowchart (place inside a `mermaid` fenced code block):
+
+    ```mermaid
+    flowchart TD
+        A[Start] --> B{Decision}
+        B -->|Yes| C[Action One]
+        B -->|No| D[Action Two]
+        C --> E[End]
+        D --> E
+    ```
 
 See `references/formatting-guide.md` for examples of each diagram type.
 
@@ -132,9 +131,12 @@ Or use a horizontal rule as a visual section separator (does not force a page br
 
 ## Building
 
-Use the plugin commands to build:
-- `/gerdsenai-md-to-pdf-suite:build-pdf <file>` - Build a single file
+Save markdown files to the Document Builder's `To_Build/` directory, or use `/gerdsenai-md-to-pdf-suite:build-pdf` which copies the file there automatically.
+
+- `/gerdsenai-md-to-pdf-suite:build-pdf <file>` - Build a single file into a PDF
 - `/gerdsenai-md-to-pdf-suite:build-all` - Build all files in `To_Build/`
+
+Generated PDFs appear in the `PDFs/` directory. Build logs are in `Logs/`.
 
 ## Quality Checklist
 

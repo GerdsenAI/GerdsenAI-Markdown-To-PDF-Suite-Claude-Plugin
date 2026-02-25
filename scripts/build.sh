@@ -53,8 +53,7 @@ if [[ "$TARGET" == "--all" ]]; then
   # Build all files in To_Build/
   echo "Building all markdown files..."
   cd "$DOC_BUILDER_PATH"
-  "$VENV_PYTHON" "$BUILDER_SCRIPT" --all
-  BUILD_EXIT=$?
+  "$VENV_PYTHON" "$BUILDER_SCRIPT" --all && BUILD_EXIT=0 || BUILD_EXIT=$?
 else
   # Build a single file
   MARKDOWN_FILE="$TARGET"
@@ -76,8 +75,7 @@ else
 
   echo "Building: $FILENAME"
   cd "$DOC_BUILDER_PATH"
-  "$VENV_PYTHON" "$BUILDER_SCRIPT" "$FILENAME"
-  BUILD_EXIT=$?
+  "$VENV_PYTHON" "$BUILDER_SCRIPT" "$FILENAME" && BUILD_EXIT=0 || BUILD_EXIT=$?
 fi
 
 if [[ $BUILD_EXIT -eq 0 ]]; then
