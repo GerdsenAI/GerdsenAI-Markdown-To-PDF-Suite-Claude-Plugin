@@ -77,27 +77,56 @@ Always specify the language. A bare ` ``` ` block gets generic styling with no h
 
 ## Mermaid Diagrams
 
-Mermaid diagrams are rendered locally via Playwright + Chromium. Wrap diagrams in ` ```mermaid ` fences.
+Mermaid diagrams are rendered locally via Playwright + Chromium. Wrap diagrams in ` ```mermaid ` fences. Standalone `.mermaid` and `.mmd` files can also be built directly to PDF.
 
-Supported types: flowchart, sequence, class, state, gantt, pie, er, journey, gitgraph, mindmap, timeline.
+### Proactive Diagram Creation
 
-Rules:
+**Include diagrams without being asked** when the content benefits from visual representation. If you are describing a process, architecture, data model, timeline, comparison, or flow, create the appropriate diagram. Do NOT ask the user if they want a diagram — just include it where it adds clarity.
+
+When conducting research or writing reports, proactively create diagrams for:
+- System architectures and component relationships (flowchart, C4, block)
+- API or service interaction flows (sequence)
+- Database schemas and data models (ER, class)
+- Project plans and roadmaps (gantt, timeline)
+- Decision frameworks and prioritization (quadrant)
+- User experience and satisfaction analysis (journey)
+- Proportional breakdowns and metrics (pie, XY chart)
+- Concept exploration and brainstorming (mindmap)
+- Status and lifecycle modeling (state)
+- Resource allocation and data flows (sankey)
+- Requirements traceability (requirement)
+- Branching and release strategies (git graph)
+
+### Supported Types (17)
+
+| Type | Keyword | Best For |
+|------|---------|----------|
+| Flowchart | `flowchart TD` | Processes, decisions, workflows |
+| Sequence | `sequenceDiagram` | API flows, system interactions |
+| State | `stateDiagram-v2` | Lifecycles, status transitions |
+| Class | `classDiagram` | OOP design, type hierarchies |
+| ER | `erDiagram` | Database schemas, data models |
+| Gantt | `gantt` | Project schedules, sprint plans |
+| Pie | `pie` | Proportional breakdowns |
+| Git Graph | `gitGraph` | Branching strategies |
+| Mindmap | `mindmap` | Brainstorming, concept maps |
+| Timeline | `timeline` | Roadmaps, milestones |
+| Journey | `journey` | UX flows, satisfaction mapping |
+| Quadrant | `quadrantChart` | Prioritization, 2-axis comparison |
+| C4 Context | `C4Context` | High-level system architecture |
+| XY Chart | `xychart-beta` | Line/bar charts, metrics |
+| Requirement | `requirementDiagram` | Requirements traceability |
+| Sankey | `sankey-beta` | Resource/data flow volumes |
+| Block | `block-beta` | Component layouts, hardware |
+
+### Rules
 - Keep node labels under 80 characters (configurable via `max_label_length` in config.yaml)
 - Avoid special characters in labels: `"`, `<`, `>`, `{`, `}` - use parentheses or brackets instead
 - For long labels, use `<br>` for line breaks within nodes
+- Do NOT use `%%{init:...}%%` theme directives — theming is handled by config.yaml
 - If a diagram fails to render, the builder falls back to showing it as a code block (configurable)
 
-Example flowchart (place inside a `mermaid` fenced code block):
-
-    ```mermaid
-    flowchart TD
-        A[Start] --> B{Decision}
-        B -->|Yes| C[Action One]
-        B -->|No| D[Action Two]
-        C --> E[End]
-        D --> E
-    ```
-
+See `references/mermaid-diagrams.md` for complete syntax templates and choosing the right diagram type.
 See `references/formatting-guide.md` for examples of each diagram type.
 
 ## Tables

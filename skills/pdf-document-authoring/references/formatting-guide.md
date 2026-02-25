@@ -141,6 +141,131 @@ journey
       Create first item: 5: User
 ```
 
+### Class Diagram
+```mermaid
+classDiagram
+    class User {
+        +String name
+        +String email
+        +login() bool
+    }
+    class Admin {
+        +manageUsers() void
+    }
+    User <|-- Admin : inherits
+    User "1" --> "*" Order : places
+```
+
+### Mindmap
+```mermaid
+mindmap
+    root((Project))
+        Frontend
+            React
+            TypeScript
+        Backend
+            Node.js
+            PostgreSQL
+        Infrastructure
+            Docker
+            CI/CD
+```
+
+### Timeline
+```mermaid
+timeline
+    title Product Roadmap 2026
+    section Q1
+        January : MVP Launch
+        March : Public Beta
+    section Q2
+        April : GA Release
+        June : International Launch
+```
+
+### Git Graph
+```mermaid
+gitGraph
+    commit id: "init"
+    branch develop
+    commit id: "feature-a"
+    checkout main
+    merge develop tag: "v1.0.0"
+```
+
+### Quadrant Chart
+```mermaid
+quadrantChart
+    title Feature Prioritization
+    x-axis Low Effort --> High Effort
+    y-axis Low Impact --> High Impact
+    quadrant-1 Do First
+    quadrant-2 Plan Carefully
+    quadrant-3 Delegate
+    quadrant-4 Eliminate
+    Auth Improvements: [0.3, 0.9]
+    API Rewrite: [0.8, 0.85]
+    Dark Mode: [0.2, 0.4]
+```
+
+### C4 Context Diagram
+```mermaid
+C4Context
+    title System Context
+    Person(user, "End User", "Uses the app")
+    System(app, "Web App", "Main product")
+    SystemDb(db, "Database", "PostgreSQL")
+    Rel(user, app, "Uses", "HTTPS")
+    Rel(app, db, "Reads/Writes", "TCP")
+```
+
+### XY Chart (Beta)
+```mermaid
+xychart-beta
+    title "Monthly Revenue (K)"
+    x-axis [Jan, Feb, Mar, Apr, May, Jun]
+    y-axis "Revenue" 0 --> 100
+    bar [45, 52, 48, 65, 72, 85]
+    line [45, 52, 48, 65, 72, 85]
+```
+
+### Requirement Diagram
+```mermaid
+requirementDiagram
+    requirement "User Auth" {
+        id: REQ-001
+        text: "Authenticate via OAuth 2.0"
+        risk: medium
+        verifymethod: test
+    }
+    element "Auth Service" {
+        type: "software"
+    }
+    "Auth Service" - satisfies -> "User Auth"
+```
+
+### Sankey Diagram (Beta)
+```mermaid
+sankey-beta
+    Revenue,Engineering,450
+    Revenue,Marketing,250
+    Revenue,Operations,200
+    Engineering,Frontend,200
+    Engineering,Backend,250
+```
+
+### Block Diagram (Beta)
+```mermaid
+block-beta
+    columns 3
+    Frontend:3
+    block:backend:2
+        API["API Gateway"]
+        Auth["Auth Service"]
+    end
+    DB[("Database")]
+```
+
 ## Table Formatting
 
 ### Simple Table

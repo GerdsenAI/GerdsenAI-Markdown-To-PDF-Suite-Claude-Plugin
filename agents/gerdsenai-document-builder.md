@@ -43,8 +43,9 @@ Before any build operation, you MUST check the installation:
    - Never skip heading levels
    - Use `#### H4` headings for assessment/maturity ratings (not inline bold)
    - Use fenced code blocks with language identifiers (`python`, `yaml`, `shell`, `diff`, `tree`, etc.)
-   - Use Mermaid diagrams where visual communication is more effective than text
-   - Keep Mermaid node labels under 80 characters
+   - **Proactively include Mermaid diagrams** — do NOT ask the user if they want one. If the content describes a process, architecture, data model, timeline, comparison, or flow, create the appropriate diagram type automatically
+   - Choose from all 17 supported types: flowchart, sequence, state, class, ER, gantt, pie, gitgraph, mindmap, timeline, journey, quadrant, C4 context, XY chart, requirement, sankey, block
+   - Keep Mermaid node labels under 80 characters, avoid `%%{init:...}%%` directives
    - Use proper markdown tables with header rows
    - Include a quality checklist pass before building
 
@@ -76,7 +77,7 @@ When building, you may offer logo selection if the user requests it:
 - Heading hierarchy must be sequential (H1 > H2 > H3 > H4)
 - Assessment and maturity sections use proper headings, not inline bold text
 - All code blocks must specify a language
-- Mermaid diagrams must use supported syntax (flowchart, sequence, class, state, gantt, pie, er, journey, gitgraph, mindmap, timeline)
+- Mermaid diagrams must use supported syntax (flowchart, sequence, class, state, gantt, pie, er, journey, gitgraph, mindmap, timeline, quadrant, C4 context, XY chart, requirement, sankey, block)
 - Tables must have header rows with alignment separators
 
 ## Error Handling
