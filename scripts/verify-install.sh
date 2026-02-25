@@ -13,8 +13,14 @@ if [[ ! -f "$SETTINGS_FILE" ]]; then
   exit 1
 fi
 
-# Extract document_builder_path from YAML front matter
+# Extract all settings from YAML front matter
 DOC_BUILDER_PATH=""
+OUTPUT_MODE=""
+DEFAULT_OUTPUT_DIR=""
+COVER_LOGO=""
+FOOTER_LOGO=""
+PAGE_SIZE=""
+
 in_frontmatter=false
 while IFS= read -r line; do
   if [[ "$line" == "---" ]]; then
@@ -28,6 +34,22 @@ while IFS= read -r line; do
   if $in_frontmatter; then
     if [[ "$line" =~ ^document_builder_path:[[:space:]]*\"?([^\"]*)\"? ]]; then
       DOC_BUILDER_PATH="${BASH_REMATCH[1]}"
+      DOC_BUILDER_PATH="${DOC_BUILDER_PATH/#\~/$HOME}"
+    fi
+    if [[ "$line" =~ ^output_mode:[[:space:]]*\"?([^\"]*)\"? ]]; then
+      OUTPUT_MODE="${BASH_REMATCH[1]}"
+    fi
+    if [[ "$line" =~ ^default_output_dir:[[:space:]]*\"?([^\"]*)\"? ]]; then
+      DEFAULT_OUTPUT_DIR="${BASH_REMATCH[1]}"
+    fi
+    if [[ "$line" =~ ^cover_logo:[[:space:]]*\"?([^\"]*)\"? ]]; then
+      COVER_LOGO="${BASH_REMATCH[1]}"
+    fi
+    if [[ "$line" =~ ^footer_logo:[[:space:]]*\"?([^\"]*)\"? ]]; then
+      FOOTER_LOGO="${BASH_REMATCH[1]}"
+    fi
+    if [[ "$line" =~ ^preferred_page_size:[[:space:]]*\"?([^\"]*)\"? ]]; then
+      PAGE_SIZE="${BASH_REMATCH[1]}"
     fi
   fi
 done < "$SETTINGS_FILE"
@@ -61,5 +83,18 @@ if [[ ! -f "$DOC_BUILDER_PATH/venv/bin/python" ]]; then
   exit 2
 fi
 
-echo "{\"installed\": true, \"path\": \"$DOC_BUILDER_PATH\"}"
+# Check for config.yaml
+HAS_CONFIG=false
+if [[ -f "$DOC_BUILDER_PATH/config.yaml" ]]; then
+  HAS_CONFIG=true
+fi
+
+# List available logos
+AVAILABLE_LOGOS=""
+if [[ -d "$DOC_BUILDER_PATH/Assets" ]]; then
+  AVAILABLE_LOGOS=$(ls -1 "$DOC_BUILDER_PATH/Assets/" 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+fi
+
+# Build comprehensive status
+echo "{\"installed\": true, \"path\": \"$DOC_BUILDER_PATH\", \"has_config\": $HAS_CONFIG, \"output_mode\": \"${OUTPUT_MODE:-builder_pdfs}\", \"default_output_dir\": \"${DEFAULT_OUTPUT_DIR}\", \"cover_logo\": \"${COVER_LOGO}\", \"footer_logo\": \"${FOOTER_LOGO}\", \"page_size\": \"${PAGE_SIZE:-A4}\", \"available_logos\": \"${AVAILABLE_LOGOS}\"}"
 exit 0

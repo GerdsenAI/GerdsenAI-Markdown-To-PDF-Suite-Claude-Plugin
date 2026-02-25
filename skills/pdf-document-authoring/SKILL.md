@@ -42,6 +42,28 @@ If `title` is omitted, the builder extracts it from the first `# H1` heading. If
 
 See `references/frontmatter-reference.md` for complete field documentation.
 
+## Assessment and Maturity Sections
+
+When writing assessment or maturity ratings for components, technologies, or features, use proper headings for scannability and TOC inclusion.
+
+**WRONG** (hard to scan, no TOC entry):
+```markdown
+**Maturity: Solid.** The math is correct. DAS is production-ready.
+```
+
+**RIGHT** (scannable, appears in TOC):
+```markdown
+#### Beamforming: Solid (Production-Ready)
+The math is correct. DAS is production-ready; MVDR and MUSIC are research-grade.
+```
+
+Rules for assessment sections:
+- Use `#### H4` or `##### H5` headings for each assessed item
+- Include the rating or status in the heading text for quick scanning
+- Follow the heading with explanation paragraphs
+- Group related assessments under a common `### H3` parent section
+- Use consistent rating terminology across the document (e.g., "Production-Ready", "Beta", "Research-Grade", "Not Started")
+
 ## Code Blocks
 
 Use fenced code blocks with language identifiers for styled output. The builder applies distinct styling per language:
@@ -131,12 +153,28 @@ Or use a horizontal rule as a visual section separator (does not force a page br
 
 ## Building
 
-Save markdown files to the Document Builder's `To_Build/` directory, or use `/gerdsenai-md-to-pdf-suite:build-pdf` which copies the file there automatically.
+Use these commands to build PDFs:
 
 - `/gerdsenai-md-to-pdf-suite:build-pdf <file>` - Build a single file into a PDF
 - `/gerdsenai-md-to-pdf-suite:build-all` - Build all files in `To_Build/`
+- `/gerdsenai-md-to-pdf-suite:build-recursive [dir]` - Build all .md files in a directory tree (PDFs placed alongside source files)
 
-Generated PDFs appear in the `PDFs/` directory. Build logs are in `Logs/`.
+### Output Location
+
+PDFs can be saved to different locations based on your settings:
+- **Same directory** as the source .md file (default for single builds)
+- **Custom directory** configured during setup
+- **Document Builder's PDFs/** folder (legacy behavior)
+
+Override for a single build: `/gerdsenai-md-to-pdf-suite:build-pdf file.md --output-dir /path/to/dir`
+
+### Custom Filenames
+
+Override the output filename: `/gerdsenai-md-to-pdf-suite:build-pdf file.md --output-name MyReport`
+
+### Logo Selection
+
+Cover and footer logos are configured via `/gerdsenai-md-to-pdf-suite:configure`. The configure command lets you browse available logos in the Assets/ directory and add new ones.
 
 ## Quality Checklist
 
@@ -149,5 +187,6 @@ Before building, verify:
 - [ ] Images reference valid paths
 - [ ] Tables have header rows
 - [ ] No unclosed front matter delimiters (`---`)
+- [ ] Assessment/maturity sections use proper headings, not inline bold text
 
 See `references/config-options.md` for all `config.yaml` options.

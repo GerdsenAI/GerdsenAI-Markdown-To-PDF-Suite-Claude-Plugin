@@ -1,13 +1,15 @@
 ---
-description: "Configure Document Builder settings: logos, page size, fonts, and more"
+description: "Configure Document Builder settings: logos, page size, fonts, output preferences, and more"
 allowed-tools: Bash, Read, Write, Edit, AskUserQuestion, Glob
 ---
 
-You are helping the user configure the GerdsenAI Document Builder's `config.yaml`.
+You are helping the user configure the GerdsenAI Document Builder.
 
 ## Steps
 
-1. Read `.claude/gerdsenai-md-to-pdf-suite.local.md` to get `document_builder_path`. If not configured, tell the user to run `/gerdsenai-md-to-pdf-suite:setup` first.
+1. **First-run check**: Read `.claude/gerdsenai-md-to-pdf-suite.local.md` to get `document_builder_path`. If not configured:
+   - Offer to run setup inline: "The Document Builder isn't configured yet. Want me to set it up now?"
+   - If yes, follow the setup workflow, then continue
 
 2. Read the current `config.yaml` from `<document_builder_path>/config.yaml`.
 
@@ -26,8 +28,23 @@ You are helping the user configure the GerdsenAI Document Builder's `config.yaml
 
 4. Ask the user what they want to change. Use AskUserQuestion for common choices.
 
-5. For logo changes: list available images in `<document_builder_path>/Assets/` and let the user pick. They can also specify a path to a new image to copy into Assets.
+5. **Logo browser**: When changing logos:
+   - List all image files in `<document_builder_path>/Assets/` using Glob with patterns `*.png`, `*.jpg`, `*.jpeg`, `*.svg`
+   - Show current cover logo and footer logo selections
+   - Let the user pick from available logos or "none"
+   - **Add new logo**: If the user wants to add a new logo file:
+     - Ask for the source file path
+     - Copy the file to `<document_builder_path>/Assets/`
+     - Then let them select it
 
-6. Apply changes by editing the `config.yaml` file directly using the Edit tool.
+6. **Output preferences**: If the user wants to change output settings, update `.claude/gerdsenai-md-to-pdf-suite.local.md`:
+   - Output mode (same_directory / custom / builder_pdfs)
+   - Default output directory
+   - Filename pattern
+   - Cover and footer logo overrides
 
-7. After making changes, offer to do a test build to verify the configuration works.
+7. Apply config.yaml changes by editing the file directly using the Edit tool.
+
+8. Apply settings changes by updating `.claude/gerdsenai-md-to-pdf-suite.local.md`.
+
+9. After making changes, offer to do a test build to verify the configuration works.

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# SessionStart hook: check if Document Builder is installed
-# Outputs a message only if NOT installed (silent on success)
+# SessionStart hook: check if Document Builder is installed and report status
+# Outputs a message only if NOT installed or partially configured (silent on full success)
 
 SETTINGS_FILE=".claude/gerdsenai-md-to-pdf-suite.local.md"
 
@@ -10,8 +10,12 @@ if [[ ! -f "$SETTINGS_FILE" ]]; then
   exit 0
 fi
 
-# Quick check: does the configured path exist?
+# Extract key settings from YAML front matter
 DOC_BUILDER_PATH=""
+OUTPUT_MODE=""
+COVER_LOGO=""
+FOOTER_LOGO=""
+
 in_frontmatter=false
 while IFS= read -r line; do
   if [[ "$line" == "---" ]]; then
@@ -25,14 +29,37 @@ while IFS= read -r line; do
   if $in_frontmatter; then
     if [[ "$line" =~ ^document_builder_path:[[:space:]]*\"?([^\"]*)\"? ]]; then
       DOC_BUILDER_PATH="${BASH_REMATCH[1]}"
+      DOC_BUILDER_PATH="${DOC_BUILDER_PATH/#\~/$HOME}"
+    fi
+    if [[ "$line" =~ ^output_mode:[[:space:]]*\"?([^\"]*)\"? ]]; then
+      OUTPUT_MODE="${BASH_REMATCH[1]}"
+    fi
+    if [[ "$line" =~ ^cover_logo:[[:space:]]*\"?([^\"]*)\"? ]]; then
+      COVER_LOGO="${BASH_REMATCH[1]}"
+    fi
+    if [[ "$line" =~ ^footer_logo:[[:space:]]*\"?([^\"]*)\"? ]]; then
+      FOOTER_LOGO="${BASH_REMATCH[1]}"
     fi
   fi
 done < "$SETTINGS_FILE"
 
+# Check builder path is valid
 if [[ -z "$DOC_BUILDER_PATH" ]] || [[ ! -f "$DOC_BUILDER_PATH/document_builder_reportlab.py" ]]; then
   echo "GerdsenAI Document Builder installation appears broken. Run /gerdsenai-md-to-pdf-suite:setup to fix it."
   exit 0
 fi
 
-# Installed and working - stay silent
+# Check venv exists
+if [[ ! -f "$DOC_BUILDER_PATH/venv/bin/python" ]]; then
+  echo "GerdsenAI Document Builder venv is missing. Run /gerdsenai-md-to-pdf-suite:setup to fix it."
+  exit 0
+fi
+
+# Check for incomplete configuration (missing key v0.2 settings)
+if [[ -z "$OUTPUT_MODE" ]]; then
+  echo "GerdsenAI Document Builder is installed but not fully configured (missing output preferences). Run /gerdsenai-md-to-pdf-suite:configure to complete setup."
+  exit 0
+fi
+
+# Installed and fully configured - stay silent
 exit 0
