@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "gerdsenai-marketplace",
+  "version": "0.3.0",
+  "description": "GerdsenAI plugins for Claude Code",
+  "owner": {
+    "name": "Garrett Gerdsen",
+    "email": "garrett@gerdsen.ai"
+  },
+  "plugins": [
+    {
+      "name": "gerdsenai",
+      "description": "Professional Markdown-to-PDF document creation, deep research intelligence reports, and building powered by GerdsenAI Document Builder.",
+      "source": ".",
+      "category": "documents",
+      "version": "0.3.0"
+    }
+  ]
+}
