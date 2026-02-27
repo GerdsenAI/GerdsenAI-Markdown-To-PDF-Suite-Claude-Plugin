@@ -142,11 +142,11 @@ Select diagram types automatically based on data patterns. Never ask the user wh
 |-------------|-------------|-------------|
 | Timeline/chronology of events | `gantt` or `timeline` | Historical sequences, roadmaps, event timelines |
 | Market share, distribution, proportions | `pie` | Budget breakdowns, market share, survey results |
-| Trends over time, metrics, benchmarks | `xychart-beta` | Performance data, growth trends, comparisons over time |
+| Trends over time, metrics, benchmarks | `xychart` | Performance data, growth trends, comparisons over time |
 | Process, workflow, decision tree | `flowchart` | Business processes, algorithms, decision logic |
 | System architecture, component overview | `C4Context` or `block-beta` | Technology stacks, system landscapes, infrastructure |
 | Competitive positioning (2-axis) | `quadrantChart` | Market positioning, priority matrices, risk assessment |
-| Budget/resource/data flows | `sankey-beta` | Revenue flows, supply chains, data pipelines |
+| Budget/resource/data flows | `sankey` | Revenue flows, supply chains, data pipelines |
 | Concept relationships, topic mapping | `mindmap` | Topic exploration, feature breakdowns, taxonomy |
 | Entity relationships, data models | `erDiagram` | Database schemas, organizational structures |
 | Interaction sequences between parties | `sequenceDiagram` | API flows, negotiation sequences, protocol exchanges |
@@ -174,7 +174,7 @@ When the report type is Software Architecture Blueprint, use these diagram types
 | Technology Stack | Decision tree / comparison overview | `mindmap` |
 | System Architecture | System context | `C4Context` |
 | System Architecture | Component layout | `flowchart` or `block-beta` |
-| System Architecture | Data flow | `flowchart` or `sankey-beta` |
+| System Architecture | Data flow | `flowchart` or `sankey` |
 | Database Schema | Entity relationships | `erDiagram` (split by domain if >10 entities) |
 | API Design | Key API flows | `sequenceDiagram` |
 | Authentication | Auth flow | `sequenceDiagram` |
