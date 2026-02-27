@@ -5,6 +5,18 @@
 
 set -euo pipefail
 
+# Platform detection
+case "${OSTYPE:-}" in
+  msys*|cygwin*|win32*) IS_WINDOWS=true ;;
+  *)                     IS_WINDOWS=false ;;
+esac
+
+if $IS_WINDOWS; then
+  VENV_PYTHON_REL="venv/Scripts/python.exe"
+else
+  VENV_PYTHON_REL="venv/bin/python"
+fi
+
 SETTINGS_FILE=".claude/gerdsenai.local.md"
 
 # Check if settings file exists
@@ -78,7 +90,7 @@ if [[ ! -d "$DOC_BUILDER_PATH/venv" ]]; then
 fi
 
 # Check venv has python
-if [[ ! -f "$DOC_BUILDER_PATH/venv/bin/python" ]]; then
+if [[ ! -f "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" ]]; then
   echo "{\"installed\": false, \"path\": \"$DOC_BUILDER_PATH\", \"error\": \"Venv python binary missing\"}"
   exit 2
 fi

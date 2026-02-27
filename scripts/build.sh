@@ -4,6 +4,18 @@
 
 set -euo pipefail
 
+# Platform detection
+case "${OSTYPE:-}" in
+  msys*|cygwin*|win32*) IS_WINDOWS=true ;;
+  *)                     IS_WINDOWS=false ;;
+esac
+
+if $IS_WINDOWS; then
+  VENV_PYTHON_REL="venv/Scripts/python.exe"
+else
+  VENV_PYTHON_REL="venv/bin/python"
+fi
+
 if [[ $# -lt 2 ]]; then
   echo "Usage: $0 <settings_path> <markdown_file|--all|--recursive [dir]> [--output-dir <dir>] [--output-name <name>]"
   exit 1
@@ -87,7 +99,7 @@ if [[ ! -d "$DOC_BUILDER_PATH" ]]; then
   exit 1
 fi
 
-VENV_PYTHON="$DOC_BUILDER_PATH/venv/bin/python"
+VENV_PYTHON="$DOC_BUILDER_PATH/$VENV_PYTHON_REL"
 BUILDER_SCRIPT="$DOC_BUILDER_PATH/document_builder_reportlab.py"
 
 if [[ ! -f "$VENV_PYTHON" ]]; then
@@ -102,7 +114,7 @@ build_single_file() {
   local custom_output_name="${3:-}"
 
   # Resolve to absolute path if relative
-  if [[ ! "$markdown_file" = /* ]]; then
+  if [[ ! "$markdown_file" = /* ]] && [[ ! "$markdown_file" =~ ^[A-Za-z]: ]]; then
     markdown_file="$(pwd)/$markdown_file"
   fi
 
@@ -206,7 +218,7 @@ elif [[ "$TARGET" == "--recursive" ]]; then
   # Recursive mode: find all .md files in directory tree
   SCAN_DIR="${RECURSIVE_DIR:-.}"
   SCAN_DIR="${SCAN_DIR/#\~/$HOME}"
-  if [[ ! "$SCAN_DIR" = /* ]]; then
+  if [[ ! "$SCAN_DIR" = /* ]] && [[ ! "$SCAN_DIR" =~ ^[A-Za-z]: ]]; then
     SCAN_DIR="$(pwd)/$SCAN_DIR"
   fi
 

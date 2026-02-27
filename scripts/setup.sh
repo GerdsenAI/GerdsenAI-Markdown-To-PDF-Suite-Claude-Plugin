@@ -6,6 +6,20 @@
 
 set -euo pipefail
 
+# Platform detection
+case "${OSTYPE:-}" in
+  msys*|cygwin*|win32*) IS_WINDOWS=true ;;
+  *)                     IS_WINDOWS=false ;;
+esac
+
+if $IS_WINDOWS; then
+  PYTHON_CMD="python"
+  VENV_PYTHON_REL="venv/Scripts/python.exe"
+else
+  PYTHON_CMD="python3"
+  VENV_PYTHON_REL="venv/bin/python"
+fi
+
 DEFAULT_INSTALL_PATH="$HOME/.gerdsenai/document-builder"
 OLD_DEFAULT_PATH="$HOME/GerdsenAI_Document_Builder"
 
@@ -29,7 +43,12 @@ fi
 GITHUB_REPO="GerdsenAI/GerdsenAI_Document_Builder"
 
 # Check prerequisites
-for cmd in python3 pip3; do
+if $IS_WINDOWS; then
+  REQUIRED_CMDS=(python pip)
+else
+  REQUIRED_CMDS=(python3 pip3)
+fi
+for cmd in "${REQUIRED_CMDS[@]}"; do
   if ! command -v "$cmd" &>/dev/null; then
     echo "ERROR: $cmd is required but not found. Please install it first."
     exit 1
@@ -37,7 +56,7 @@ for cmd in python3 pip3; do
 done
 
 # Check Python version (need 3.9+)
-PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+PYTHON_VERSION=$($PYTHON_CMD -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 PYTHON_MAJOR=$(echo "$PYTHON_VERSION" | cut -d. -f1)
 PYTHON_MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f2)
 if [[ "$PYTHON_MAJOR" -lt 3 ]] || [[ "$PYTHON_MAJOR" -eq 3 && "$PYTHON_MINOR" -lt 9 ]]; then
@@ -60,7 +79,7 @@ else
     echo "Checking for latest GitHub Release..."
     RELEASE_INFO=$(curl -sf "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" 2>/dev/null || true)
     if [[ -n "$RELEASE_INFO" ]]; then
-      TARBALL_URL=$(echo "$RELEASE_INFO" | python3 -c "
+      TARBALL_URL=$(echo "$RELEASE_INFO" | $PYTHON_CMD -c "
 import sys, json
 data = json.load(sys.stdin)
 assets = data.get('assets', [])
@@ -101,21 +120,23 @@ fi
 # Create venv if it doesn't exist
 if [[ ! -d "$INSTALL_PATH/venv" ]]; then
   echo "Creating virtual environment..."
-  python3 -m venv "$INSTALL_PATH/venv"
+  $PYTHON_CMD -m venv "$INSTALL_PATH/venv"
 fi
+
+VENV_PYTHON="$INSTALL_PATH/$VENV_PYTHON_REL"
 
 # Install dependencies
 echo "Installing dependencies..."
-"$INSTALL_PATH/venv/bin/python" -m pip install --upgrade pip -q
+"$VENV_PYTHON" -m pip install --upgrade pip -q
 if [[ -f "$INSTALL_PATH/requirements.txt" ]]; then
-  "$INSTALL_PATH/venv/bin/python" -m pip install -r "$INSTALL_PATH/requirements.txt" -q
+  "$VENV_PYTHON" -m pip install -r "$INSTALL_PATH/requirements.txt" -q
 else
   echo "WARNING: requirements.txt not found. Skipping dependency install."
 fi
 
 # Install Playwright and Chromium for Mermaid rendering
 echo "Installing Playwright and Chromium for Mermaid diagram rendering..."
-"$INSTALL_PATH/venv/bin/python" -m playwright install chromium 2>/dev/null || {
+"$VENV_PYTHON" -m playwright install chromium 2>/dev/null || {
   echo "WARNING: Playwright Chromium install failed. Mermaid diagrams will fall back to code blocks."
 }
 
@@ -123,7 +144,7 @@ echo "Installing Playwright and Chromium for Mermaid diagram rendering..."
 mkdir -p "$INSTALL_PATH/To_Build" "$INSTALL_PATH/PDFs" "$INSTALL_PATH/Logs" "$INSTALL_PATH/Assets"
 
 # Sanity check
-if [[ -f "$INSTALL_PATH/document_builder_reportlab.py" ]] && [[ -f "$INSTALL_PATH/venv/bin/python" ]]; then
+if [[ -f "$INSTALL_PATH/document_builder_reportlab.py" ]] && [[ -f "$VENV_PYTHON" ]]; then
   echo "SUCCESS: Document Builder installed at $INSTALL_PATH"
   echo "$INSTALL_PATH"
 else
