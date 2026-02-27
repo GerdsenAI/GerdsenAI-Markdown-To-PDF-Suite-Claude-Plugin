@@ -1,16 +1,17 @@
 # GerdsenAI MD-to-PDF Suite - Claude Code Plugin
 
-A Claude Code plugin for creating and building professional PDFs from Markdown using the [GerdsenAI Document Builder](https://github.com/GerdsenAI/GerdsenAI_Document_Builder).
+A Claude Code plugin for creating professional PDFs from Markdown and conducting deep research with auto-generated intelligence reports, powered by the [GerdsenAI Document Builder](https://github.com/GerdsenAI/GerdsenAI_Document_Builder).
 
 ## What It Does
 
+- **Deep research intelligence reports** - conduct multi-source research and generate professional reports with Mermaid visualizations and academic citations as PDFs
 - **Author PDF-ready markdown** with guidance on front matter, structure, code blocks, Mermaid diagrams, and formatting
 - **Build PDFs** directly from Claude Code with styled code blocks, cover pages, table of contents, headers/footers, and page numbers
 - **Flexible output** - place PDFs alongside source files, in a custom directory, or in the builder's PDFs/ folder
 - **Recursive builds** - build PDFs for all markdown files in a directory tree
 - **Logo selection** - browse and select cover page and footer logos from available assets
-- **Configure** the Document Builder's settings (logos, page size, colors, fonts, Mermaid themes)
-- **Autonomous document creation** via an agent that handles the full workflow from requirements to finished PDF
+- **Configure** the Document Builder's settings (logos, page size, colors, fonts, Mermaid themes, citation style)
+- **Autonomous document creation** via agents that handle the full workflow from requirements to finished PDF
 - **Guided first-run setup** - if you haven't configured the plugin, any command will offer to set it up inline
 
 ## Prerequisites
@@ -18,21 +19,32 @@ A Claude Code plugin for creating and building professional PDFs from Markdown u
 - Python 3.9+
 - Git (for clone-based install) or curl (for release-based install)
 
+## Install
+
+```bash
+claude install-plugin https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin
+```
+
+For local development/testing:
+```bash
+claude --plugin-dir /path/to/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin
+```
+
 ## Quick Start
 
-1. Install the plugin:
-   ```
-   claude --plugin-dir /path/to/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin
-   ```
-
-2. Set up the Document Builder (guided setup with preferences):
+1. Set up the Document Builder (guided setup with preferences):
    ```
    /gerdsenai:setup
    ```
 
-3. Build a PDF:
+2. Build a PDF:
    ```
    /gerdsenai:build-pdf my-document.md
+   ```
+
+3. Research a topic and generate an intelligence report:
+   ```
+   /gerdsenai:research-report AI chip market landscape
    ```
 
 ## Commands
@@ -42,7 +54,8 @@ A Claude Code plugin for creating and building professional PDFs from Markdown u
 | `/gerdsenai:setup` | Install and configure the Document Builder with guided preferences |
 | `/gerdsenai:build-pdf <file>` | Build a single markdown file into a PDF |
 | `/gerdsenai:build-recursive [dir]` | Build PDFs for all .md files in a directory tree |
-| `/gerdsenai:configure` | Edit settings: logos, page size, output preferences, colors, etc. |
+| `/gerdsenai:research-report [topic]` | Conduct deep research and generate an intelligence report as PDF |
+| `/gerdsenai:configure` | Edit settings: logos, page size, output preferences, citation style, etc. |
 | `/gerdsenai:update` | Update the Document Builder to the latest version |
 
 ### Output Location Options
@@ -92,9 +105,11 @@ The `pdf-document-authoring` skill activates when you're writing markdown intend
 - Output location and filename options
 - Quality checklist before building
 
-## Agent: GerdsenAI Document Builder
+## Agents
 
-The agent handles the full document creation workflow autonomously:
+### Document Builder
+
+Handles the full document creation workflow autonomously:
 
 1. Checks installation (offers inline setup if not configured)
 2. Gathers requirements (document type, audience, sections)
@@ -102,7 +117,26 @@ The agent handles the full document creation workflow autonomously:
 4. Builds the PDF with appropriate output location
 5. Reports results and offers revisions
 
-It activates on requests like "create a report", "write a document", "build a PDF", or "generate documentation".
+Activates on requests like "create a report", "write a document", "build a PDF", or "generate documentation".
+
+### Research Report
+
+Conducts deep, multi-source research and generates professional intelligence reports:
+
+1. Discovers available search tools (WebSearch, firecrawl, brave, etc.)
+2. Asks 2-4 clarifying questions about scope, depth, and key questions
+3. Presents a research plan for approval
+4. Launches parallel sub-agents to research each facet simultaneously
+5. Conducts sequential deep-dives to fill gaps and resolve conflicts
+6. Synthesizes findings into a structured report with Mermaid visualizations and citations
+7. Runs quality checks (citation completeness, source diversity, heading hierarchy)
+8. Builds the PDF and offers revisions
+
+Activates on requests like "research the AI chip market", "build a dossier on quantum computing", "competitive analysis of cloud providers", or "write a white paper with citations".
+
+**Report types:** Executive Brief (5-10 pages), Standard Report (15-30 pages), Deep-Dive Technical (30-50+ pages), Academic White Paper.
+
+**Citation styles:** APA (default), MLA, Chicago, IEEE, Harvard. Configured via `/gerdsenai:configure`.
 
 ## Configuration
 
@@ -120,6 +154,7 @@ After running `/gerdsenai:setup`, your settings are stored at `.claude/gerdsenai
 | `cover_logo` | Override cover page logo |
 | `footer_logo` | Override footer logo |
 | `preferred_page_size` | A4, Letter, Legal, or A3 |
+| `citation_style` | APA, MLA, Chicago, IEEE, or Harvard (default: APA) |
 
 ### Document Builder Config
 
