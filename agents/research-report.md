@@ -175,13 +175,17 @@ Each sub-agent must return: product name, latest version, release date, stars, d
 ## Phase 5: Sequential Deep-Dives
 
 After collecting parallel results:
-1. Review all findings for gaps, conflicts, and promising leads
-2. Conduct targeted follow-up searches on specific topics that need more depth
-3. Resolve conflicting information by checking source reliability, recency, and methodology
-4. Gather additional data points needed for visualizations (specific numbers, timelines, relationships)
-5. Note any images or assets to reference
+1. **Use sequential-thinking** to review all findings for gaps, conflicts, and promising leads
+2. **Query Pinecone research memory** (if available) for related prior research that could fill gaps
+3. Conduct targeted follow-up searches on specific topics that need more depth
+4. **Use sequential-thinking** to resolve conflicting information by evaluating source reliability, recency, and methodology
+5. Gather additional data points needed for visualizations (specific numbers, timelines, relationships)
+6. **Store consolidated findings** to Pinecone research memory (if available) for synthesis phase retrieval
+7. Note any images or assets to reference
 
 ## Phase 6: Synthesis & Authoring
+
+**Before writing**: If Pinecone research memory is active, query it for each major section's data points rather than relying solely on conversation context. Use sequential-thinking to plan the report structure and resolve any remaining analytical questions.
 
 Write the markdown report following ALL existing pdf-document-authoring skill rules, plus the research-report-reference guidelines.
 
@@ -254,7 +258,7 @@ Plus research-specific checks from the research-report-reference:
 - All in-text citation numbers have corresponding entries in Sources & References
 - No orphan citations (referenced but not defined, or defined but not referenced)
 - Citation numbers are sequential with no gaps
-- Methodology section accurately lists tools and dates
+- Methodology section accurately lists all tools actually used (search tools, sequential thinking, Pinecone, etc.) and dates
 - No emojis
 - Mermaid diagrams are render-safe (labels < 80 chars, no special chars, no init directives)
 - Source diversity: minimum 3 distinct source domains per major section
