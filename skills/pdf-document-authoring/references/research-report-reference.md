@@ -161,8 +161,31 @@ Select diagram types automatically based on data patterns. Never ask the user wh
 | Standard Report (15-30 pages) | 5-10 diagrams |
 | Deep-Dive Technical (30-50+ pages) | 10-20 diagrams |
 | Academic White Paper | 5-12 diagrams (data-focused) |
+| Software Architecture Blueprint (40-70+ pages) | 15-25 diagrams (architecture-focused) |
 
 Place visualizations immediately after the text that introduces or discusses the data they represent. Every diagram must be preceded by context text explaining what it shows and why it matters.
+
+### Software Architecture Diagram Selection
+
+When the report type is Software Architecture Blueprint, use these diagram types mapped to specific sections:
+
+| Section | Required Diagram | Mermaid Type |
+|---------|-----------------|--------------|
+| Technology Stack | Decision tree / comparison overview | `mindmap` |
+| System Architecture | System context | `C4Context` |
+| System Architecture | Component layout | `flowchart` or `block-beta` |
+| System Architecture | Data flow | `flowchart` or `sankey-beta` |
+| Database Schema | Entity relationships | `erDiagram` (split by domain if >10 entities) |
+| API Design | Key API flows | `sequenceDiagram` |
+| Authentication | Auth flow | `sequenceDiagram` |
+| Authentication | Token lifecycle | `stateDiagram-v2` |
+| Infrastructure | Deployment architecture | `C4Context` or `block-beta` |
+| Infrastructure | CI/CD pipeline | `flowchart` |
+| Implementation Roadmap | Timeline | `gantt` |
+| Risk Assessment | Probability vs impact | `quadrantChart` |
+| Cost Estimation | Cost distribution | `pie` |
+
+See the software-architecture-reference for full diagram requirements and section-by-section guidance.
 
 ---
 
@@ -208,6 +231,25 @@ Place visualizations immediately after the text that introduces or discusses the
 - [ ] Tables have header rows with alignment separators
 - [ ] Front matter is complete (title, subtitle, author, date, version)
 - [ ] Heading hierarchy is sequential (H1 > H2 > H3 > H4, no skips)
+
+### Software Architecture Blueprint Quality Standards
+
+These additional checks apply when the report type is Software Architecture Blueprint:
+
+- [ ] Every technology recommendation includes: latest version, release date, and at least one quantitative metric
+- [ ] Every recommendation addresses: why over alternatives, community health, docs quality, long-term viability
+- [ ] ER diagram entities match Database Schema section text (no phantom or missing entities)
+- [ ] API endpoints include: method, path, auth requirement, request schema, response schema, error codes
+- [ ] API naming conventions are internally consistent throughout
+- [ ] C4/component diagrams reference the same systems named in Technology Stack
+- [ ] Gantt chart phases correspond to document sections
+- [ ] Cost estimation provides monthly figures covering: compute, database, third-party services, development labor
+- [ ] Non-functional requirements have specific measurable targets
+- [ ] Security section addresses applicable OWASP Top 10 items
+- [ ] Testing strategy specifies tool names and versions
+- [ ] No technology recommendation without stated rationale
+
+See the software-architecture-reference for the full checklist and template details.
 
 ---
 
