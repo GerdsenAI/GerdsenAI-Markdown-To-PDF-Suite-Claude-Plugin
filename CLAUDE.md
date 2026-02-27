@@ -1,0 +1,83 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a **Claude Code plugin** (not a standalone app) that converts Markdown to professional PDFs. It wraps the external [GerdsenAI Document Builder](https://github.com/GerdsenAI/GerdsenAI_Document_Builder) Python tool, providing commands, a skill, an agent, and shell scripts that Claude Code uses to author and build PDFs.
+
+The plugin is installed into Claude Code via `claude --plugin-dir <path>` and exposes slash commands prefixed with `/gerdsenai:`.
+
+## Architecture
+
+```
+.claude-plugin/plugin.json   ← Plugin manifest (name, version, metadata)
+commands/                     ← Slash command definitions (markdown prompts)
+  setup.md                    ← /setup - install + configure Document Builder
+  build-pdf.md                ← /build-pdf - single file build
+  build-recursive.md          ← /build-recursive - recursive directory build
+  configure.md                ← /configure - edit config.yaml + settings
+  update.md                   ← /update - update Document Builder
+scripts/                      ← Shell scripts executed by commands
+  setup.sh                    ← Downloads/clones builder, creates venv, installs deps
+  build.sh                    ← Core build logic (single, --all, --recursive modes)
+  update.sh                   ← Updates builder via git pull or release download
+  verify-install.sh           ← Outputs JSON status of installation health
+hooks/
+  hooks.json                  ← SessionStart hook registration
+  session-start               ← Checks install status, warns if not configured
+agents/
+  gerdsenai-document-builder.md  ← Autonomous agent: requirements → authoring → PDF
+skills/
+  pdf-document-authoring/
+    SKILL.md                  ← Authoring rules (front matter, headings, Mermaid, etc.)
+    references/               ← Detailed references for config, front matter, diagrams
+```
+
+### How It Works
+
+1. **Commands** are markdown files that define the prompt and allowed tools for each slash command. They reference `${CLAUDE_PLUGIN_ROOT}/scripts/` to run shell scripts.
+2. **Scripts** do the actual work: `build.sh` copies the markdown to the builder's `To_Build/` dir, runs `document_builder_reportlab.py` via the venv Python, then copies the output PDF to the configured location.
+3. **Settings** are stored per-project at `.claude/gerdsenai.local.md` (YAML front matter with `document_builder_path`, `output_mode`, logos, page size). This file is gitignored.
+4. **The agent** handles end-to-end document creation autonomously (gather requirements → author markdown → build PDF).
+5. **The skill** activates when authoring PDF-targeted markdown, providing rules for front matter, heading hierarchy, Mermaid diagrams, code blocks, and quality checks.
+6. **The session-start hook** runs on every new session, silently succeeding if configured or warning if setup is needed.
+
+### Settings YAML Front Matter Format
+
+The settings file (`.claude/gerdsenai.local.md`) uses YAML front matter parsed by bash regex in all scripts. The parser is line-by-line `key: value` — no nested structures. Key fields: `document_builder_path`, `output_mode` (`same_directory`|`custom`|`builder_pdfs`), `default_output_dir`, `cover_logo`, `footer_logo`, `preferred_page_size`.
+
+### Build Script Output
+
+`scripts/build.sh` outputs JSON on success/failure:
+- `{"success": true, "pdf_path": "...", "builder_pdf_path": "...", "size_bytes": N}`
+- `{"success": false, "error": "...", "log": "..."}`
+
+## Development
+
+There is no build step, test suite, or linter for this plugin. The codebase is markdown prompts and bash scripts.
+
+To test changes locally, install the plugin from the local directory:
+```
+claude --plugin-dir /path/to/this/repo
+```
+
+Then run commands in any project to verify behavior. The `session-start` hook fires automatically on new sessions.
+
+### Script Testing
+
+Test scripts directly:
+```bash
+bash scripts/verify-install.sh              # Check installation status (JSON output)
+bash scripts/build.sh <settings> <file.md>  # Build a single PDF
+bash scripts/setup.sh ~/TestBuilder         # Test fresh install
+```
+
+## Key Conventions
+
+- All scripts use `set -euo pipefail` and expand `~` via `${VAR/#\~/$HOME}`.
+- Scripts parse settings by reading YAML front matter line-by-line with bash regex (`^key:[[:space:]]*"?([^"]*)"?`). Do not introduce nested YAML or multi-line values in settings.
+- Build output location is determined by `output_mode` in settings, overridable per-build with `--output-dir`.
+- The `build.sh` `--recursive` mode auto-excludes `node_modules/`, `.git/`, `venv/`, `__pycache__/`, `.claude/`, and common non-document markdown files (README.md, CLAUDE.md, CHANGELOG.md, LICENSE.md).
+- Commands specify `allowed-tools` in their front matter to restrict which tools Claude Code can use during that command.
+- The agent and `build-recursive` command use `model: sonnet` for cost efficiency.

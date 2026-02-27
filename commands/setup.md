@@ -8,7 +8,7 @@ You are setting up the GerdsenAI Document Builder for this project.
 
 ## Steps
 
-1. Check if already installed by reading `.claude/gerdsenai-md-to-pdf-suite.local.md`. If it exists, read it and check if the path is valid. If installed and working, ask the user if they want to reinstall or reconfigure.
+1. Check if already installed by reading `.claude/gerdsenai.local.md`. If it exists, read it and check if the path is valid. If installed and working, ask the user if they want to reinstall or reconfigure.
 
 2. Ask the user where to install the Document Builder. Suggest `~/GerdsenAI_Document_Builder` as the default. If the directory already exists and contains `document_builder_reportlab.py`, offer to use the existing installation instead of downloading/cloning.
 
@@ -35,7 +35,7 @@ You are setting up the GerdsenAI Document Builder for this project.
    - Legal
    - A3
 
-7. Create or update the settings file at `.claude/gerdsenai-md-to-pdf-suite.local.md`:
+7. Create or update the settings file at `.claude/gerdsenai.local.md`:
    ```yaml
    ---
    document_builder_path: "<install_path>"
@@ -63,4 +63,4 @@ You are setting up the GerdsenAI Document Builder for this project.
     - Output mode and directory
     - Selected logos
     - Page size
-    - Next steps: Use `/gerdsenai-md-to-pdf-suite:build-pdf <file>` to build a PDF
+    - Next steps: Use `/gerdsenai:build-pdf <file>` to build a PDF

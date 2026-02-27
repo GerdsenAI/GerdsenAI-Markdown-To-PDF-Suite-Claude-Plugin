@@ -8,7 +8,7 @@ You are building a single markdown file into a PDF using the GerdsenAI Document 
 
 ## Steps
 
-1. **First-run check**: Read `.claude/gerdsenai-md-to-pdf-suite.local.md` to get settings. If the file doesn't exist or `document_builder_path` is missing/invalid:
+1. **First-run check**: Read `.claude/gerdsenai.local.md` to get settings. If the file doesn't exist or `document_builder_path` is missing/invalid:
    - Don't just tell the user to run setup — offer to run it inline
    - Say: "The Document Builder isn't configured yet. Want me to set it up now?"
    - If yes, follow the setup.md workflow, then continue with the build
@@ -34,7 +34,7 @@ You are building a single markdown file into a PDF using the GerdsenAI Document 
 
 6. Run the build script with appropriate arguments:
    ```
-   bash '${CLAUDE_PLUGIN_ROOT}/scripts/build.sh' '.claude/gerdsenai-md-to-pdf-suite.local.md' '<markdown_file_path>' [--output-dir '<dir>'] [--output-name '<name>']
+   bash '${CLAUDE_PLUGIN_ROOT}/scripts/build.sh' '.claude/gerdsenai.local.md' '<markdown_file_path>' [--output-dir '<dir>'] [--output-name '<name>']
    ```
 
 7. Report the result:

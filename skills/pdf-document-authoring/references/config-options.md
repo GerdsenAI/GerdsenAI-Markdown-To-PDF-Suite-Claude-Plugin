@@ -2,7 +2,7 @@
 
 Complete reference for `config.yaml` in the GerdsenAI Document Builder.
 
-Edit this file directly or use `/gerdsenai-md-to-pdf-suite:configure`.
+Edit this file directly or use `/gerdsenai:configure`.
 
 ## default
 

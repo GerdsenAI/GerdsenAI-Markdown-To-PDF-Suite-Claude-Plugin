@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-SETTINGS_FILE=".claude/gerdsenai-md-to-pdf-suite.local.md"
+SETTINGS_FILE=".claude/gerdsenai.local.md"
 
 # Check if settings file exists
 if [[ ! -f "$SETTINGS_FILE" ]]; then
