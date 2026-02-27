@@ -6,6 +6,9 @@
 
 set -euo pipefail
 
+DEFAULT_INSTALL_PATH="$HOME/.gerdsenai/document-builder"
+OLD_DEFAULT_PATH="$HOME/GerdsenAI_Document_Builder"
+
 if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <install_path>"
   exit 1
@@ -15,6 +18,13 @@ INSTALL_PATH="$1"
 
 # Expand ~ if present
 INSTALL_PATH="${INSTALL_PATH/#\~/$HOME}"
+
+# Migration detection: if installing to the new default and an old install exists, inform the user
+if [[ "$INSTALL_PATH" == "$DEFAULT_INSTALL_PATH" ]] && [[ -d "$OLD_DEFAULT_PATH" ]] && [[ -f "$OLD_DEFAULT_PATH/document_builder_reportlab.py" ]]; then
+  echo "NOTE: Existing Document Builder found at $OLD_DEFAULT_PATH"
+  echo "      Installing to the new default location: $INSTALL_PATH"
+  echo "      Your old installation will not be modified. You can remove it later if no longer needed."
+fi
 
 GITHUB_REPO="GerdsenAI/GerdsenAI_Document_Builder"
 

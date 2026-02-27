@@ -1,4 +1,5 @@
 .claude/*.local.md
+.claude/plans/
 *.pdf
 __pycache__/
 .DS_Store
