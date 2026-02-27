@@ -2,6 +2,7 @@
 
 ## 0.4.0
 
+- **Windows compatibility** — all scripts and the session-start hook now detect the platform via `$OSTYPE` and use the correct Python command (`python` vs `python3`) and venv path (`venv/Scripts/python.exe` vs `venv/bin/python`). Absolute path checks also recognize Windows drive letters.
 - **Default install path** changed to `~/.gerdsenai/document-builder` (hidden directory, keeps home folder clean)
 - **Migration detection** in `setup.sh` — warns if old install exists at `~/GerdsenAI_Document_Builder` when installing to the new default
 - **Research agent tool discovery** overhauled — now discovers sequential-thinking, Pinecone, Hugging Face paper search, context7 library docs, and greptile codebase search alongside existing firecrawl/brave/WebSearch
