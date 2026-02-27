@@ -25,6 +25,7 @@ You are helping the user configure the GerdsenAI Document Builder.
    - **Code blocks**: diff, treeview, shell, generic color schemes
    - **Mermaid**: enabled, theme, viewport, max width, error handling
    - **Export**: optimize_size, PDF variant, compress images, embed fonts
+   - **Research**: citation style (read from `.claude/gerdsenai.local.md`, default: APA)
 
 4. Ask the user what they want to change. Use AskUserQuestion for common choices.
 
@@ -43,8 +44,13 @@ You are helping the user configure the GerdsenAI Document Builder.
    - Filename pattern
    - Cover and footer logo overrides
 
-7. Apply config.yaml changes by editing the file directly using the Edit tool.
+7. **Research settings**: Show and allow editing of research-related preferences in `.claude/gerdsenai.local.md`:
+   - **Citation style**: APA (default) / MLA / Chicago / IEEE / Harvard
+   - When changing citation style, offer the 5 options via AskUserQuestion
+   - Update `.claude/gerdsenai.local.md` with `citation_style: "<style>"`
 
-8. Apply settings changes by updating `.claude/gerdsenai.local.md`.
+8. Apply config.yaml changes by editing the file directly using the Edit tool.
 
-9. After making changes, offer to do a test build to verify the configuration works.
+9. Apply settings changes by updating `.claude/gerdsenai.local.md`.
+
+10. After making changes, offer to do a test build to verify the configuration works.

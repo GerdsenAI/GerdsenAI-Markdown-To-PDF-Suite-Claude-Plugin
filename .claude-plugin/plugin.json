@@ -1,7 +1,7 @@
 {
   "name": "gerdsenai",
-  "version": "0.2.0",
-  "description": "Professional Markdown-to-PDF document creation and building powered by GerdsenAI Document Builder. Features flexible output locations, recursive builds, logo selection, and guided setup.",
+  "version": "0.3.0",
+  "description": "Professional Markdown-to-PDF document creation, deep research intelligence reports, and building powered by GerdsenAI Document Builder. Features flexible output locations, recursive builds, logo selection, guided setup, and multi-source research with citations.",
   "author": {
     "name": "Garrett Gerdsen",
     "email": "garrett@gerdsen.ai"
