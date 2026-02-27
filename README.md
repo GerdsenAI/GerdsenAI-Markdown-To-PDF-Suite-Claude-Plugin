@@ -18,6 +18,7 @@ A Claude Code plugin for creating professional PDFs from Markdown and conducting
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI installed
 - Python 3.9+
+- **Windows:** Git for Windows (provides Git Bash, which all scripts run under)
 
 ## Install
 
@@ -189,9 +190,13 @@ Run `/gerdsenai:setup` to install and configure it. Or just run any build comman
 Run `/gerdsenai:configure` to complete setup with output preferences and logo selection.
 
 **Mermaid diagrams not rendering**
-Playwright + Chromium must be installed. Run setup again or manually:
-```
+Playwright + Chromium must be installed. Run `/gerdsenai:setup` again, or manually:
+```bash
+# macOS/Linux
 cd <document_builder_path> && ./venv/bin/python -m playwright install chromium
+
+# Windows (Git Bash)
+cd <document_builder_path> && ./venv/Scripts/python.exe -m playwright install chromium
 ```
 
 **Build fails with no output**

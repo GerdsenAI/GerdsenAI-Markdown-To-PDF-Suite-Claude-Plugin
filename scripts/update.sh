@@ -5,6 +5,20 @@
 
 set -euo pipefail
 
+# Platform detection
+case "${OSTYPE:-}" in
+  msys*|cygwin*|win32*) IS_WINDOWS=true ;;
+  *)                     IS_WINDOWS=false ;;
+esac
+
+if $IS_WINDOWS; then
+  PYTHON_CMD="python"
+  VENV_PYTHON_REL="venv/Scripts/python.exe"
+else
+  PYTHON_CMD="python3"
+  VENV_PYTHON_REL="venv/bin/python"
+fi
+
 if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <document_builder_path>"
   exit 1
@@ -53,8 +67,8 @@ else
     exit 1
   fi
 
-  LATEST_TAG=$(echo "$RELEASE_INFO" | python3 -c "import sys, json; print(json.load(sys.stdin).get('tag_name', ''))" 2>/dev/null || true)
-  TARBALL_URL=$(echo "$RELEASE_INFO" | python3 -c "
+  LATEST_TAG=$(echo "$RELEASE_INFO" | $PYTHON_CMD -c "import sys, json; print(json.load(sys.stdin).get('tag_name', ''))" 2>/dev/null || true)
+  TARBALL_URL=$(echo "$RELEASE_INFO" | $PYTHON_CMD -c "
 import sys, json
 data = json.load(sys.stdin)
 for a in data.get('assets', []):
@@ -107,12 +121,12 @@ for a in data.get('assets', []):
 fi
 
 # Update dependencies
-if [[ -f "$DOC_BUILDER_PATH/venv/bin/python" ]]; then
+if [[ -f "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" ]]; then
   echo ""
   echo "Updating dependencies..."
-  "$DOC_BUILDER_PATH/venv/bin/python" -m pip install --upgrade pip -q
+  "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -m pip install --upgrade pip -q
   if [[ -f "$DOC_BUILDER_PATH/requirements.txt" ]]; then
-    "$DOC_BUILDER_PATH/venv/bin/python" -m pip install -r "$DOC_BUILDER_PATH/requirements.txt" --upgrade -q
+    "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -m pip install -r "$DOC_BUILDER_PATH/requirements.txt" --upgrade -q
   fi
   echo "Dependencies updated."
 else
