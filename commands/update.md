@@ -7,7 +7,7 @@ You are updating the GerdsenAI Document Builder to the latest version.
 
 ## Steps
 
-1. Read `.claude/gerdsenai-md-to-pdf-suite.local.md` to get `document_builder_path`. If not configured, tell the user to run `/gerdsenai-md-to-pdf-suite:setup` first.
+1. Read `.claude/gerdsenai.local.md` to get `document_builder_path`. If not configured, tell the user to run `/gerdsenai:setup` first.
 
 2. Run the update script:
    ```

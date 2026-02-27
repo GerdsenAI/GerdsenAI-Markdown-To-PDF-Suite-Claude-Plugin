@@ -1,5 +1,5 @@
 {
-  "name": "gerdsenai-md-to-pdf-suite",
+  "name": "gerdsenai",
   "version": "0.2.0",
   "description": "Professional Markdown-to-PDF document creation and building powered by GerdsenAI Document Builder. Features flexible output locations, recursive builds, logo selection, and guided setup.",
   "author": {

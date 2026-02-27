@@ -9,7 +9,7 @@ You are building PDFs for all markdown files found recursively in a directory tr
 
 ## Steps
 
-1. **First-run check**: Read `.claude/gerdsenai-md-to-pdf-suite.local.md` to get settings. If the file doesn't exist or `document_builder_path` is missing/invalid:
+1. **First-run check**: Read `.claude/gerdsenai.local.md` to get settings. If the file doesn't exist or `document_builder_path` is missing/invalid:
    - Offer to run setup inline: "The Document Builder isn't configured yet. Want me to set it up now?"
    - If yes, follow the setup workflow, then continue
 
@@ -39,7 +39,7 @@ You are building PDFs for all markdown files found recursively in a directory tr
 
 6. **Build each file**: Run the build script for each file:
    ```
-   bash '${CLAUDE_PLUGIN_ROOT}/scripts/build.sh' '.claude/gerdsenai-md-to-pdf-suite.local.md' '<markdown_file>' --output-dir '<dir>'
+   bash '${CLAUDE_PLUGIN_ROOT}/scripts/build.sh' '.claude/gerdsenai.local.md' '<markdown_file>' --output-dir '<dir>'
    ```
 
 7. **Report results**: Show a summary table:

@@ -7,7 +7,7 @@ You are helping the user configure the GerdsenAI Document Builder.
 
 ## Steps
 
-1. **First-run check**: Read `.claude/gerdsenai-md-to-pdf-suite.local.md` to get `document_builder_path`. If not configured:
+1. **First-run check**: Read `.claude/gerdsenai.local.md` to get `document_builder_path`. If not configured:
    - Offer to run setup inline: "The Document Builder isn't configured yet. Want me to set it up now?"
    - If yes, follow the setup workflow, then continue
 
@@ -37,7 +37,7 @@ You are helping the user configure the GerdsenAI Document Builder.
      - Copy the file to `<document_builder_path>/Assets/`
      - Then let them select it
 
-6. **Output preferences**: If the user wants to change output settings, update `.claude/gerdsenai-md-to-pdf-suite.local.md`:
+6. **Output preferences**: If the user wants to change output settings, update `.claude/gerdsenai.local.md`:
    - Output mode (same_directory / custom / builder_pdfs)
    - Default output directory
    - Filename pattern
@@ -45,6 +45,6 @@ You are helping the user configure the GerdsenAI Document Builder.
 
 7. Apply config.yaml changes by editing the file directly using the Edit tool.
 
-8. Apply settings changes by updating `.claude/gerdsenai-md-to-pdf-suite.local.md`.
+8. Apply settings changes by updating `.claude/gerdsenai.local.md`.
 
 9. After making changes, offer to do a test build to verify the configuration works.
