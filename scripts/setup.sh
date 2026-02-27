@@ -120,7 +120,15 @@ fi
 # Create venv if it doesn't exist
 if [[ ! -d "$INSTALL_PATH/venv" ]]; then
   echo "Creating virtual environment..."
-  $PYTHON_CMD -m venv "$INSTALL_PATH/venv"
+  if ! $PYTHON_CMD -m venv "$INSTALL_PATH/venv" 2>/dev/null; then
+    echo "Standard venv creation failed (ensurepip issue). Using fallback..."
+    $PYTHON_CMD -m venv --without-pip "$INSTALL_PATH/venv"
+    # Bootstrap pip into the venv
+    echo "Bootstrapping pip..."
+    curl -sfL https://bootstrap.pypa.io/get-pip.py -o "$INSTALL_PATH/venv/get-pip.py"
+    "$INSTALL_PATH/$VENV_PYTHON_REL" "$INSTALL_PATH/venv/get-pip.py" -q
+    rm -f "$INSTALL_PATH/venv/get-pip.py"
+  fi
 fi
 
 VENV_PYTHON="$INSTALL_PATH/$VENV_PYTHON_REL"

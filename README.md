@@ -22,13 +22,14 @@ A Claude Code plugin for creating professional PDFs from Markdown and conducting
 
 ## Install
 
-Install the plugin in Claude Code (one command):
+Inside a Claude Code session, run these two commands:
 
-```bash
-claude install-plugin https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin
+```
+/plugin marketplace add GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin
+/plugin install gerdsenai@gerdsenai-marketplace
 ```
 
-Then run `/gerdsenai:setup` inside any project to install the Document Builder and configure your preferences.
+Restart Claude Code, then run `/gerdsenai:setup` inside any project to install the Document Builder and configure your preferences.
 
 > **Local development:** `claude --plugin-dir /path/to/this/repo`
 
