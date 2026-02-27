@@ -21,20 +21,78 @@ Follow the research-report-reference at `${CLAUDE_PLUGIN_ROOT}/skills/pdf-docume
 
 For **Software Architecture Blueprint** reports, also follow the software-architecture-reference at `${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/software-architecture-reference.md` for blueprint structure, technology evaluation criteria, diagram requirements, API/cost/risk templates, and architecture quality checks.
 
-## Phase 0: Tool Discovery
+## Phase 0: Tool & Capability Discovery
 
-Before starting research, discover what search and scrape tools are available:
+Before starting research, systematically discover ALL available tools, skills, and MCP servers. Run these `ToolSearch` probes in parallel:
 
-1. Use `ToolSearch` to probe for MCP tools. Search for: "firecrawl", "search", "brave", "fetch", "scrape"
-2. Note built-in tools that are always available: `WebSearch`, `WebFetch`
-3. Build a tool manifest listing all available search/scrape capabilities
-4. If NO search tools are found at all, warn the user and offer to proceed with limited capability (user provides URLs or manual input)
+### 0a. Search/Scrape Tools
+- `"firecrawl"` — web search, scraping, site crawling (**preferred** over built-in WebSearch/WebFetch when available)
+- `"brave"` — web search engine
+- `"search"` — catch-all for any search MCP tools
+- `"fetch"` or `"scrape"` — content extraction tools
+
+Built-in fallbacks (always available): `WebSearch`, `WebFetch`
+
+### 0b. Reasoning & Analysis
+- `"sequential-thinking"` — structured multi-step reasoning for complex analysis, synthesis, and conflict resolution. Use throughout research for: breaking down complex topics, evaluating conflicting sources, designing report structure, and reasoning through technology comparisons.
+
+### 0c. Knowledge & Vector Storage (Pinecone)
+- `"pinecone"` — vector database for storing and retrieving research findings
+- If Pinecone tools are found, this unlocks **Research Memory** (see Phase 0.5)
+
+### 0d. Academic & Specialized Research
+- `"hugging face"` or `"paper"` — academic paper search (arXiv, ML research)
+- `"context7"` — library/framework documentation lookup (use for technology evaluations)
+- `"greptile"` — codebase search (use for open-source project analysis)
+
+### 0e. Tool Manifest
+Build a structured manifest categorizing every discovered tool:
+
+| Category | Tool Name | Capability | Best For |
+|----------|-----------|------------|----------|
+| Web Search | (discovered name) | Search + scrape + structured extraction | Primary research, current data |
+| Reasoning | (discovered name) | Multi-step structured thinking | Complex analysis, conflict resolution |
+| Vector Storage | (discovered name) | Store/retrieve research findings | Context window management, cross-session memory |
+| Academic | (discovered name) | Paper search | Scientific/ML research |
+| Library Docs | (discovered name) | Framework documentation | Technology evaluations |
+
+If firecrawl is available, prefer it over WebSearch/WebFetch for all web operations.
+If NO search tools are found at all, warn the user and offer to proceed with limited capability (user provides URLs or manual input).
+
+## Phase 0.5: Research Memory Setup (when Pinecone is available)
+
+If Pinecone tools were discovered in Phase 0, set up persistent research memory **scoped to the current project**:
+
+### Naming Convention (repo-scoped isolation)
+Derive a unique assistant name from the current project directory:
+- Take the current working directory basename (e.g., `my-saas-app`)
+- Prefix with `research-`: `research-my-saas-app`
+- This ensures each repo gets its own dedicated Pinecone assistant — never overwrite or pollute another project's research data
+
+### Setup Steps
+1. **List existing assistants**: Use Pinecone assistant-list to check if `research-<repo-name>` already exists
+2. **If it exists**: Reuse it — prior research for this project is available for cross-referencing
+3. **If it does NOT exist**: Create it using Pinecone assistant-create with name `research-<repo-name>`, configured for document Q&A with citations
+4. **NEVER reuse or write to assistants belonging to other projects** — each project is isolated
+
+### Benefits
+- Store sub-agent findings as they complete (prevents context window overflow on long reports)
+- Retrieve prior research on related topics (cross-session knowledge within this project)
+- Query stored findings during synthesis instead of re-reading full sub-agent outputs
+- Preserve source URLs and citations for later retrieval
+
+### Usage Throughout Research
+- After each sub-agent returns findings → upload a structured summary to the project's research assistant
+- During synthesis (Phase 6) → query the assistant for specific facts, citations, and data points instead of re-reading everything
+- After PDF delivery → upload the final report to the assistant for future cross-referencing
+
+If Pinecone is NOT available, proceed normally — all findings stay in conversation context.
 
 ## Phase 1: First-Run Detection & Settings
 
 1. Check if `.claude/gerdsenai.local.md` exists
 2. If missing, do NOT just tell the user to run setup. Guide them through setup inline:
-   a. Ask where to install (default: `~/GerdsenAI_Document_Builder`)
+   a. Ask where to install (default: `~/.gerdsenai/document-builder`)
    b. Run: `bash '${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh' '<install_path>'`
    c. Ask output preference: same directory as source, custom directory, or builder PDFs/
    d. Ask logo preference: list files in `<install_path>/Assets/` and let user pick cover + footer logos
@@ -91,7 +149,11 @@ Launch 3-5 `Task` sub-agents in parallel using `general-purpose` or `data-resear
 
 Each sub-agent prompt must include:
 - The specific facet to research
-- Available tool names from the Phase 0 manifest
+- **Full tool manifest from Phase 0** with capability descriptions (not just names), including:
+  - Which search tool to use as primary (firecrawl if available, else WebSearch)
+  - Which tools suit this specific facet (e.g., context7 for framework docs, Hugging Face for ML papers)
+  - Fallback chain: primary tool → alternative tool → built-in WebSearch
+- **Sequential thinking instruction**: "Use sequential-thinking MCP tool (if available) to break down complex comparisons, evaluate conflicting data, and structure your analysis before returning findings"
 - Instructions to return structured findings: key facts, statistics, quotes with attribution, source URLs, data suitable for visualization, and conflicting information flags
 - Instruction to track ALL source URLs with title, author (if available), date, and access date for citation generation
 
@@ -99,14 +161,14 @@ Each sub-agent prompt must include:
 
 When the report type is Software Architecture Blueprint, launch 5-6 sub-agents covering these architecture-specific facets instead of generic research facets. Include the user's project context (app type, scale, constraints) in every sub-agent prompt.
 
-| Facet | Sub-Agent Focus | Required Data Points |
-|-------|----------------|---------------------|
-| **Framework & Language Ecosystem** | Latest stable versions, GitHub activity, downloads, LTS schedules, migration paths, breaking changes | Name, version, release date, stars, weekly downloads, license, last major breaking change |
-| **Database & Data Layer** | Engine comparisons for use case, hosted vs self-managed, pricing at scale, ORM/driver quality | Comparison table with benchmarks, pricing tiers, ecosystem maturity, hosted options |
-| **Authentication & Security** | Auth provider comparisons, compliance requirements, encryption standards, SSO support | Pricing by MAU, feature comparison, SSO support, compliance certifications |
-| **Infrastructure & DevOps** | Hosting comparisons, CI/CD tooling, container orchestration, cost modeling, monitoring stack | Monthly cost at stated scale, cold start times, scaling limits, free tier details |
-| **API & Integration Patterns** | REST vs GraphQL vs gRPC suitability, real-time options, API gateway options, rate limiting | Latency benchmarks, tooling ecosystem, complexity tradeoffs |
-| **Community & Documentation Quality** | Stack Overflow activity, Discord/Slack sizes, docs completeness, tutorial ecosystem, corporate backing | Member counts, response times, docs freshness, backing company stability |
+| Facet | Sub-Agent Focus | Required Data Points | Recommended Tools |
+|-------|----------------|---------------------|-------------------|
+| **Framework & Language Ecosystem** | Latest stable versions, GitHub activity, downloads, LTS schedules, migration paths, breaking changes | Name, version, release date, stars, weekly downloads, license, last major breaking change | context7 (docs), firecrawl/WebSearch (GitHub stats, benchmarks) |
+| **Database & Data Layer** | Engine comparisons for use case, hosted vs self-managed, pricing at scale, ORM/driver quality | Comparison table with benchmarks, pricing tiers, ecosystem maturity, hosted options | firecrawl (pricing pages, benchmarks), WebSearch (comparisons) |
+| **Authentication & Security** | Auth provider comparisons, compliance requirements, encryption standards, SSO support | Pricing by MAU, feature comparison, SSO support, compliance certifications | firecrawl (compliance docs), WebSearch (provider comparisons) |
+| **Infrastructure & DevOps** | Hosting comparisons, CI/CD tooling, container orchestration, cost modeling, monitoring stack | Monthly cost at stated scale, cold start times, scaling limits, free tier details | firecrawl (pricing calculators), WebSearch (hosting reviews) |
+| **API & Integration Patterns** | REST vs GraphQL vs gRPC suitability, real-time options, API gateway options, rate limiting | Latency benchmarks, tooling ecosystem, complexity tradeoffs | context7 (framework docs), WebSearch (pattern guides) |
+| **Community & Documentation Quality** | Stack Overflow activity, Discord/Slack sizes, docs completeness, tutorial ecosystem, corporate backing | Member counts, response times, docs freshness, backing company stability | firecrawl (GitHub, Discord), Hugging Face (papers if ML-related) |
 
 Each sub-agent must return: product name, latest version, release date, stars, downloads, license, limitations, and comparison with 2-3 alternatives. See the software-architecture-reference for the full technology evaluation table format.
 

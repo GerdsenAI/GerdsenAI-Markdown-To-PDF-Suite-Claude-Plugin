@@ -10,7 +10,7 @@ You are setting up the GerdsenAI Document Builder for this project.
 
 1. Check if already installed by reading `.claude/gerdsenai.local.md`. If it exists, read it and check if the path is valid. If installed and working, ask the user if they want to reinstall or reconfigure.
 
-2. Ask the user where to install the Document Builder. Suggest `~/GerdsenAI_Document_Builder` as the default. If the directory already exists and contains `document_builder_reportlab.py`, offer to use the existing installation instead of downloading/cloning.
+2. Ask the user where to install the Document Builder. Suggest `~/.gerdsenai/document-builder` as the default (hidden directory, keeps home folder clean). If the directory already exists and contains `document_builder_reportlab.py`, offer to use the existing installation instead of downloading/cloning.
 
 3. Run the setup script (handles GitHub Release download with git clone fallback, venv creation, dependency install, Playwright install):
    ```

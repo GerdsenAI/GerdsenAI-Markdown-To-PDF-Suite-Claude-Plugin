@@ -22,7 +22,7 @@ Before any build operation, you MUST check the installation:
 
 1. Check if `.claude/gerdsenai.local.md` exists
 2. If missing, do NOT just tell the user to run setup. Instead, guide them through setup inline:
-   a. Ask where to install (default: `~/GerdsenAI_Document_Builder`)
+   a. Ask where to install (default: `~/.gerdsenai/document-builder`)
    b. Run: `bash '${CLAUDE_PLUGIN_ROOT}/scripts/setup.sh' '<install_path>'`
    c. Ask output preference: same directory as source, custom directory, or builder PDFs/
    d. Ask logo preference: list files in `<install_path>/Assets/` and let user pick cover + footer logos
