@@ -16,19 +16,20 @@ A Claude Code plugin for creating professional PDFs from Markdown and conducting
 
 ## Prerequisites
 
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI installed
 - Python 3.9+
-- Git (for clone-based install) or curl (for release-based install)
 
 ## Install
+
+Install the plugin in Claude Code (one command):
 
 ```bash
 claude install-plugin https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin
 ```
 
-For local development/testing:
-```bash
-claude --plugin-dir /path/to/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin
-```
+Then run `/gerdsenai:setup` inside any project to install the Document Builder and configure your preferences.
+
+> **Local development:** `claude --plugin-dir /path/to/this/repo`
 
 ## Quick Start
 
