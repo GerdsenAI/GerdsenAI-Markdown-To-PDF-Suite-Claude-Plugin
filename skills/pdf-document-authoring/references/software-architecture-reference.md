@@ -62,7 +62,7 @@ confidential: false
 [flowchart or block-beta showing internal components and their relationships]
 
 ### Data Flow
-[flowchart or sankey-beta showing how data moves through the system]
+[flowchart or sankey showing how data moves through the system]
 
 ## Database Schema
 
@@ -261,7 +261,7 @@ Each blueprint section has specific diagram requirements:
 | Technology Stack | Decision tree or comparison overview | `mindmap` | Show technology categories and selections |
 | System Architecture | System context | `C4Context` | External actors and system boundaries |
 | System Architecture | Component layout | `flowchart` or `block-beta` | Internal components and relationships |
-| System Architecture | Data flow | `flowchart` or `sankey-beta` | How data moves through the system |
+| System Architecture | Data flow | `flowchart` or `sankey` | How data moves through the system |
 | Database Schema | Entity relationships | `erDiagram` | Split by domain if >10 entities |
 | API Design | Key API flows | `sequenceDiagram` | Auth flow, main CRUD, payment flow |
 | Authentication | Auth flow | `sequenceDiagram` | Login, token refresh, OAuth |

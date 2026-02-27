@@ -219,9 +219,9 @@ C4Context
     Rel(app, db, "Reads/Writes", "TCP")
 ```
 
-### XY Chart (Beta)
+### XY Chart
 ```mermaid
-xychart-beta
+xychart
     title "Monthly Revenue (K)"
     x-axis [Jan, Feb, Mar, Apr, May, Jun]
     y-axis "Revenue" 0 --> 100
@@ -244,9 +244,9 @@ requirementDiagram
     "Auth Service" - satisfies -> "User Auth"
 ```
 
-### Sankey Diagram (Beta)
+### Sankey Diagram
 ```mermaid
-sankey-beta
+sankey
     Revenue,Engineering,450
     Revenue,Marketing,250
     Revenue,Operations,200

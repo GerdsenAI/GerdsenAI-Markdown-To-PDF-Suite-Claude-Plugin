@@ -321,12 +321,12 @@ C4Context
 
 Elements: `Person`, `System`, `SystemDb`, `SystemQueue`, `System_Ext`, `Boundary`.
 
-### 14. XY Chart (Beta)
+### 14. XY Chart
 
 **Use when:** Plotting numerical data, performance metrics over time, benchmarks, or any line/bar chart visualization.
 
 ```mermaid
-xychart-beta
+xychart
     title "Response Times (ms)"
     x-axis [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
     y-axis "Latency" 0 --> 500
@@ -363,12 +363,12 @@ requirementDiagram
 Requirement types: `requirement`, `functionalRequirement`, `performanceRequirement`, `interfaceRequirement`.
 Relationships: `satisfies`, `derives`, `traces`, `contains`, `refines`, `copies`, `verifies`.
 
-### 16. Sankey Diagram (Beta)
+### 16. Sankey Diagram
 
 **Use when:** Visualizing resource flows, energy distribution, budget allocation flows, or data pipeline throughput.
 
 ```mermaid
-sankey-beta
+sankey
     Revenue,Engineering,450000
     Revenue,Marketing,250000
     Revenue,Operations,200000

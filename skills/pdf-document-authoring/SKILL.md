@@ -114,9 +114,9 @@ When conducting research or writing reports, proactively create diagrams for:
 | Journey | `journey` | UX flows, satisfaction mapping |
 | Quadrant | `quadrantChart` | Prioritization, 2-axis comparison |
 | C4 Context | `C4Context` | High-level system architecture |
-| XY Chart | `xychart-beta` | Line/bar charts, metrics |
+| XY Chart | `xychart` | Line/bar charts, metrics |
 | Requirement | `requirementDiagram` | Requirements traceability |
-| Sankey | `sankey-beta` | Resource/data flow volumes |
+| Sankey | `sankey` | Resource/data flow volumes |
 | Block | `block-beta` | Component layouts, hardware |
 
 ### Rules
