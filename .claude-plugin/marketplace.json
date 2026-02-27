@@ -12,8 +12,8 @@
       "name": "gerdsenai",
       "description": "Professional Markdown-to-PDF document creation, deep research intelligence reports, and building powered by GerdsenAI Document Builder.",
       "source": {
-        "source": "github",
-        "repo": "GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin"
+        "source": "url",
+        "url": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin.git"
       },
       "category": "documents",
       "version": "0.3.0"
