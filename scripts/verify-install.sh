@@ -95,6 +95,14 @@ if [[ ! -f "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" ]]; then
   exit 2
 fi
 
+# Verify the venv python is functional and isolated
+VENV_PYTHON="$DOC_BUILDER_PATH/$VENV_PYTHON_REL"
+VENV_CHECK_ERR=""
+if ! VENV_CHECK_ERR=$("$VENV_PYTHON" -c "import sys; assert sys.prefix != sys.base_prefix" 2>&1); then
+  echo "{\"installed\": false, \"path\": \"$DOC_BUILDER_PATH\", \"error\": \"Venv python is not functional or not isolated: $VENV_CHECK_ERR. Run /gerdsenai:setup to recreate it.\"}"
+  exit 2
+fi
+
 # Check for config.yaml
 HAS_CONFIG=false
 if [[ -f "$DOC_BUILDER_PATH/config.yaml" ]]; then

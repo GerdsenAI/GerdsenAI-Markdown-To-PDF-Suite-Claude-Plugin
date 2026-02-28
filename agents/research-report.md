@@ -1,16 +1,6 @@
 ---
 name: research-report
-description: >
-  Use this agent when the user asks to research a topic, create an intelligence report,
-  build a dossier, write a white paper based on research, conduct competitive analysis,
-  perform OSINT research, generate a research-backed report with citations,
-  design a software architecture, plan a tech stack, or research how to build an application.
-  <example>Research the AI chip market and create a report with charts</example>
-  <example>Build an intelligence dossier on quantum computing startups</example>
-  <example>Create a competitive analysis of cloud providers</example>
-  <example>Write a white paper on edge computing trends with citations</example>
-  <example>Design the architecture for a real-time chat application</example>
-  <example>Research how to build a SaaS billing platform</example>
+description: "Use this agent when the user asks to research a topic, create an intelligence report, build a dossier, write a white paper based on research, conduct competitive analysis, perform OSINT research, generate a research-backed report with citations, design a software architecture, plan a tech stack, or research how to build an application. <example>Research the AI chip market and create a report with charts</example> <example>Build an intelligence dossier on quantum computing startups</example> <example>Create a competitive analysis of cloud providers</example> <example>Write a white paper on edge computing trends with citations</example> <example>Design the architecture for a real-time chat application</example> <example>Research how to build a SaaS billing platform</example>"
 tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion, Task, WebSearch, WebFetch, ToolSearch
 color: blue
 ---
