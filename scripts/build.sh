@@ -102,8 +102,13 @@ fi
 VENV_PYTHON="$DOC_BUILDER_PATH/$VENV_PYTHON_REL"
 BUILDER_SCRIPT="$DOC_BUILDER_PATH/document_builder_reportlab.py"
 
+if [[ ! -f "$BUILDER_SCRIPT" ]]; then
+  echo "{\"success\": false, \"error\": \"Builder script not found at $BUILDER_SCRIPT. Run setup to reinstall.\"}"
+  exit 1
+fi
+
 if [[ ! -f "$VENV_PYTHON" ]]; then
-  echo '{"success": false, "error": "Virtual environment not found. Run setup first."}'
+  echo "{\"success\": false, \"error\": \"Virtual environment not found at $DOC_BUILDER_PATH/venv. Run /gerdsenai:setup to recreate it.\"}"
   exit 1
 fi
 
@@ -137,9 +142,8 @@ build_single_file() {
     build_args+=("-o" "$custom_output_name")
   fi
 
-  cd "$DOC_BUILDER_PATH"
   local build_exit=0
-  "$VENV_PYTHON" "$BUILDER_SCRIPT" "${build_args[@]}" && build_exit=0 || build_exit=$?
+  ( cd "$DOC_BUILDER_PATH" && "$VENV_PYTHON" "$BUILDER_SCRIPT" "${build_args[@]}" ) && build_exit=0 || build_exit=$?
 
   if [[ $build_exit -eq 0 ]]; then
     # Find the generated PDF (most recent in PDFs/)
@@ -197,8 +201,7 @@ build_single_file() {
 # Handle build modes
 if [[ "$TARGET" == "--all" ]]; then
   echo "Building all markdown files..."
-  cd "$DOC_BUILDER_PATH"
-  "$VENV_PYTHON" "$BUILDER_SCRIPT" --all && BUILD_EXIT=0 || BUILD_EXIT=$?
+  ( cd "$DOC_BUILDER_PATH" && "$VENV_PYTHON" "$BUILDER_SCRIPT" --all ) && BUILD_EXIT=0 || BUILD_EXIT=$?
   if [[ $BUILD_EXIT -eq 0 ]]; then
     echo "BUILD_SUCCESS"
     if [[ -d "$DOC_BUILDER_PATH/PDFs" ]]; then
