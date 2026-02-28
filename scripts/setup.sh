@@ -131,8 +131,8 @@ if [[ ! -d "$INSTALL_PATH/venv" ]]; then
     echo "Standard venv creation failed: $VENV_ERR"
     echo "Trying fallback (venv without pip)..."
     rm -rf "$INSTALL_PATH/venv"
-    if ! $PYTHON_CMD -m venv --without-pip "$INSTALL_PATH/venv"; then
-      echo "ERROR: Failed to create virtual environment. Ensure the 'venv' module is available."
+    if ! VENV_ERR=$($PYTHON_CMD -m venv --without-pip "$INSTALL_PATH/venv" 2>&1); then
+      echo "ERROR: Failed to create virtual environment: $VENV_ERR. Ensure the 'venv' module is available."
       exit 1
     fi
     # Bootstrap pip into the venv
@@ -142,7 +142,10 @@ if [[ ! -d "$INSTALL_PATH/venv" ]]; then
         echo "ERROR: Failed to download get-pip.py. Check your internet connection."
         exit 1
       fi
-      "$INSTALL_PATH/$VENV_PYTHON_REL" "$INSTALL_PATH/venv/get-pip.py" -q
+      if ! "$INSTALL_PATH/$VENV_PYTHON_REL" "$INSTALL_PATH/venv/get-pip.py" -q; then
+        echo "ERROR: Failed to bootstrap pip into the virtual environment."
+        exit 1
+      fi
       rm -f "$INSTALL_PATH/venv/get-pip.py"
     else
       echo "ERROR: curl is not available. Cannot bootstrap pip into the virtual environment."
@@ -173,8 +176,9 @@ if [[ -f "$INSTALL_PATH/requirements.txt" ]]; then
   echo "Installing dependencies..."
   if ! "$VENV_PYTHON" -m pip install -r "$INSTALL_PATH/requirements.txt" -q; then
     echo "ERROR: Failed to install dependencies. Retrying with verbose output:"
-    "$VENV_PYTHON" -m pip install -r "$INSTALL_PATH/requirements.txt" 2>&1 | tail -50
-    exit 1
+    if ! "$VENV_PYTHON" -m pip install -r "$INSTALL_PATH/requirements.txt" 2>&1 | tail -50; then
+      exit 1
+    fi
   fi
 else
   echo "WARNING: requirements.txt not found. Skipping dependency install."
