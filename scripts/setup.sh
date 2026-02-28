@@ -117,36 +117,75 @@ for a in assets:
   fi
 fi
 
+# Detect and recreate broken venv (directory exists but python binary is missing)
+if [[ -d "$INSTALL_PATH/venv" ]] && [[ ! -f "$INSTALL_PATH/$VENV_PYTHON_REL" ]]; then
+  echo "WARNING: Virtual environment is broken (python binary missing). Recreating..."
+  rm -rf "$INSTALL_PATH/venv"
+fi
+
 # Create venv if it doesn't exist
 if [[ ! -d "$INSTALL_PATH/venv" ]]; then
   echo "Creating virtual environment..."
-  if ! $PYTHON_CMD -m venv "$INSTALL_PATH/venv" 2>/dev/null; then
-    echo "Standard venv creation failed (ensurepip issue). Using fallback..."
-    $PYTHON_CMD -m venv --without-pip "$INSTALL_PATH/venv"
+  VENV_ERR=""
+  if ! VENV_ERR=$($PYTHON_CMD -m venv "$INSTALL_PATH/venv" 2>&1); then
+    echo "Standard venv creation failed: $VENV_ERR"
+    echo "Trying fallback (venv without pip)..."
+    rm -rf "$INSTALL_PATH/venv"
+    if ! $PYTHON_CMD -m venv --without-pip "$INSTALL_PATH/venv"; then
+      echo "ERROR: Failed to create virtual environment. Ensure the 'venv' module is available."
+      exit 1
+    fi
     # Bootstrap pip into the venv
     echo "Bootstrapping pip..."
-    curl -sfL https://bootstrap.pypa.io/get-pip.py -o "$INSTALL_PATH/venv/get-pip.py"
-    "$INSTALL_PATH/$VENV_PYTHON_REL" "$INSTALL_PATH/venv/get-pip.py" -q
-    rm -f "$INSTALL_PATH/venv/get-pip.py"
+    if command -v curl &>/dev/null; then
+      if ! curl -sfL https://bootstrap.pypa.io/get-pip.py -o "$INSTALL_PATH/venv/get-pip.py"; then
+        echo "ERROR: Failed to download get-pip.py. Check your internet connection."
+        exit 1
+      fi
+      "$INSTALL_PATH/$VENV_PYTHON_REL" "$INSTALL_PATH/venv/get-pip.py" -q
+      rm -f "$INSTALL_PATH/venv/get-pip.py"
+    else
+      echo "ERROR: curl is not available. Cannot bootstrap pip into the virtual environment."
+      echo "       Install curl or use a Python installation that includes ensurepip."
+      exit 1
+    fi
   fi
 fi
 
 VENV_PYTHON="$INSTALL_PATH/$VENV_PYTHON_REL"
 
+# Validate the venv python is functional
+echo "Validating virtual environment..."
+VENV_CHECK_ERR=""
+if ! VENV_CHECK_ERR=$("$VENV_PYTHON" -c "import sys; assert sys.prefix != sys.base_prefix" 2>&1); then
+  echo "ERROR: Virtual environment was created but Python is not functional or not isolated: $VENV_CHECK_ERR"
+  exit 1
+fi
+
+# Install/upgrade pip
+echo "Upgrading pip..."
+if ! "$VENV_PYTHON" -m pip install --upgrade pip -q; then
+  echo "WARNING: pip upgrade failed. Continuing with existing pip version."
+fi
+
 # Install dependencies
-echo "Installing dependencies..."
-"$VENV_PYTHON" -m pip install --upgrade pip -q
 if [[ -f "$INSTALL_PATH/requirements.txt" ]]; then
-  "$VENV_PYTHON" -m pip install -r "$INSTALL_PATH/requirements.txt" -q
+  echo "Installing dependencies..."
+  if ! "$VENV_PYTHON" -m pip install -r "$INSTALL_PATH/requirements.txt" -q; then
+    echo "ERROR: Failed to install dependencies. Retrying with verbose output:"
+    "$VENV_PYTHON" -m pip install -r "$INSTALL_PATH/requirements.txt" 2>&1 | tail -50
+    exit 1
+  fi
 else
   echo "WARNING: requirements.txt not found. Skipping dependency install."
 fi
 
 # Install Playwright and Chromium for Mermaid rendering
 echo "Installing Playwright and Chromium for Mermaid diagram rendering..."
-"$VENV_PYTHON" -m playwright install chromium 2>/dev/null || {
+if ! "$VENV_PYTHON" -m playwright install chromium; then
   echo "WARNING: Playwright Chromium install failed. Mermaid diagrams will fall back to code blocks."
-}
+  echo "         To install manually: $VENV_PYTHON -m playwright install chromium"
+fi
 
 # Create required directories
 mkdir -p "$INSTALL_PATH/To_Build" "$INSTALL_PATH/PDFs" "$INSTALL_PATH/Logs" "$INSTALL_PATH/Assets"
