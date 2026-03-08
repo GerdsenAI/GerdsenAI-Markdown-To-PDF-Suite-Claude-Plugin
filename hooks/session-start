@@ -73,5 +73,27 @@ if [[ -z "$OUTPUT_MODE" ]]; then
   exit 0
 fi
 
+# Check for monitored reports with stale sources
+PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SOURCE_TRACKER="$PLUGIN_ROOT/scripts/source-tracker.py"
+
+if [[ -f "$SOURCE_TRACKER" ]]; then
+  # Find .sources.json files in the current directory tree (limit depth to avoid scanning huge trees)
+  stale_output=""
+  while IFS= read -r -d '' manifest; do
+    # Quick check: does the manifest contain "changed" status?
+    if grep -q '"status": "changed"' "$manifest" 2>/dev/null; then
+      report_name="$(basename "${manifest%.sources.json}").md"
+      stale_output="${stale_output}  - ${report_name}\n"
+    fi
+  done < <(find . -maxdepth 3 -name "*.sources.json" -print0 2>/dev/null)
+
+  if [[ -n "$stale_output" ]]; then
+    echo "Monitored reports with stale sources detected:"
+    echo -e "$stale_output"
+    echo "Run /gerdsenai:check-freshness to review, or /gerdsenai:refresh <file> to update."
+  fi
+fi
+
 # Installed and fully configured - stay silent
 exit 0

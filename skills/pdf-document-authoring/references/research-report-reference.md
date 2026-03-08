@@ -253,6 +253,47 @@ See the software-architecture-reference for the full checklist and template deta
 
 ---
 
+## Red Team Quality Gate Metrics
+
+When a research report undergoes adversarial review (see `red-team-reference.md`), these quality gates apply:
+
+### Pre-Build Quality Gates
+
+| Metric | Target | Enforcement |
+|--------|--------|-------------|
+| BLOCK challenges unresolved | 0 | Hard gate — do not build until all BLOCKs are resolved |
+| Factual claims with 2+ independent sources | > 80% | Soft gate — aim for target, document shortfalls in Methodology |
+| Source quality average (1-5 rubric) | >= 3.0 | Soft gate — flag if below threshold |
+| Sources scoring 4 or 5 | >= 30% of total | Soft gate — flag if below threshold |
+| Claims relying solely on score-1 or score-2 sources | 0 for BLOCK-severity claims | Hard gate — upgrade source or remove claim |
+
+### Post-Review Tracking
+
+The Methodology section must document:
+
+- **Challenges raised**: total count by severity (BLOCK / WARN / NOTE)
+- **Claims revised**: number of factual claims corrected during review
+- **Sources added**: number of new citations added to strengthen claims
+- **Assertions removed**: number of unsupported claims deleted
+- **Source diversity score**: average source quality rating across all citations
+
+### Review Methodology Subsection Template
+
+Add this subsection to the report's Methodology section after review:
+
+```markdown
+### Adversarial Quality Review
+
+This report underwent automated adversarial review prior to publication. A separate
+review process independently evaluated all factual claims, logical arguments, source
+quality, citation completeness, and statistical assertions. [N] challenges were raised
+across [N] categories. All BLOCK-severity challenges were resolved before publication.
+[N] claims were revised, [N] sources were added, and [N] unsupported assertions were
+removed during the review process.
+```
+
+---
+
 ## Multi-Document Cross-Reference Format
 
 When reports are split into multiple parts:

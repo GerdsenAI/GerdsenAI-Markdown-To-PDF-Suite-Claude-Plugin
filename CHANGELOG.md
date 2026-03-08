@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0
+
+- **Adversarial red-team review** — research reports now undergo automated adversarial quality review before PDF generation. A dialectical review step challenges factual claims, evaluates source quality (1-5 rubric), checks citation completeness, and flags logical fallacies. Challenges are assigned BLOCK/WARN/NOTE severity levels; all BLOCKs must be resolved before building. The final PDF documents the review process in its Methodology section.
+- **Standalone red-team command** — `/gerdsenai:red-team <file>` runs adversarial review against any markdown file, not just research reports. Presents structured findings and offers to help fix challenges.
+- **Living Intelligence Reports** — reports are no longer static. `/gerdsenai:monitor` registers a report for source tracking, extracting all cited URLs and computing content hashes. `/gerdsenai:check-freshness` detects which sources have changed. `/gerdsenai:refresh` re-researches only affected sections and rebuilds the PDF with a Revision History.
+- **Source tracker utility** — `scripts/source-tracker.py` provides extract, check, update, and list-stale commands for managing `.sources.json` manifests alongside monitored reports.
+- **Session-start stale source alerts** — the session-start hook now detects monitored reports with changed sources and alerts the user on session start.
+- **Red-team quality gate metrics** — research reports track claims revised, sources added, assertions removed, and average source quality score during adversarial review.
+
 ## 0.4.0
 
 - **Windows compatibility** — all scripts and the session-start hook now detect the platform via `$OSTYPE` and use the correct Python command (`python` vs `python3`) and venv path (`venv/Scripts/python.exe` vs `venv/bin/python`). Absolute path checks also recognize Windows drive letters.

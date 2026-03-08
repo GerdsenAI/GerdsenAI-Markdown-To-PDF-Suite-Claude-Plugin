@@ -9,3 +9,4 @@ todo.md
 *.log
 venv/
 node_modules/
+*.sources.json

@@ -58,6 +58,10 @@ Restart Claude Code, then run `/gerdsenai:setup` inside any project to install t
 | `/gerdsenai:build-pdf <file>` | Build a single markdown file into a PDF |
 | `/gerdsenai:build-recursive [dir]` | Build PDFs for all .md files in a directory tree |
 | `/gerdsenai:research-report [topic]` | Conduct deep research and generate an intelligence report as PDF |
+| `/gerdsenai:red-team <file>` | Run adversarial review: challenge claims, verify citations, flag logical fallacies |
+| `/gerdsenai:monitor <file>` | Register a report for source monitoring (creates `.sources.json` manifest) |
+| `/gerdsenai:check-freshness [file]` | Check if monitored sources have changed since last check |
+| `/gerdsenai:refresh <file>` | Re-research stale sections and rebuild the PDF with revision history |
 | `/gerdsenai:configure` | Edit settings: logos, page size, output preferences, citation style, etc. |
 | `/gerdsenai:update` | Update the Document Builder to the latest version |
 
@@ -140,6 +144,30 @@ Activates on requests like "research the AI chip market", "build a dossier on qu
 **Report types:** Executive Brief (5-10 pages), Standard Report (15-30 pages), Deep-Dive Technical (30-50+ pages), Academic White Paper.
 
 **Citation styles:** APA (default), MLA, Chicago, IEEE, Harvard. Configured via `/gerdsenai:configure`.
+
+### Adversarial Quality Review
+
+Research reports undergo automated adversarial review before PDF generation. The red-team step challenges every factual claim, evaluates source quality against a 1-5 rubric, checks citation completeness, and flags logical fallacies. Claims are assigned severity levels:
+
+- **BLOCK** -- demonstrably false claims, broken citations, logical contradictions. Must be resolved before building.
+- **WARN** -- weakly supported claims, single-source assertions, language stronger than evidence warrants.
+- **NOTE** -- informational observations for quality improvement.
+
+All BLOCK challenges are resolved automatically. The final PDF includes an "Adversarial Quality Review" subsection in the Methodology section documenting the review process.
+
+Run `/gerdsenai:red-team <file>` to review any markdown file standalone, not just research reports.
+
+### Living Intelligence Reports
+
+Research reports are not static. After building a report, register it for source monitoring:
+
+```
+/gerdsenai:monitor my-report.md          # Extract source URLs, compute content hashes
+/gerdsenai:check-freshness my-report.md  # Check if any sources have changed
+/gerdsenai:refresh my-report.md          # Re-research stale sections, rebuild PDF
+```
+
+The session-start hook automatically alerts you when monitored reports have stale sources. The refresh command updates only affected sections, adds a Revision History, and rebuilds the PDF.
 
 ## Configuration
 

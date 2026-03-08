@@ -1,7 +1,7 @@
 {
   "name": "gerdsenai",
-  "version": "0.4.0",
-  "description": "Professional Markdown-to-PDF document creation, deep research intelligence reports, and building powered by GerdsenAI Document Builder. Features flexible output locations, recursive builds, logo selection, guided setup, and multi-source research with citations.",
+  "version": "0.5.0",
+  "description": "Professional Markdown-to-PDF document creation with deep research intelligence reports, adversarial red-team quality review, and living intelligence monitoring. Powered by GerdsenAI Document Builder. Features multi-source research with citations, automated fact-checking, source freshness tracking, flexible output locations, recursive builds, and guided setup.",
   "author": {
     "name": "Garrett Gerdsen",
     "email": "garrett@gerdsen.ai"
@@ -9,5 +9,5 @@
   "homepage": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin",
   "repository": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin",
   "license": "MIT",
-  "keywords": ["pdf", "markdown", "document-builder", "reports", "mermaid"]
+  "keywords": ["pdf", "markdown", "document-builder", "reports", "mermaid", "red-team", "research", "intelligence"]
 }

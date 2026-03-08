@@ -268,6 +268,40 @@ Plus architecture-specific checks (Blueprint mode only — see software-architec
 - No tech recommendation without stated rationale
 - Testing strategy specifies tool names and versions
 
+## Phase 7.5: Adversarial Quality Review
+
+After the standard quality review passes, perform an adversarial review of the report before building. This is the dialectical quality assurance step -- challenge your own work before publishing it.
+
+1. **Read the review protocol**: Read `${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/red-team-reference.md` for the full challenge categories, severity levels, and source quality rubric.
+
+2. **Catalogue factual claims**: Go section by section. For each factual claim (any statement that could be true or false), note whether it has a citation and whether it is central to a recommendation or conclusion.
+
+3. **Verify high-stakes claims**: For claims central to conclusions or recommendations, verify against external sources using WebSearch:
+   - Check specific numbers, dates, statistics
+   - Verify comparative claims ("X is better/faster than Y")
+   - Cross-reference claims across sections for internal consistency
+   - Focus on claims in the Executive Summary and Recommendations
+
+4. **Evaluate source quality**: Rate each citation against the 1-5 source quality rubric from the reference. Flag vendor marketing presented as analysis, outdated sources for fast-moving topics, and dead or malformed URLs.
+
+5. **Check citation completeness**: Map every `[N]` in-text reference to its entry in Sources & References. Identify uncited factual claims, orphan citations, and non-sequential numbering.
+
+6. **Assess logical structure**: Trace arguments from evidence to conclusions. Check for logical fallacies, internal contradictions between sections, and recommendations that do not follow from the evidence.
+
+7. **Apply severity levels**:
+   - **BLOCK**: Demonstrably false claims, broken citations, logical contradictions, unsourced statistical claims central to recommendations. Do NOT build until resolved.
+   - **WARN**: Claims with single sources, borderline source quality, generalizations stronger than evidence supports.
+   - **NOTE**: Stylistic precision opportunities, minor recency concerns.
+
+8. **Resolve challenges**:
+   - Address all BLOCK challenges: revise the claim, add a supporting citation, or remove the unsupported assertion
+   - Address WARN challenges where feasible: add qualifying language or a second source
+   - Apply quality gate metrics from `research-report-reference.md` (Red Team Quality Gate Metrics section)
+
+9. **Document the review**: Add an "Adversarial Quality Review" subsection to the Methodology section using the template from `research-report-reference.md`. Record: total challenges by severity, claims revised, sources added, assertions removed.
+
+Skip this phase only if the user explicitly requests it (e.g., "skip the review" or "just build it fast").
+
 ## Phase 8: PDF Build & Delivery
 
 1. Save the markdown report to the project directory
