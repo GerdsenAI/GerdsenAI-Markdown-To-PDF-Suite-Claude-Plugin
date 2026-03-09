@@ -99,7 +99,13 @@ Output the structured review format defined in `references/red-team-reference.md
 
 ## When Called from the Research Pipeline
 
-When invoked as part of the `/gerdsenai:research-report` pipeline (between authoring and building), return your review to the authoring agent. The authoring agent will resolve BLOCK challenges and address WARNs before building. You do not modify the document yourself.
+When dispatched as a `Task` sub-agent from the research pipeline or document-builder agent (between authoring and building):
+
+1. You receive the draft markdown file path and the `red-team-reference.md` path
+2. Read both files, then execute your full review protocol (Steps 1-7)
+3. Return your structured review (summary statistics + all challenges by severity) to the calling agent
+4. The calling agent resolves BLOCK challenges and addresses WARNs before building
+5. You do not modify the document yourself — you only review and report
 
 ## When Called Standalone
 

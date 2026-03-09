@@ -162,6 +162,7 @@ Select diagram types automatically based on data patterns. Never ask the user wh
 | Deep-Dive Technical (30-50+ pages) | 10-20 diagrams |
 | Academic White Paper | 5-12 diagrams (data-focused) |
 | Software Architecture Blueprint (40-70+ pages) | 15-25 diagrams (architecture-focused) |
+| Extreme Research (50-100+ pages) | 20-30 diagrams (data-dense, every major claim with supporting visualization) |
 
 Place visualizations immediately after the text that introduces or discusses the data they represent. Every diagram must be preceded by context text explaining what it shows and why it matters.
 
@@ -250,6 +251,18 @@ These additional checks apply when the report type is Software Architecture Blue
 - [ ] No technology recommendation without stated rationale
 
 See the software-architecture-reference for the full checklist and template details.
+
+### Extreme Research Quality Standards
+
+These additional checks apply when the report depth is Extreme Research:
+
+- [ ] Every major section opens with a confidence score: "*Confidence: High/Medium/Low — based on N independent sources, M cross-validated claims.*"
+- [ ] Confidence levels are justified: High = 5+ independent sources with cross-validation; Medium = 3-4 sources; Low = 1-2 sources or conflicting data
+- [ ] Counter-argument findings are integrated as "Alternative Perspectives" or "Dissenting Analysis" subsections where material disagreement exists
+- [ ] Minimum 5 distinct source domains per major section (vs 3 for standard)
+- [ ] Multi-pass verification is documented in Methodology (how many passes, what was found in each)
+- [ ] Visualization density meets 20-30 diagram target
+- [ ] Red-team review was mandatory (never skipped in Extreme mode)
 
 ---
 

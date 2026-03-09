@@ -1,5 +1,49 @@
 # Changelog
 
+## 0.6.1
+
+### Bug Fixes
+- **CRLF fix in shared YAML parser** — `scripts/lib/parse-settings.sh` now strips trailing `\r` from every line, fixing silent parse failures when settings files have Windows CRLF line endings. This was the root cause of all settings-related failures on Windows.
+- **Tarball extraction** — `setup.sh` and `update.sh` now use `--strip-components=1` so release tarballs extract correctly (files at install root, not nested in a subdirectory).
+- **pip prerequisite check** — `setup.sh` checks `python -m pip` instead of looking for a standalone `pip` binary, which may not exist on Windows or in minimal Python installs.
+- **ChromaDB install path** — `commands/setup.md` now uses explicit per-platform venv Python paths instead of a template variable that could resolve incorrectly.
+- **Ollama model detection** — `/gerdsenai:setup` now runs `ollama list` after detecting the binary, distinguishing between "installed but no models" and "installed with models ready".
+- **Script path** — ChromaDB store invocations in the research agent now use the full `${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py` path instead of a bare filename.
+
+### Improvements
+- **Document chunking** — `chromadb-store.py` now auto-chunks long documents (default: 500-char chunks with 100-char overlap) so content beyond the embedding model's 256-token limit is fully searchable. Configurable via `--chunk-size` and `--chunk-overlap`.
+- **Relevance filtering** — `chromadb-store.py query` now supports `--max-distance` (default: 1.0) to filter out irrelevant results by cosine distance.
+- **Metadata where filter** — `chromadb-store.py query` now supports `--where '{"field":"value"}'` for metadata-based filtering.
+- **Metadata validation** — nested metadata values (lists, dicts) are serialized to JSON strings instead of crashing ChromaDB.
+- **Collection name normalization** — all ChromaDB commands normalize names (lowercase, strip, hyphens) for consistency.
+- **Error handling** — all ChromaDB operations wrapped in try/except, always outputting JSON (never raw tracebacks).
+- **Ollama pre-screen protocol** — Extreme Research mode now has a concrete specification for local LLM fact-checking: batched claims, JSON output contract, model selection, and failure handling.
+- **Backend selection decision tree** — research agent Phase 0.5 now uses an explicit decision tree (Pinecone → ChromaDB → in-context) instead of prose priority list. Only one backend is ever active.
+- **Prior research check** — research agent now checks for existing documents in the vector DB before starting new research, enabling cross-session knowledge reuse.
+- **Ollama tool names** — tool-discovery-probes.md now marks Ollama tool names as exemplary (vary by MCP implementation) with a note to use actual returned names.
+
+### New Features
+- **Vector DB Report Generator** — new `/gerdsenai:vector-db-report` command and `scripts/chromadb-report.py` utility. Generates detailed reports on vector database contents including metadata schema analysis, sample documents, data quality metrics (duplicates, empties, completeness), and system health. Supports single-project reports, cross-project overviews, and health checks. Works with both ChromaDB and Pinecone backends.
+
+## 0.6.0
+
+### Architecture Fixes
+- **Unified red-team architecture** — the dedicated `red-team-reviewer` agent is now dispatched via `Task` from both the research pipeline (Phase 7.5) and the document-builder agent. Previously, the review protocol was duplicated inline in three places. The reviewer agent is the single source of truth.
+- **Command/agent deduplication** — `commands/research-report.md` reduced from 294 lines to a thin wrapper that delegates to `agents/research-report.md`. No more divergent copies.
+- **Fixed source-tracker.py invocation** — `/gerdsenai:monitor`, `/gerdsenai:check-freshness`, and `/gerdsenai:refresh` now use the venv Python instead of system `python`, preventing failures on systems where `python` is absent or Python 2.
+- **Removed `--all` dead code** — the unused `--all` handler in `build.sh` (never called by any command) has been removed.
+
+### Infrastructure Improvements
+- **Shared YAML parser** — extracted platform detection and YAML front matter parsing into `scripts/lib/parse-settings.sh`. All five bash scripts (`build.sh`, `verify-install.sh`, `session-start`, `setup.sh`, `update.sh`) now source this library instead of duplicating the parser.
+- **Quiet session-start hook** — when `.claude/gerdsenai.local.md` is missing (user hasn't configured the plugin), the hook exits silently instead of printing a warning. Users discover the plugin through commands, not unsolicited alerts. Stale-source detection still fires for configured projects.
+
+### New Capabilities
+- **ChromaDB local vector storage** — `scripts/chromadb-store.py` provides local persistent vector storage as a Pinecone alternative. Uses SQLite persistence and built-in embeddings — no cloud account or API keys needed. The research pipeline discovers ChromaDB automatically and uses it when Pinecone is unavailable. Priority: Pinecone > ChromaDB > in-context.
+- **Extreme Research mode** — new depth tier (50-100+ pages) that maximizes every available tool. Launches 5-8 sub-agents with counter-argument agents per facet, runs multi-pass verification (gap-fill, cross-validate, seek contrary evidence), adds per-section confidence scores, targets 20-30 diagrams, and makes red-team review mandatory. Adapts to whatever hardware is available — works on a MacBook Air or a workstation with four GPUs.
+- **Ollama integration** — optional local AI inference detected via `ToolSearch("ollama")`. When available, used for pre-screening factual claims before Opus red-team review (reduces API costs) and for counter-argument agents in Extreme mode. The plugin detects but never installs Ollama. Supports NVIDIA (CUDA), AMD (ROCm), Apple Silicon (Metal), and CPU-only via Ollama's hardware abstraction.
+- **Local infrastructure reference** — new `skills/pdf-document-authoring/references/local-infrastructure-reference.md` documents ChromaDB setup/usage, Ollama detection/integration, and hardware requirements by capability tier.
+- **Setup enhancements** — `/gerdsenai:setup` now offers optional ChromaDB installation and detects Ollama availability.
+
 ## 0.5.0
 
 - **Adversarial red-team review** — research reports now undergo automated adversarial quality review before PDF generation. A dialectical review step challenges factual claims, evaluates source quality (1-5 rubric), checks citation completeness, and flags logical fallacies. Challenges are assigned BLOCK/WARN/NOTE severity levels; all BLOCKs must be resolved before building. The final PDF documents the review process in its Methodology section.

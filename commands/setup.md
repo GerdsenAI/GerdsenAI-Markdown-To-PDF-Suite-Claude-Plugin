@@ -53,14 +53,33 @@ You are setting up the GerdsenAI Document Builder for this project.
 
 8. If the user selected a page size different from config.yaml's default, update `<install_path>/config.yaml` to match.
 
-9. Verify the installation by running:
+9. **Optional: Local research memory (ChromaDB)** using AskUserQuestion:
+   - Ask: "Install ChromaDB for local research memory? This enables context window relief for 50+ page reports without needing a cloud vector DB. [Yes/No]"
+   - If yes, warn the user: "ChromaDB installation may take several minutes as it includes ML dependencies (onnxruntime, tokenizers). Please be patient."
+   - Determine the venv Python path:
+     - Windows: `<install_path>/venv/Scripts/python.exe`
+     - macOS/Linux: `<install_path>/venv/bin/python`
+   - Run: `'<venv_python>' -m pip install chromadb -q`
+   - If pip fails, show the error and suggest: "If installation failed, you can try again later with: `<venv_python> -m pip install chromadb`"
+   - Report success or failure
+
+10. **Optional: Local AI detection (Ollama)** — detect automatically, never install:
+    - Check if `ollama` is in PATH: `which ollama 2>/dev/null`
+    - If found, also run `ollama list` to check for available models:
+      - If models are found: "Ollama detected with N model(s): [model names]. Local AI pre-screening and counter-argument generation are available for Extreme Research mode."
+      - If no models found: "Ollama is installed but has no models. Run `ollama pull llama3.1:8b` to download a recommended model for local AI pre-screening."
+    - If not found, inform: "Ollama not detected. For local AI capabilities (optional), visit ollama.com to install it."
+
+11. Verify the installation by running:
    ```
    bash '${CLAUDE_PLUGIN_ROOT}/scripts/verify-install.sh'
    ```
 
-10. Report success with a summary:
+12. Report success with a summary:
     - Install path
     - Output mode and directory
     - Selected logos
     - Page size
+    - ChromaDB status (installed / not installed)
+    - Ollama status (detected / not detected)
     - Next steps: Use `/gerdsenai:build-pdf <file>` to build a PDF

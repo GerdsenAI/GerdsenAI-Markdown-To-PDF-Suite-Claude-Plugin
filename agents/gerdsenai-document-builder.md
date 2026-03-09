@@ -44,15 +44,12 @@ Before any build operation, you MUST check the installation:
 4. **Save the document**: Write the markdown file to the user's project directory.
 
 5. **Red team review** (research reports only):
-   When the document is a research report (produced via `/gerdsenai:research-report` or containing an Executive Summary, Methodology, and Sources & References section), run an adversarial quality review before building:
-   1. Read `${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/red-team-reference.md` for the full challenge protocol
-   2. Perform the review yourself following the 7-step protocol: read the document, catalogue factual claims, verify high-stakes claims via WebSearch, evaluate source quality, check citation completeness, assess logical structure, and produce a structured review
+   When the document is a research report (produced via `/gerdsenai:research-report` or containing an Executive Summary, Methodology, and Sources & References section), dispatch the dedicated red-team reviewer agent before building:
+   1. Use `Task` to launch the `red-team-reviewer` sub-agent, passing the draft markdown file path and the reference path `${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/red-team-reference.md`
+   2. Receive the structured review with BLOCK/WARN/NOTE challenges
    3. Address all **BLOCK** challenges — revise the claim, add a supporting citation, or remove the unsupported assertion. Do NOT proceed to build with unresolved BLOCKs.
-   4. Address **WARN** challenges where feasible — add qualifying language ("based on limited available data") or add a second source. If neither is possible, note the limitation in the Methodology section.
-   5. Add an "Adversarial Quality Review" subsection to the Methodology section documenting:
-      - Number of challenges raised by severity
-      - Number of claims revised, sources added, and assertions removed
-      - Use the template in `red-team-reference.md` § Review Methodology Section
+   4. Address **WARN** challenges where feasible — add qualifying language or add a second source. If neither is possible, note the limitation in the Methodology section.
+   5. Add an "Adversarial Quality Review" subsection to the Methodology section documenting the review results using the template in `red-team-reference.md` § Review Methodology Section
    6. **NOTE** observations may be skipped — they are informational only
 
    Skip this step for non-research documents (guides, specs, proposals, etc.) unless the user explicitly requests a red team review.

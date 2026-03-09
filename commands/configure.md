@@ -11,9 +11,11 @@ You are helping the user configure the GerdsenAI Document Builder.
    - Offer to run setup inline: "The Document Builder isn't configured yet. Want me to set it up now?"
    - If yes, follow the setup workflow, then continue
 
-2. Read the current `config.yaml` from `<document_builder_path>/config.yaml`.
+2. **Verify path is accessible**: Check that `<document_builder_path>` exists and contains `document_builder_reportlab.py`. If the path is unreachable (e.g., removed, unmounted drive), inform the user: "The Document Builder path is no longer accessible at `<path>`. Run `/gerdsenai:setup` to reinstall or update the path."
 
-3. Present the current configuration to the user in a readable summary, organized by section:
+3. Read the current `config.yaml` from `<document_builder_path>/config.yaml`. If `config.yaml` does not exist, inform the user that settings will use the builder's built-in defaults and offer to create a config file.
+
+4. Present the current configuration to the user in a readable summary, organized by section:
    - **Default metadata**: author, company, version, confidential, watermark, filename_prefix
    - **Logos**: cover logo, footer logo (list available images in `<document_builder_path>/Assets/`)
    - **Page**: size (A4/Letter/Legal/A3), orientation
@@ -27,9 +29,9 @@ You are helping the user configure the GerdsenAI Document Builder.
    - **Export**: optimize_size, PDF variant, compress images, embed fonts
    - **Research**: citation style (read from `.claude/gerdsenai.local.md`, default: APA)
 
-4. Ask the user what they want to change. Use AskUserQuestion for common choices.
+5. Ask the user what they want to change. Use AskUserQuestion for common choices.
 
-5. **Logo browser**: When changing logos:
+6. **Logo browser**: When changing logos:
    - List all image files in `<document_builder_path>/Assets/` using Glob with patterns `*.png`, `*.jpg`, `*.jpeg`, `*.svg`
    - Show current cover logo and footer logo selections
    - Let the user pick from available logos or "none"
@@ -38,19 +40,19 @@ You are helping the user configure the GerdsenAI Document Builder.
      - Copy the file to `<document_builder_path>/Assets/`
      - Then let them select it
 
-6. **Output preferences**: If the user wants to change output settings, update `.claude/gerdsenai.local.md`:
+7. **Output preferences**: If the user wants to change output settings, update `.claude/gerdsenai.local.md`:
    - Output mode (same_directory / custom / builder_pdfs)
    - Default output directory
    - Filename pattern
    - Cover and footer logo overrides
 
-7. **Research settings**: Show and allow editing of research-related preferences in `.claude/gerdsenai.local.md`:
+8. **Research settings**: Show and allow editing of research-related preferences in `.claude/gerdsenai.local.md`:
    - **Citation style**: APA (default) / MLA / Chicago / IEEE / Harvard
    - When changing citation style, offer the 5 options via AskUserQuestion
    - Update `.claude/gerdsenai.local.md` with `citation_style: "<style>"`
 
-8. Apply config.yaml changes by editing the file directly using the Edit tool.
+9. Apply config.yaml changes by editing the file directly using the Edit tool.
 
-9. Apply settings changes by updating `.claude/gerdsenai.local.md`.
+10. Apply settings changes by updating `.claude/gerdsenai.local.md`.
 
-10. After making changes, offer to do a test build to verify the configuration works.
+11. After making changes, offer to do a test build to verify the configuration works.

@@ -30,12 +30,26 @@ Built-in fallbacks (always available): `WebSearch`, `WebFetch`
 - `"pinecone"` — vector database for storing and retrieving research findings
 - If Pinecone tools are found, this unlocks **Research Memory** (see Phase 0.5)
 
+### 0c.5. Local Vector Storage (ChromaDB)
+- Check if ChromaDB is available in the venv Python:
+  ```
+  <venv_python> -c "import chromadb; print('available')"
+  ```
+- If available and Pinecone is NOT available, this unlocks **Local Research Memory** (see Phase 0.5)
+- ChromaDB uses local SQLite storage — no cloud account or API keys needed
+
 ### 0d. Academic & Specialized Research
 - `"hugging face"` or `"paper"` — academic paper search (arXiv, ML research)
 - `"context7"` — library/framework documentation lookup (use for technology evaluations)
 - `"greptile"` — codebase search (use for open-source project analysis)
 
-### 0e. Tool Manifest
+### 0e. Local AI Inference (Ollama)
+- `"ollama"` — local LLM inference via OpenAI-compatible API
+- If Ollama MCP tools are found, this enables optional pre-screening and counter-argument generation
+- Ollama handles hardware abstraction (NVIDIA CUDA, AMD ROCm, Apple Metal, CPU-only)
+- The plugin only asks "is Ollama available?" and "what models are loaded?" — never "what GPU do you have?"
+
+### 0f. Tool Manifest
 Build a structured manifest categorizing every discovered tool:
 
 | Category | Tool Name | Capability | Best For |
@@ -43,40 +57,71 @@ Build a structured manifest categorizing every discovered tool:
 | Web Search | (discovered name) | Search + scrape + structured extraction | Primary research, current data |
 | Reasoning | (discovered name) | Multi-step structured thinking | Complex analysis, conflict resolution |
 | Vector Storage | (discovered name) | Store/retrieve research findings | Context window management, cross-session memory |
+| Local Vector DB | (ChromaDB if available) | Local persistent vector storage | Offline research memory, no cloud needed |
 | Academic | (discovered name) | Paper search | Scientific/ML research |
 | Library Docs | (discovered name) | Framework documentation | Technology evaluations |
+| Local AI | (Ollama if available) | Local LLM inference | Pre-screening, counter-arguments, offline drafts |
 
 If firecrawl is available, prefer it over WebSearch/WebFetch for all web operations.
 If NO search tools are found at all, warn the user and offer to proceed with limited capability (user provides URLs or manual input).
 
-## Phase 0.5: Research Memory Setup (when Pinecone is available)
+## Phase 0.5: Research Memory Setup
 
-If Pinecone tools were discovered in Phase 0, set up persistent research memory **scoped to the current project**:
+Set up persistent research memory using the best available backend. Priority order: **Pinecone > ChromaDB > in-context**.
 
-### Naming Convention (repo-scoped isolation)
+### Backend Selection
+
+Use this decision tree — never use both Pinecone and ChromaDB simultaneously. Only one backend is active per session.
+
+1. Pinecone tools discovered in Phase 0c?
+   - **YES** → `VECTOR_BACKEND = "pinecone"` — skip ChromaDB entirely, do not check for it
+   - **NO** → proceed to step 2
+2. ChromaDB available (Phase 0c.5 import check passed)?
+   - **YES** → `VECTOR_BACKEND = "chromadb"`
+   - **NO** → proceed to step 3
+3. Neither available → `VECTOR_BACKEND = "in-context"` — all findings stay in conversation context (works but risks context window overflow on long reports)
+
+In Extreme Research mode (see Phase 2), strongly recommend installing ChromaDB if `VECTOR_BACKEND = "in-context"`.
+
+### Pinecone Setup (when Pinecone is the backend)
+
+#### Naming Convention (repo-scoped isolation)
 Derive a unique assistant name from the current project directory:
 - Take the current working directory basename (e.g., `my-saas-app`)
 - Prefix with `research-`: `research-my-saas-app`
 - This ensures each repo gets its own dedicated Pinecone assistant — never overwrite or pollute another project's research data
 
-### Setup Steps
+#### Setup Steps
 1. **List existing assistants**: Use Pinecone assistant-list to check if `research-<repo-name>` already exists
 2. **If it exists**: Reuse it — prior research for this project is available for cross-referencing
 3. **If it does NOT exist**: Create it using Pinecone assistant-create with name `research-<repo-name>`, configured for document Q&A with citations
 4. **NEVER reuse or write to assistants belonging to other projects** — each project is isolated
 
-### Benefits
-- Store sub-agent findings as they complete (prevents context window overflow on long reports)
-- Retrieve prior research on related topics (cross-session knowledge within this project)
-- Query stored findings during synthesis instead of re-reading full sub-agent outputs
-- Preserve source URLs and citations for later retrieval
+### ChromaDB Setup (when ChromaDB is the backend)
 
-### Usage Throughout Research
-- After each sub-agent returns findings → upload a structured summary to the project's research assistant
-- During synthesis (Phase 6) → query the assistant for specific facts, citations, and data points instead of re-reading everything
-- After PDF delivery → upload the final report to the assistant for future cross-referencing
+1. Derive a project name from the current working directory basename
+2. Initialize the collection:
+   ```
+   <venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' init '<project-name>'
+   ```
+3. If the collection already exists with documents, prior research is available for cross-referencing
 
-If Pinecone is NOT available, proceed normally — all findings stay in conversation context.
+### Prior Research Check
+
+After backend setup, run a quick status check to discover existing research data:
+- **Pinecone**: Query the assistant with a broad topic match. Report: "Found prior research assistant with existing documents. Will cross-reference during synthesis."
+- **ChromaDB**: Run `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' init '<project-name>'` and check the `document_count` in the JSON output. If > 0, report: "Found N documents from prior sessions. Cross-referencing during synthesis."
+- **In-context**: No prior data available. Proceed normally.
+
+### Usage Throughout Research (both backends)
+- After each sub-agent returns findings → store a structured summary
+  - Pinecone: upload to the project's research assistant
+  - ChromaDB: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' store '<project>' '<summary>' --metadata '{"phase": "4", "facet": "..."}'`
+- During synthesis (Phase 6) → query for specific facts, citations, and data points instead of re-reading everything
+- After PDF delivery → store the final report for future cross-referencing
+- Benefits: prevents context window overflow, enables cross-session knowledge, preserves source URLs
+
+If NO vector DB is available, proceed normally — all findings stay in conversation context.
 
 ## Phase 1: First-Run Detection & Settings
 
@@ -110,6 +155,7 @@ Always ask 2-4 clarifying questions before researching, even if the user provide
    - Deep-Dive Technical (30-50+ pages)
    - Academic White Paper
    - Software Architecture Blueprint (40-70+ pages) — developer-ready technical document with tech stack, database schema, API design, infrastructure, and implementation roadmap
+   - Extreme Research (50-100+ pages) — maximum depth using all available tools. Uses best of whatever THIS machine has: more sub-agents, multi-pass verification, mandatory Opus red-team review, local AI pre-screening if available. Does NOT require specific hardware — adapts to the runtime.
 3. **Specific questions**: "What are the 2-3 key questions this report must answer?"
 4. **Output preferences**: Single document (default) or multi-part series? Citation style override? Any required sections?
 
@@ -136,6 +182,8 @@ Present the research plan to the user:
 ## Phase 4: Parallel Broad Sweep
 
 Launch 3-5 `Task` sub-agents in parallel using `general-purpose` or `data-researcher` subagent types. Each sub-agent researches one facet.
+
+**Extreme Research mode**: Launch 5-8 sub-agents instead. For each research facet, also launch a "counter-argument" sub-agent that specifically seeks evidence contradicting the main facet's expected findings. If Ollama is available, use it for counter-argument agents (cheaper, parallel local inference). The counter-argument agent's prompt should include: "Find evidence, data, or expert opinions that challenge or contradict the mainstream view on [facet]. Look for dissenting analyses, failed implementations, negative case studies, and methodological criticisms."
 
 Each sub-agent prompt must include:
 - The specific facet to research
@@ -166,16 +214,25 @@ Each sub-agent must return: product name, latest version, release date, stars, d
 
 After collecting parallel results:
 1. **Use sequential-thinking** to review all findings for gaps, conflicts, and promising leads
-2. **Query Pinecone research memory** (if available) for related prior research that could fill gaps
+2. **Query research memory** (Pinecone or ChromaDB, if available) for related prior research that could fill gaps
 3. Conduct targeted follow-up searches on specific topics that need more depth
 4. **Use sequential-thinking** to resolve conflicting information by evaluating source reliability, recency, and methodology
 5. Gather additional data points needed for visualizations (specific numbers, timelines, relationships)
-6. **Store consolidated findings** to Pinecone research memory (if available) for synthesis phase retrieval
+6. **Store consolidated findings** to research memory (if available) for synthesis phase retrieval
 7. Note any images or assets to reference
+
+**Extreme Research mode**: Run multi-pass deep-dives:
+- **Pass 1**: Fill gaps identified from parallel sweep
+- **Pass 2**: Cross-validate key claims across independent sources
+- **Pass 3**: Seek contrary evidence for every major conclusion
+- Integrate counter-argument sub-agent findings from Phase 4
+- Target minimum 5 distinct source domains per major section (vs 3 for standard)
 
 ## Phase 6: Synthesis & Authoring
 
-**Before writing**: If Pinecone research memory is active, query it for each major section's data points rather than relying solely on conversation context. Use sequential-thinking to plan the report structure and resolve any remaining analytical questions.
+**Before writing**: If research memory is active (Pinecone or ChromaDB), query it for each major section's data points rather than relying solely on conversation context. Use sequential-thinking to plan the report structure and resolve any remaining analytical questions.
+
+**Extreme Research mode**: Include per-section confidence scores based on source count and verification depth. Use this format in each major section's opening paragraph: "*Confidence: High/Medium/Low — based on N independent sources, M cross-validated claims.*" Also integrate counter-argument findings as "Alternative Perspectives" or "Dissenting Analysis" subsections where material disagreement exists.
 
 Write the markdown report following ALL existing pdf-document-authoring skill rules, plus the research-report-reference guidelines.
 
@@ -223,6 +280,7 @@ Select Mermaid diagram types automatically based on data patterns (see research-
 - Deep-Dive Technical: 10-20 diagrams
 - Academic White Paper: 5-12 diagrams
 - Software Architecture Blueprint: 15-25 diagrams (architecture-focused — see software-architecture-reference for section-by-section diagram requirements)
+- Extreme Research: 20-30 diagrams (data-dense — every major claim should have supporting visualization where data permits)
 
 ### Citation Formatting
 
@@ -237,6 +295,8 @@ Format all citations according to the `citation_style` from settings (default: A
 - Cross-references within document: "See Figure 3 in Section 4"
 
 ## Phase 7: Quality Review
+
+**Extreme Research mode**: Run the extended quality checklist below, plus verify that every section has a confidence score, counter-argument findings are integrated where applicable, and visualization density meets the 20-30 diagram target.
 
 Run the standard quality checklist:
 - Front matter is complete
@@ -270,37 +330,50 @@ Plus architecture-specific checks (Blueprint mode only — see software-architec
 
 ## Phase 7.5: Adversarial Quality Review
 
-After the standard quality review passes, perform an adversarial review of the report before building. This is the dialectical quality assurance step -- challenge your own work before publishing it.
+After the standard quality review passes, dispatch the dedicated red-team reviewer agent to perform an adversarial review before building. This is the dialectical quality assurance step -- a separate agent challenges your work before publication.
 
-1. **Read the review protocol**: Read `${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/red-team-reference.md` for the full challenge categories, severity levels, and source quality rubric.
+1. **Dispatch the red-team reviewer**: Use `Task` to launch the `red-team-reviewer` sub-agent:
+   - Pass the draft markdown file path
+   - Pass the reference path: `${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/red-team-reference.md`
+   - The reviewer will return a structured review with BLOCK/WARN/NOTE challenges
 
-2. **Catalogue factual claims**: Go section by section. For each factual claim (any statement that could be true or false), note whether it has a citation and whether it is central to a recommendation or conclusion.
+   ```
+   Task prompt: "You are the adversarial red-team reviewer. Read and review the markdown report at '<draft_file_path>'. Follow your full review protocol (Steps 1-7). Read the reference at '<red-team-reference-path>' for challenge categories, severity levels, and the source quality rubric. Return your structured review with summary statistics and all challenges by severity."
+   Sub-agent type: red-team-reviewer
+   ```
 
-3. **Verify high-stakes claims**: For claims central to conclusions or recommendations, verify against external sources using WebSearch:
-   - Check specific numbers, dates, statistics
-   - Verify comparative claims ("X is better/faster than Y")
-   - Cross-reference claims across sections for internal consistency
-   - Focus on claims in the Executive Summary and Recommendations
+2. **Resolve BLOCK challenges**: Address every BLOCK challenge from the reviewer's output:
+   - Revise demonstrably false claims with corrected data
+   - Add supporting citations for unsourced statistical claims
+   - Remove unsupported assertions that cannot be verified
+   - Fix broken citations and resolve logical contradictions
 
-4. **Evaluate source quality**: Rate each citation against the 1-5 source quality rubric from the reference. Flag vendor marketing presented as analysis, outdated sources for fast-moving topics, and dead or malformed URLs.
-
-5. **Check citation completeness**: Map every `[N]` in-text reference to its entry in Sources & References. Identify uncited factual claims, orphan citations, and non-sequential numbering.
-
-6. **Assess logical structure**: Trace arguments from evidence to conclusions. Check for logical fallacies, internal contradictions between sections, and recommendations that do not follow from the evidence.
-
-7. **Apply severity levels**:
-   - **BLOCK**: Demonstrably false claims, broken citations, logical contradictions, unsourced statistical claims central to recommendations. Do NOT build until resolved.
-   - **WARN**: Claims with single sources, borderline source quality, generalizations stronger than evidence supports.
-   - **NOTE**: Stylistic precision opportunities, minor recency concerns.
-
-8. **Resolve challenges**:
-   - Address all BLOCK challenges: revise the claim, add a supporting citation, or remove the unsupported assertion
-   - Address WARN challenges where feasible: add qualifying language or a second source
+3. **Address WARN challenges** where feasible:
+   - Add qualifying language ("based on limited available data")
+   - Add a second source for single-source claims
    - Apply quality gate metrics from `research-report-reference.md` (Red Team Quality Gate Metrics section)
 
-9. **Document the review**: Add an "Adversarial Quality Review" subsection to the Methodology section using the template from `research-report-reference.md`. Record: total challenges by severity, claims revised, sources added, assertions removed.
+4. **Document the review**: Add an "Adversarial Quality Review" subsection to the Methodology section using the template from `research-report-reference.md`. Record: total challenges by severity, claims revised, sources added, assertions removed.
 
-Skip this phase only if the user explicitly requests it (e.g., "skip the review" or "just build it fast").
+**Extreme Research mode**: Red-team review dispatch is **mandatory** (never skip even if the user says "just build it fast" — inform them that Extreme mode requires adversarial review). If Ollama is available, run a local pre-screen pass before dispatching the Opus reviewer:
+
+#### Ollama Pre-Screen Protocol
+
+1. **Extract claims**: Scan the draft for factual claims (statistics, dates, comparisons, named entities with attributed properties). Batch them into groups of 5-10.
+
+2. **Select model**: Use the largest available model from `ollama list`. Minimum: any 7B+ parameter model (e.g., `llama3.1:8b`, `mistral:7b`). If no models are loaded, skip pre-screening entirely and proceed directly to the Opus reviewer.
+
+3. **System prompt** for each batch:
+   ```
+   You are a fact-checking assistant. For each claim below, rate it as PLAUSIBLE, SUSPICIOUS, or LIKELY_FALSE. Respond ONLY with a JSON array.
+   Format: [{"claim": "...", "rating": "PLAUSIBLE|SUSPICIOUS|LIKELY_FALSE", "reason": "brief explanation"}]
+   ```
+
+4. **Forward to Opus reviewer**: Only claims rated SUSPICIOUS or LIKELY_FALSE are flagged for the Opus red-team reviewer, along with the local model's reasoning. PLAUSIBLE claims still go through the normal review — the pre-screen reduces workload, not coverage.
+
+5. **Failure handling**: If Ollama times out (>30s per batch), returns malformed output, or errors, skip pre-screening entirely and proceed to the Opus reviewer. Pre-screening is an optimization, never a gate.
+
+Skip this phase only if the user explicitly requests it (e.g., "skip the review" or "just build it fast") AND the report is NOT Extreme Research mode.
 
 ## Phase 8: PDF Build & Delivery
 
@@ -311,6 +384,7 @@ Skip this phase only if the user explicitly requests it (e.g., "skip the review"
    ```
 3. Report the result: PDF path, file size
 4. Offer revisions to content, structure, or formatting
+5. **Extreme Research mode**: Auto-register the report for source monitoring (equivalent to `/gerdsenai:monitor`). Inform the user that stale sources will be flagged at session start.
 
 ### Multi-Document Handling
 

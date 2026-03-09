@@ -13,10 +13,12 @@ You are refreshing a GerdsenAI Living Intelligence Report — updating sections 
    - If no argument, ask the user which report to refresh using AskUserQuestion
    - Verify both the markdown file and its `.sources.json` manifest exist
 
-2. **Check freshness first**:
-   Run a freshness check to identify what changed:
+2. **Check freshness first** using the venv Python (never system Python):
+   - Read `document_builder_path` from `.claude/gerdsenai.local.md`
+   - Determine the venv Python path: `<document_builder_path>/venv/Scripts/python.exe` on Windows, `<document_builder_path>/venv/bin/python` on macOS/Linux
+   - Run:
    ```
-   python '${CLAUDE_PLUGIN_ROOT}/scripts/source-tracker.py' check '<markdown_file>'
+   '<venv_python>' '${CLAUDE_PLUGIN_ROOT}/scripts/source-tracker.py' check '<markdown_file>'
    ```
    - If no sources have changed, tell the user the report is current — no refresh needed
    - Parse the JSON output to identify changed sources and affected sections
@@ -44,9 +46,9 @@ You are refreshing a GerdsenAI Living Intelligence Report — updating sections 
      | YYYY-MM-DD | Section Name, Section Name | Brief description of what changed |
      ```
 
-6. **Update the manifest**:
+6. **Update the manifest** (use the same venv Python from step 2):
    ```
-   python '${CLAUDE_PLUGIN_ROOT}/scripts/source-tracker.py' update '<markdown_file>'
+   '<venv_python>' '${CLAUDE_PLUGIN_ROOT}/scripts/source-tracker.py' update '<markdown_file>'
    ```
 
 7. **Rebuild the PDF**:

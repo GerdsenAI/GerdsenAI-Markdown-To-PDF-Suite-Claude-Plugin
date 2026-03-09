@@ -1,23 +1,15 @@
 #!/usr/bin/env bash
 # Build markdown file(s) into PDF using the GerdsenAI Document Builder
-# Args: <settings_path> <markdown_file|--all|--recursive> [--output-dir <dir>] [--output-name <name>]
+# Args: <settings_path> <markdown_file|--recursive [dir]> [--output-dir <dir>] [--output-name <name>]
 
 set -euo pipefail
 
-# Platform detection
-case "${OSTYPE:-}" in
-  msys*|cygwin*|win32*) IS_WINDOWS=true ;;
-  *)                     IS_WINDOWS=false ;;
-esac
-
-if $IS_WINDOWS; then
-  VENV_PYTHON_REL="venv/Scripts/python.exe"
-else
-  VENV_PYTHON_REL="venv/bin/python"
-fi
+# Load shared library
+source "$(dirname "$0")/lib/parse-settings.sh"
+detect_platform
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage: $0 <settings_path> <markdown_file|--all|--recursive [dir]> [--output-dir <dir>] [--output-name <name>]"
+  echo "Usage: $0 <settings_path> <markdown_file|--recursive [dir]> [--output-dir <dir>] [--output-name <name>]"
   exit 1
 fi
 
@@ -55,39 +47,12 @@ done
 # Expand ~ in settings path
 SETTINGS_FILE="${SETTINGS_FILE/#\~/$HOME}"
 
-# Extract settings from YAML front matter
-DOC_BUILDER_PATH=""
-SETTINGS_OUTPUT_MODE=""
-SETTINGS_OUTPUT_DIR=""
-SETTINGS_FILENAME_PATTERN=""
-
-in_frontmatter=false
-while IFS= read -r line; do
-  if [[ "$line" == "---" ]]; then
-    if $in_frontmatter; then
-      break
-    else
-      in_frontmatter=true
-      continue
-    fi
-  fi
-  if $in_frontmatter; then
-    if [[ "$line" =~ ^document_builder_path:[[:space:]]*\"?([^\"]*)\"? ]]; then
-      DOC_BUILDER_PATH="${BASH_REMATCH[1]}"
-      DOC_BUILDER_PATH="${DOC_BUILDER_PATH/#\~/$HOME}"
-    fi
-    if [[ "$line" =~ ^output_mode:[[:space:]]*\"?([^\"]*)\"? ]]; then
-      SETTINGS_OUTPUT_MODE="${BASH_REMATCH[1]}"
-    fi
-    if [[ "$line" =~ ^default_output_dir:[[:space:]]*\"?([^\"]*)\"? ]]; then
-      SETTINGS_OUTPUT_DIR="${BASH_REMATCH[1]}"
-      SETTINGS_OUTPUT_DIR="${SETTINGS_OUTPUT_DIR/#\~/$HOME}"
-    fi
-    if [[ "$line" =~ ^filename_pattern:[[:space:]]*\"?([^\"]*)\"? ]]; then
-      SETTINGS_FILENAME_PATTERN="${BASH_REMATCH[1]}"
-    fi
-  fi
-done < "$SETTINGS_FILE"
+# Parse settings using shared library
+parse_settings "$SETTINGS_FILE"
+DOC_BUILDER_PATH="$GERDSEN_DOC_BUILDER_PATH"
+SETTINGS_OUTPUT_MODE="$GERDSEN_OUTPUT_MODE"
+SETTINGS_OUTPUT_DIR="$GERDSEN_OUTPUT_DIR"
+SETTINGS_FILENAME_PATTERN="$GERDSEN_FILENAME_PATTERN"
 
 if [[ -z "$DOC_BUILDER_PATH" ]]; then
   echo '{"success": false, "error": "document_builder_path not found in settings"}'
@@ -199,25 +164,7 @@ build_single_file() {
 }
 
 # Handle build modes
-if [[ "$TARGET" == "--all" ]]; then
-  echo "Building all markdown files..."
-  ( cd "$DOC_BUILDER_PATH" && "$VENV_PYTHON" "$BUILDER_SCRIPT" --all ) && BUILD_EXIT=0 || BUILD_EXIT=$?
-  if [[ $BUILD_EXIT -eq 0 ]]; then
-    echo "BUILD_SUCCESS"
-    if [[ -d "$DOC_BUILDER_PATH/PDFs" ]]; then
-      echo "Generated PDFs:"
-      ls -1t "$DOC_BUILDER_PATH/PDFs/"*.pdf 2>/dev/null | head -10
-    fi
-  else
-    echo "BUILD_FAILED (exit code: $BUILD_EXIT)"
-    LATEST_LOG=$(ls -1t "$DOC_BUILDER_PATH/Logs/"*.log* 2>/dev/null | head -1)
-    if [[ -n "${LATEST_LOG:-}" ]]; then
-      echo "Recent log output:"
-      tail -20 "$LATEST_LOG"
-    fi
-    exit $BUILD_EXIT
-  fi
-elif [[ "$TARGET" == "--recursive" ]]; then
+if [[ "$TARGET" == "--recursive" ]]; then
   # Recursive mode: find all .md files in directory tree
   SCAN_DIR="${RECURSIVE_DIR:-.}"
   SCAN_DIR="${SCAN_DIR/#\~/$HOME}"

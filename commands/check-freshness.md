@@ -17,9 +17,12 @@ You are checking source freshness for a monitored GerdsenAI report.
    - If multiple manifests found, ask the user which report to check using AskUserQuestion
    - If no manifests found, tell the user to run `/gerdsenai:monitor <file>` first
 
-2. **Run the freshness check**:
+2. **Run the freshness check** using the venv Python (never system Python):
+   - Read `document_builder_path` from `.claude/gerdsenai.local.md`
+   - Determine the venv Python path: `<document_builder_path>/venv/Scripts/python.exe` on Windows, `<document_builder_path>/venv/bin/python` on macOS/Linux
+   - Run:
    ```
-   python '${CLAUDE_PLUGIN_ROOT}/scripts/source-tracker.py' check '<markdown_file>'
+   '<venv_python>' '${CLAUDE_PLUGIN_ROOT}/scripts/source-tracker.py' check '<markdown_file>'
    ```
 
 3. **Present results clearly**:

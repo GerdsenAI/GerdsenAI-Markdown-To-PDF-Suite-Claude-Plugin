@@ -1,7 +1,7 @@
 {
   "name": "gerdsenai",
-  "version": "0.5.0",
-  "description": "Professional Markdown-to-PDF document creation with deep research intelligence reports, adversarial red-team quality review, and living intelligence monitoring. Powered by GerdsenAI Document Builder. Features multi-source research with citations, automated fact-checking, source freshness tracking, flexible output locations, recursive builds, and guided setup.",
+  "version": "0.6.1",
+  "description": "Professional Markdown-to-PDF document creation with deep research intelligence reports, adversarial red-team quality review, living intelligence monitoring, Extreme Research mode, vector DB reporting, and optional local infrastructure (ChromaDB, Ollama). Powered by GerdsenAI Document Builder. Features multi-source research with citations, automated fact-checking, source freshness tracking, local vector storage with auto-chunking, flexible output locations, recursive builds, and guided setup.",
   "author": {
     "name": "Garrett Gerdsen",
     "email": "garrett@gerdsen.ai"

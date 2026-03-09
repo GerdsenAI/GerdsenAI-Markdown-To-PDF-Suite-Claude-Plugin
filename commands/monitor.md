@@ -16,9 +16,12 @@ You are registering a markdown report for source monitoring as part of GerdsenAI
 
 2. **Read settings**: Read `.claude/gerdsenai.local.md` to get the `document_builder_path`.
 
-3. **Run the source tracker**:
+3. **Run the source tracker** using the venv Python (never system Python):
+   - Read `document_builder_path` from `.claude/gerdsenai.local.md`
+   - Determine the venv Python path: `<document_builder_path>/venv/Scripts/python.exe` on Windows, `<document_builder_path>/venv/bin/python` on macOS/Linux
+   - Run:
    ```
-   python '${CLAUDE_PLUGIN_ROOT}/scripts/source-tracker.py' extract '<markdown_file>'
+   '<venv_python>' '${CLAUDE_PLUGIN_ROOT}/scripts/source-tracker.py' extract '<markdown_file>'
    ```
 
 4. **Report results**:
