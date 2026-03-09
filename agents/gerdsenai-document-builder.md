@@ -43,7 +43,18 @@ Before any build operation, you MUST check the installation:
 
 4. **Save the document**: Write the markdown file to the user's project directory.
 
-5. **Build the PDF**: Determine output location from settings:
+5. **Red team review** (research reports only):
+   When the document is a research report (produced via `/gerdsenai:research-report` or containing an Executive Summary, Methodology, and Sources & References section), dispatch the dedicated red-team reviewer agent before building:
+   1. Use `Task` to launch the `red-team-reviewer` sub-agent, passing the draft markdown file path and the reference path `${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/red-team-reference.md`
+   2. Receive the structured review with BLOCK/WARN/NOTE challenges
+   3. Address all **BLOCK** challenges — revise the claim, add a supporting citation, or remove the unsupported assertion. Do NOT proceed to build with unresolved BLOCKs.
+   4. Address **WARN** challenges where feasible — add qualifying language or add a second source. If neither is possible, note the limitation in the Methodology section.
+   5. Add an "Adversarial Quality Review" subsection to the Methodology section documenting the review results using the template in `red-team-reference.md` § Review Methodology Section
+   6. **NOTE** observations may be skipped — they are informational only
+
+   Skip this step for non-research documents (guides, specs, proposals, etc.) unless the user explicitly requests a red team review.
+
+6. **Build the PDF**: Determine output location from settings:
    - Read `output_mode` from settings
    - If `same_directory`: output goes next to the source .md file
    - If `custom`: output goes to `default_output_dir`
@@ -53,7 +64,7 @@ Before any build operation, you MUST check the installation:
    bash '${CLAUDE_PLUGIN_ROOT}/scripts/build.sh' '.claude/gerdsenai.local.md' '<markdown_file>' [--output-dir '<dir>']
    ```
 
-6. **Report and iterate**: Tell the user where the PDF was generated (full path). Offer to make revisions to content, formatting, or structure.
+7. **Report and iterate**: Tell the user where the PDF was generated (full path). If a red team review was performed, include a brief summary (e.g., "3 BLOCK challenges resolved, 2 WARNs addressed"). Offer to make revisions to content, formatting, or structure.
 
 ## Logo Selection
 

@@ -1,59 +1,27 @@
 #!/usr/bin/env bash
 # SessionStart hook: check if Document Builder is installed and report status
-# Outputs a message only if NOT installed or partially configured (silent on full success)
+# Silent when not configured (users discover the plugin through commands)
+# Warns only on broken installs or stale sources
 
-# Platform detection
-case "${OSTYPE:-}" in
-  msys*|cygwin*|win32*) IS_WINDOWS=true ;;
-  *)                     IS_WINDOWS=false ;;
-esac
-
-if $IS_WINDOWS; then
-  VENV_PYTHON_REL="venv/Scripts/python.exe"
-else
-  VENV_PYTHON_REL="venv/bin/python"
+# Load shared library — exit silently if plugin root was moved or library is missing
+SCRIPT_DIR="$(dirname "$0")"
+if ! source "$SCRIPT_DIR/../scripts/lib/parse-settings.sh" 2>/dev/null; then
+  exit 0
 fi
+detect_platform
 
 SETTINGS_FILE=".claude/gerdsenai.local.md"
 
 # Quick check: does the settings file exist?
+# If not, exit silently — users discover the plugin through commands, not unsolicited alerts
 if [[ ! -f "$SETTINGS_FILE" ]]; then
-  echo "GerdsenAI Document Builder is not configured. Run /gerdsenai:setup to set it up."
   exit 0
 fi
 
-# Extract key settings from YAML front matter
-DOC_BUILDER_PATH=""
-OUTPUT_MODE=""
-COVER_LOGO=""
-FOOTER_LOGO=""
-
-in_frontmatter=false
-while IFS= read -r line; do
-  if [[ "$line" == "---" ]]; then
-    if $in_frontmatter; then
-      break
-    else
-      in_frontmatter=true
-      continue
-    fi
-  fi
-  if $in_frontmatter; then
-    if [[ "$line" =~ ^document_builder_path:[[:space:]]*\"?([^\"]*)\"? ]]; then
-      DOC_BUILDER_PATH="${BASH_REMATCH[1]}"
-      DOC_BUILDER_PATH="${DOC_BUILDER_PATH/#\~/$HOME}"
-    fi
-    if [[ "$line" =~ ^output_mode:[[:space:]]*\"?([^\"]*)\"? ]]; then
-      OUTPUT_MODE="${BASH_REMATCH[1]}"
-    fi
-    if [[ "$line" =~ ^cover_logo:[[:space:]]*\"?([^\"]*)\"? ]]; then
-      COVER_LOGO="${BASH_REMATCH[1]}"
-    fi
-    if [[ "$line" =~ ^footer_logo:[[:space:]]*\"?([^\"]*)\"? ]]; then
-      FOOTER_LOGO="${BASH_REMATCH[1]}"
-    fi
-  fi
-done < "$SETTINGS_FILE"
+# Parse settings using shared library
+parse_settings "$SETTINGS_FILE"
+DOC_BUILDER_PATH="$GERDSEN_DOC_BUILDER_PATH"
+OUTPUT_MODE="$GERDSEN_OUTPUT_MODE"
 
 # Check builder path is valid
 if [[ -z "$DOC_BUILDER_PATH" ]] || [[ ! -f "$DOC_BUILDER_PATH/document_builder_reportlab.py" ]]; then
@@ -71,6 +39,28 @@ fi
 if [[ -z "$OUTPUT_MODE" ]]; then
   echo "GerdsenAI Document Builder is installed but not fully configured (missing output preferences). Run /gerdsenai:configure to complete setup."
   exit 0
+fi
+
+# Check for monitored reports with stale sources
+PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SOURCE_TRACKER="$PLUGIN_ROOT/scripts/source-tracker.py"
+
+if [[ -f "$SOURCE_TRACKER" ]]; then
+  # Find .sources.json files in the current directory tree (limit depth to avoid scanning huge trees)
+  stale_output=""
+  while IFS= read -r -d '' manifest; do
+    # Quick check: does the manifest contain "changed" status?
+    if grep -q '"status": "changed"' "$manifest" 2>/dev/null; then
+      report_name="$(basename "${manifest%.sources.json}").md"
+      stale_output="${stale_output}  - ${report_name}\n"
+    fi
+  done < <(find . -maxdepth 3 -name "*.sources.json" -print0 2>/dev/null)
+
+  if [[ -n "$stale_output" ]]; then
+    echo "Monitored reports with stale sources detected:"
+    echo -e "$stale_output"
+    echo "Run /gerdsenai:check-freshness to review, or /gerdsenai:refresh <file> to update."
+  fi
 fi
 
 # Installed and fully configured - stay silent

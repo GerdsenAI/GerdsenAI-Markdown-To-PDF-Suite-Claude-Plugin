@@ -5,19 +5,9 @@
 
 set -euo pipefail
 
-# Platform detection
-case "${OSTYPE:-}" in
-  msys*|cygwin*|win32*) IS_WINDOWS=true ;;
-  *)                     IS_WINDOWS=false ;;
-esac
-
-if $IS_WINDOWS; then
-  PYTHON_CMD="python"
-  VENV_PYTHON_REL="venv/Scripts/python.exe"
-else
-  PYTHON_CMD="python3"
-  VENV_PYTHON_REL="venv/bin/python"
-fi
+# Load shared library
+source "$(dirname "$0")/lib/parse-settings.sh"
+detect_platform
 
 if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <document_builder_path>"
@@ -41,8 +31,27 @@ if [[ -d "$DOC_BUILDER_PATH/.git" ]]; then
   # Git-based update
   echo "Updating via git pull..."
   cd "$DOC_BUILDER_PATH"
+
+  # Check for uncommitted changes that could cause conflicts
+  if ! git diff --quiet 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
+    echo "WARNING: Uncommitted changes detected in $DOC_BUILDER_PATH"
+    echo "         Stashing changes before pulling..."
+    git stash
+  fi
+
   BEFORE=$(git rev-parse HEAD)
-  git pull
+  if ! git pull; then
+    echo "ERROR: git pull failed. Check your internet connection or resolve any conflicts manually."
+    exit 1
+  fi
+
+  # Check for merge conflicts after pull
+  if ! git diff --quiet --diff-filter=U 2>/dev/null; then
+    echo "ERROR: git pull resulted in merge conflicts. Manual resolution required at: $DOC_BUILDER_PATH"
+    echo "       Run 'cd $DOC_BUILDER_PATH && git status' to see conflicting files."
+    exit 1
+  fi
+
   AFTER=$(git rev-parse HEAD)
 
   if [[ "$BEFORE" == "$AFTER" ]]; then
@@ -98,15 +107,29 @@ for a in data.get('assets', []):
     fi
 
     # Download and extract new release
-    if curl -sfL "$TARBALL_URL" | tar xz -C "$DOC_BUILDER_PATH" --strip-components=0; then
+    if curl -sfL "$TARBALL_URL" | tar xz -C "$DOC_BUILDER_PATH" --strip-components=1; then
       echo "$LATEST_TAG" > "$DOC_BUILDER_PATH/.release_version"
       echo "Updated to $LATEST_TAG"
 
-      # Restore custom assets
+      # Restore custom assets (only files not in the new release)
       if [[ -d "$DOC_BUILDER_PATH/Assets.bak" ]]; then
-        cp -n "$DOC_BUILDER_PATH/Assets.bak/"* "$DOC_BUILDER_PATH/Assets/" 2>/dev/null || true
-        rm -rf "$DOC_BUILDER_PATH/Assets.bak"
-        echo "Custom assets preserved."
+        restore_failed=false
+        for f in "$DOC_BUILDER_PATH/Assets.bak/"*; do
+          [[ -f "$f" ]] || continue
+          dest="$DOC_BUILDER_PATH/Assets/$(basename "$f")"
+          if [[ ! -f "$dest" ]]; then
+            if ! cp "$f" "$dest"; then
+              echo "WARNING: Failed to restore custom asset: $(basename "$f")"
+              restore_failed=true
+            fi
+          fi
+        done
+        if $restore_failed; then
+          echo "WARNING: Some custom assets could not be restored. Backup preserved at: $DOC_BUILDER_PATH/Assets.bak"
+        else
+          rm -rf "$DOC_BUILDER_PATH/Assets.bak"
+          echo "Custom assets preserved."
+        fi
       fi
     else
       echo "ERROR: Update download failed"
@@ -124,13 +147,22 @@ fi
 if [[ -f "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" ]]; then
   echo ""
   echo "Updating dependencies..."
-  "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -m pip install --upgrade pip -q
+  if ! "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -m pip install --upgrade pip -q; then
+    echo "WARNING: pip upgrade failed. Continuing with existing pip version."
+  fi
   if [[ -f "$DOC_BUILDER_PATH/requirements.txt" ]]; then
-    "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -m pip install -r "$DOC_BUILDER_PATH/requirements.txt" --upgrade -q
+    if ! "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -m pip install -r "$DOC_BUILDER_PATH/requirements.txt" --upgrade -q; then
+      echo "ERROR: Dependency update failed. Retrying with verbose output:"
+      if ! "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -m pip install -r "$DOC_BUILDER_PATH/requirements.txt" --upgrade 2>&1 | tail -30; then
+        echo "ERROR: Dependencies could not be updated. PDF builds may fail."
+        echo "       Try running /gerdsenai:setup to recreate the virtual environment."
+        exit 1
+      fi
+    fi
   fi
   echo "Dependencies updated."
 else
-  echo "WARNING: Virtual environment not found. Run setup to recreate it."
+  echo "WARNING: Virtual environment not found. Run /gerdsenai:setup to recreate it."
 fi
 
 echo ""

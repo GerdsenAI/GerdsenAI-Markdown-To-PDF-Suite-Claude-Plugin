@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "gerdsenai-marketplace",
-  "version": "0.3.0",
+  "version": "0.6.1",
   "description": "GerdsenAI plugins for Claude Code",
   "owner": {
     "name": "Garrett Gerdsen",
@@ -10,13 +10,13 @@
   "plugins": [
     {
       "name": "gerdsenai",
-      "description": "Professional Markdown-to-PDF document creation, deep research intelligence reports, and building powered by GerdsenAI Document Builder.",
+      "description": "Professional Markdown-to-PDF document creation with deep research intelligence reports, adversarial red-team quality review, living intelligence monitoring, Extreme Research mode, and optional local infrastructure. Powered by GerdsenAI Document Builder.",
       "source": {
         "source": "url",
         "url": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin.git"
       },
       "category": "documents",
-      "version": "0.3.0"
+      "version": "0.6.1"
     }
   ]
 }

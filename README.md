@@ -58,6 +58,11 @@ Restart Claude Code, then run `/gerdsenai:setup` inside any project to install t
 | `/gerdsenai:build-pdf <file>` | Build a single markdown file into a PDF |
 | `/gerdsenai:build-recursive [dir]` | Build PDFs for all .md files in a directory tree |
 | `/gerdsenai:research-report [topic]` | Conduct deep research and generate an intelligence report as PDF |
+| `/gerdsenai:red-team <file>` | Run adversarial review: challenge claims, verify citations, flag logical fallacies |
+| `/gerdsenai:monitor <file>` | Register a report for source monitoring (creates `.sources.json` manifest) |
+| `/gerdsenai:check-freshness [file]` | Check if monitored sources have changed since last check |
+| `/gerdsenai:refresh <file>` | Re-research stale sections and rebuild the PDF with revision history |
+| `/gerdsenai:vector-db-report [project]` | Report on vector DB contents: inventory, metadata analysis, data quality |
 | `/gerdsenai:configure` | Edit settings: logos, page size, output preferences, citation style, etc. |
 | `/gerdsenai:update` | Update the Document Builder to the latest version |
 
@@ -137,9 +142,85 @@ Conducts deep, multi-source research and generates professional intelligence rep
 
 Activates on requests like "research the AI chip market", "build a dossier on quantum computing", "competitive analysis of cloud providers", or "write a white paper with citations".
 
-**Report types:** Executive Brief (5-10 pages), Standard Report (15-30 pages), Deep-Dive Technical (30-50+ pages), Academic White Paper.
+**Report types:** Executive Brief (5-10 pages), Standard Report (15-30 pages), Deep-Dive Technical (30-50+ pages), Academic White Paper, Software Architecture Blueprint (40-70+ pages), Extreme Research (50-100+ pages).
 
 **Citation styles:** APA (default), MLA, Chicago, IEEE, Harvard. Configured via `/gerdsenai:configure`.
+
+### Adversarial Quality Review
+
+Research reports undergo automated adversarial review before PDF generation. The red-team step challenges every factual claim, evaluates source quality against a 1-5 rubric, checks citation completeness, and flags logical fallacies. Claims are assigned severity levels:
+
+- **BLOCK** -- demonstrably false claims, broken citations, logical contradictions. Must be resolved before building.
+- **WARN** -- weakly supported claims, single-source assertions, language stronger than evidence warrants.
+- **NOTE** -- informational observations for quality improvement.
+
+All BLOCK challenges are resolved automatically. The final PDF includes an "Adversarial Quality Review" subsection in the Methodology section documenting the review process.
+
+Run `/gerdsenai:red-team <file>` to review any markdown file standalone, not just research reports.
+
+### Living Intelligence Reports
+
+Research reports are not static. After building a report, register it for source monitoring:
+
+```
+/gerdsenai:monitor my-report.md          # Extract source URLs, compute content hashes
+/gerdsenai:check-freshness my-report.md  # Check if any sources have changed
+/gerdsenai:refresh my-report.md          # Re-research stale sections, rebuild PDF
+```
+
+The session-start hook automatically alerts you when monitored reports have stale sources. The refresh command updates only affected sections, adds a Revision History, and rebuilds the PDF.
+
+## Local Infrastructure (Optional)
+
+The plugin can use local infrastructure to extend the research pipeline without requiring cloud services. All local components are optional and detected automatically.
+
+### ChromaDB (Local Vector Database)
+
+An alternative to Pinecone for research memory. Uses SQLite persistence and built-in embeddings -- no cloud account or API keys needed.
+
+```bash
+# Install into the Document Builder venv (offered during /gerdsenai:setup)
+<document_builder_path>/venv/bin/python -m pip install chromadb     # macOS/Linux
+<document_builder_path>/venv/Scripts/python.exe -m pip install chromadb  # Windows
+```
+
+The research pipeline discovers ChromaDB automatically. Priority: Pinecone > ChromaDB > in-context (only one backend active per session).
+
+Features: automatic document chunking (500-char default with 100-char overlap), cosine distance filtering (`--max-distance`), metadata where filters, and data quality reporting.
+
+### Vector DB Reporting
+
+Inspect your vector database contents with `/gerdsenai:vector-db-report`:
+
+```
+/gerdsenai:vector-db-report my-project   # Detailed single-project report
+/gerdsenai:vector-db-report --all        # Cross-project overview
+```
+
+Reports include metadata schema analysis, sample documents, data quality metrics (duplicates, empty documents, metadata completeness), and system health. Works with both ChromaDB and Pinecone backends.
+
+### Ollama (Local AI Inference)
+
+Optional local LLM inference for pre-screening and counter-argument generation. The plugin detects but never installs Ollama. Visit [ollama.com](https://ollama.com) to install.
+
+### Extreme Research Mode
+
+A depth tier (50-100+ pages) that uses the best of whatever your machine has:
+- 5-8 sub-agents with counter-argument agents per facet
+- Multi-pass verification (gap-fill, cross-validate, seek contrary evidence)
+- Per-section confidence scores
+- Mandatory Opus red-team review
+- 20-30 target diagrams
+- Ollama pre-screening if available (batched claim verification with JSON output, reduces API costs)
+
+**Hardware requirements**: None beyond Claude Code itself. Extreme mode adapts to the runtime.
+
+| Configuration | What It Enables |
+|--------------|-----------------|
+| Base (Claude Code only) | Full Extreme mode with cloud-only sub-agents and multi-pass verification |
+| + ChromaDB | Context window relief for 50+ page reports |
+| + Ollama (8B model, 16GB RAM) | Pre-screening, counter-argument agents, offline drafts |
+| + Ollama (70B model, 32GB+ RAM) | High-quality local synthesis, reduced cloud API costs |
 
 ## Configuration
 
@@ -211,6 +292,15 @@ Update to the latest Document Builder version with `/gerdsenai:update`. The YAML
 
 **No logo on cover page**
 Run `/gerdsenai:configure` and select a valid logo from the Assets/ directory.
+
+**Settings not being read on Windows**
+The settings file may have CRLF line endings. The parser handles this automatically since v0.6.1. If using an older version, run `/gerdsenai:update`.
+
+**ChromaDB queries miss content from long documents**
+Documents longer than ~256 tokens are silently truncated by the embedding model. Since v0.6.1, `chromadb-store.py` auto-chunks documents (500-char chunks with 100-char overlap). Re-store existing documents to benefit from chunking.
+
+**ChromaDB returns irrelevant results**
+Use `--max-distance 0.5` for stricter filtering (default: 1.0, range 0-2 for cosine distance).
 
 ## License
 

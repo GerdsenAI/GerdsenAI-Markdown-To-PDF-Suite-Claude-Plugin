@@ -42,6 +42,7 @@ Many powerful tools are "deferred" — they exist but aren't loaded until you di
 | `"mermaid"` | Diagram rendering and validation | Architecture diagrams, flowcharts, visualizations |
 | `"context7"` | Library documentation lookup | API references, framework-specific questions |
 | `"greptile"` | Codebase search, code review, PR analysis | Understanding unfamiliar codebases |
+| `"ollama"` | Local LLM inference (OpenAI-compatible API) | Pre-screening, counter-arguments, offline drafts |
 | `"github"` | Issues, PRs, repos, actions via MCP | GitHub operations beyond the gh CLI |
 
 Not every probe will find tools — that's fine. The ones that do will dramatically expand your capabilities. See `references/tool-discovery-probes.md` for the full catalog with expected tool names and detailed capabilities.
@@ -104,6 +105,7 @@ Organize everything you discovered into a mental manifest. This becomes your dec
 | Vector Storage / RAG | Pinecone > local JSON files > in-context | Degrade gracefully if Pinecone unavailable |
 | Cloud / Deploy | Vercel (frontend) + Cloudflare (edge/API) | Manual deploy instructions as last resort |
 | Code Intelligence | Language servers (TS/Py/C#/C++) > Grep + Glob | LSPs give precise types; Grep is a fallback |
+| Local AI | Ollama > (not available) | Local inference for pre-screening, counter-arguments |
 | Diagrams | Mermaid Chart MCP > inline Mermaid code blocks | Inline Mermaid always works |
 | Documentation | Context7 > Firecrawl doc sites > WebFetch | Multiple paths to get docs |
 | Code Review | CodeRabbit > Greptile > superpowers code review | At least one is usually available |

@@ -6,19 +6,9 @@
 
 set -euo pipefail
 
-# Platform detection
-case "${OSTYPE:-}" in
-  msys*|cygwin*|win32*) IS_WINDOWS=true ;;
-  *)                     IS_WINDOWS=false ;;
-esac
-
-if $IS_WINDOWS; then
-  PYTHON_CMD="python"
-  VENV_PYTHON_REL="venv/Scripts/python.exe"
-else
-  PYTHON_CMD="python3"
-  VENV_PYTHON_REL="venv/bin/python"
-fi
+# Load shared library
+source "$(dirname "$0")/lib/parse-settings.sh"
+detect_platform
 
 DEFAULT_INSTALL_PATH="$HOME/.gerdsenai/document-builder"
 OLD_DEFAULT_PATH="$HOME/GerdsenAI_Document_Builder"
@@ -43,17 +33,10 @@ fi
 GITHUB_REPO="GerdsenAI/GerdsenAI_Document_Builder"
 
 # Check prerequisites
-if $IS_WINDOWS; then
-  REQUIRED_CMDS=(python pip)
-else
-  REQUIRED_CMDS=(python3 pip3)
+if ! command -v "$PYTHON_CMD" &>/dev/null; then
+  echo "ERROR: $PYTHON_CMD is required but not found. Please install Python 3.9+."
+  exit 1
 fi
-for cmd in "${REQUIRED_CMDS[@]}"; do
-  if ! command -v "$cmd" &>/dev/null; then
-    echo "ERROR: $cmd is required but not found. Please install it first."
-    exit 1
-  fi
-done
 
 # Check Python version (need 3.9+)
 PYTHON_VERSION=$($PYTHON_CMD -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
@@ -64,12 +47,20 @@ if [[ "$PYTHON_MAJOR" -lt 3 ]] || [[ "$PYTHON_MAJOR" -eq 3 && "$PYTHON_MINOR" -l
   exit 1
 fi
 
+# Check pip availability (via module, not standalone command)
+if ! "$PYTHON_CMD" -m pip --version &>/dev/null; then
+  echo "ERROR: pip is required but not available. Install it with: $PYTHON_CMD -m ensurepip"
+  exit 1
+fi
+
 # Download or clone the Document Builder
 if [[ -d "$INSTALL_PATH" ]]; then
   if [[ -f "$INSTALL_PATH/document_builder_reportlab.py" ]]; then
     echo "Document Builder already exists at $INSTALL_PATH"
   else
     echo "ERROR: Directory exists but doesn't contain Document Builder: $INSTALL_PATH"
+    echo "       If this is a failed previous install, delete it and retry:"
+    echo "       rm -rf '$INSTALL_PATH'"
     exit 1
   fi
 else
@@ -91,9 +82,15 @@ for a in assets:
       if [[ -n "$TARBALL_URL" ]]; then
         echo "Downloading release from $TARBALL_URL..."
         mkdir -p "$INSTALL_PATH"
-        if curl -sfL "$TARBALL_URL" | tar xz -C "$INSTALL_PATH"; then
-          DOWNLOADED=true
-          echo "Downloaded release successfully."
+        if curl -sfL "$TARBALL_URL" | tar xz -C "$INSTALL_PATH" --strip-components=1; then
+          # Verify the extracted content is actually the Document Builder
+          if [[ ! -f "$INSTALL_PATH/document_builder_reportlab.py" ]]; then
+            echo "WARNING: Downloaded archive does not contain the Document Builder (main script missing). Falling back to git clone."
+            rm -rf "$INSTALL_PATH"
+          else
+            DOWNLOADED=true
+            echo "Downloaded release successfully."
+          fi
         else
           echo "WARNING: Release download failed, falling back to git clone."
           rm -rf "$INSTALL_PATH"

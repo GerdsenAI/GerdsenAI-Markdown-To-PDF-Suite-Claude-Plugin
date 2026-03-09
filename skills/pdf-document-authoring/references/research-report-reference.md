@@ -162,6 +162,7 @@ Select diagram types automatically based on data patterns. Never ask the user wh
 | Deep-Dive Technical (30-50+ pages) | 10-20 diagrams |
 | Academic White Paper | 5-12 diagrams (data-focused) |
 | Software Architecture Blueprint (40-70+ pages) | 15-25 diagrams (architecture-focused) |
+| Extreme Research (50-100+ pages) | 20-30 diagrams (data-dense, every major claim with supporting visualization) |
 
 Place visualizations immediately after the text that introduces or discusses the data they represent. Every diagram must be preceded by context text explaining what it shows and why it matters.
 
@@ -250,6 +251,59 @@ These additional checks apply when the report type is Software Architecture Blue
 - [ ] No technology recommendation without stated rationale
 
 See the software-architecture-reference for the full checklist and template details.
+
+### Extreme Research Quality Standards
+
+These additional checks apply when the report depth is Extreme Research:
+
+- [ ] Every major section opens with a confidence score: "*Confidence: High/Medium/Low — based on N independent sources, M cross-validated claims.*"
+- [ ] Confidence levels are justified: High = 5+ independent sources with cross-validation; Medium = 3-4 sources; Low = 1-2 sources or conflicting data
+- [ ] Counter-argument findings are integrated as "Alternative Perspectives" or "Dissenting Analysis" subsections where material disagreement exists
+- [ ] Minimum 5 distinct source domains per major section (vs 3 for standard)
+- [ ] Multi-pass verification is documented in Methodology (how many passes, what was found in each)
+- [ ] Visualization density meets 20-30 diagram target
+- [ ] Red-team review was mandatory (never skipped in Extreme mode)
+
+---
+
+## Red Team Quality Gate Metrics
+
+When a research report undergoes adversarial review (see `red-team-reference.md`), these quality gates apply:
+
+### Pre-Build Quality Gates
+
+| Metric | Target | Enforcement |
+|--------|--------|-------------|
+| BLOCK challenges unresolved | 0 | Hard gate — do not build until all BLOCKs are resolved |
+| Factual claims with 2+ independent sources | > 80% | Soft gate — aim for target, document shortfalls in Methodology |
+| Source quality average (1-5 rubric) | >= 3.0 | Soft gate — flag if below threshold |
+| Sources scoring 4 or 5 | >= 30% of total | Soft gate — flag if below threshold |
+| Claims relying solely on score-1 or score-2 sources | 0 for BLOCK-severity claims | Hard gate — upgrade source or remove claim |
+
+### Post-Review Tracking
+
+The Methodology section must document:
+
+- **Challenges raised**: total count by severity (BLOCK / WARN / NOTE)
+- **Claims revised**: number of factual claims corrected during review
+- **Sources added**: number of new citations added to strengthen claims
+- **Assertions removed**: number of unsupported claims deleted
+- **Source diversity score**: average source quality rating across all citations
+
+### Review Methodology Subsection Template
+
+Add this subsection to the report's Methodology section after review:
+
+```markdown
+### Adversarial Quality Review
+
+This report underwent automated adversarial review prior to publication. A separate
+review process independently evaluated all factual claims, logical arguments, source
+quality, citation completeness, and statistical assertions. [N] challenges were raised
+across [N] categories. All BLOCK-severity challenges were resolved before publication.
+[N] claims were revised, [N] sources were added, and [N] unsupported assertions were
+removed during the review process.
+```
 
 ---
 

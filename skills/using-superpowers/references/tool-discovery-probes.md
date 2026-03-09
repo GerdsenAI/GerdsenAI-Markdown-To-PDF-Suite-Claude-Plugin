@@ -147,6 +147,23 @@ Also look for Pinecone Assistant tools via the `pinecone:assistant` skill for do
 
 **Use when**: Understanding unfamiliar codebases, getting AI-powered code review, or searching code semantically (not just by regex).
 
+### Local AI Inference: `"ollama"`
+
+> **Note**: Tool names vary by MCP server implementation. The names below are examples — use the ACTUAL tool names returned by `ToolSearch("ollama")`.
+
+| Example Tool Name | Capability |
+|-------------------|-----------|
+| `ollama_chat` | Chat completion with local models |
+| `ollama_generate` | Text generation with local models |
+| `ollama_list` | List available/loaded models |
+| `ollama_pull` | Download a model |
+
+**Use when**: You want to offload simple tasks (pre-screening, counter-arguments, draft generation) to a local LLM to reduce cloud API costs. Ollama handles hardware abstraction across NVIDIA (CUDA), AMD (ROCm), Apple Silicon (Metal), and CPU-only.
+
+**Fallback chain**: Ollama → Claude API (cloud) — Ollama is always optional, never required.
+
+**Discovery**: Probe with `ToolSearch("ollama")`. If no MCP tools found, also check if `ollama` is in PATH via Bash (`which ollama`). The CLI can be used directly even without MCP integration.
+
 ### GitHub MCP: `"github"`
 
 The `gh` CLI handles most GitHub operations, but the GitHub MCP server may provide additional capabilities depending on configuration. Probe if you need operations beyond what `gh` offers.
@@ -165,12 +182,13 @@ ToolSearch("hugging face")   — ML/AI
 ToolSearch("mermaid")        — diagrams
 ToolSearch("context7")       — library docs
 ToolSearch("greptile")       — codebase search
+ToolSearch("ollama")         — local AI inference
 ```
 
 You don't need to run every probe every time. Match probes to the task:
 
-- **Research task** → firecrawl, pinecone, hugging face, context7
+- **Research task** → firecrawl, pinecone, hugging face, context7, ollama
 - **Build task** → vercel, cloudflare, playwright, context7
 - **Debug task** → greptile, playwright
-- **Report task** → firecrawl, pinecone, mermaid
+- **Report task** → firecrawl, pinecone, mermaid, ollama
 - **Unknown/complex** → run them all
