@@ -277,8 +277,8 @@ def cmd_store(args):
 
     # Resolve chunk params: CLI value if explicitly provided, else settings default
     # argparse defaults are 500/100; settings may override those
-    chunk_size = args.chunk_size if args.chunk_size != 500 else cfg["chunk_size"]
-    chunk_overlap = args.chunk_overlap if args.chunk_overlap != 100 else cfg["chunk_overlap"]
+    chunk_size = args.chunk_size if args.chunk_size is not None else cfg["chunk_size"]
+    chunk_overlap = args.chunk_overlap if args.chunk_overlap is not None else cfg["chunk_overlap"]
 
     # Chunk the text for better embedding coverage
     chunks = chunk_text(args.text, chunk_size, chunk_overlap)
@@ -363,8 +363,8 @@ def cmd_query(args):
             sys.exit(1)
 
     # Resolve query params: CLI value if explicitly changed, else settings default
-    n_results = args.n_results if args.n_results != 5 else cfg["default_results"]
-    max_distance = args.max_distance if args.max_distance != 1.0 else cfg["max_distance"]
+    n_results = args.n_results if args.n_results is not None else cfg["default_results"]
+    max_distance = args.max_distance if args.max_distance is not None else cfg["max_distance"]
 
     try:
         query_kwargs = {
@@ -481,10 +481,10 @@ def main():
     p_store.add_argument("collection", help="Project/collection name")
     p_store.add_argument("text", help="Document text to store")
     p_store.add_argument("--metadata", help="JSON metadata string", default=None)
-    p_store.add_argument("--chunk-size", type=int, default=500,
-                         help="Chunk size in characters (default: 500). Documents longer than this are split into overlapping chunks.")
-    p_store.add_argument("--chunk-overlap", type=int, default=100,
-                         help="Overlap between chunks in characters (default: 100)")
+    p_store.add_argument("--chunk-size", type=int, default=None,
+                         help="Chunk size in characters (default: 500 or from settings)")
+    p_store.add_argument("--chunk-overlap", type=int, default=None,
+                         help="Overlap between chunks in characters (default: 100 or from settings)")
     p_store.add_argument("--settings", default=None,
                          help="Path to settings file for defaults")
     p_store.add_argument("--embedding-model", default=None,
@@ -495,9 +495,9 @@ def main():
     p_query = subparsers.add_parser("query", help="Semantic search")
     p_query.add_argument("collection", help="Project/collection name")
     p_query.add_argument("query_text", help="Query text")
-    p_query.add_argument("--n-results", type=int, default=5, help="Number of results (default: 5)")
-    p_query.add_argument("--max-distance", type=float, default=1.0,
-                         help="Maximum distance threshold (default: 1.0, range 0-2 for cosine). Results beyond this distance are filtered out.")
+    p_query.add_argument("--n-results", type=int, default=None, help="Number of results (default: 5 or from settings)")
+    p_query.add_argument("--max-distance", type=float, default=None,
+                         help="Maximum distance threshold (default: 1.0 or from settings, range 0-2 for cosine)")
     p_query.add_argument("--where", type=str, default=None,
                          help='ChromaDB where filter JSON, e.g. \'{"phase": "4"}\'')
     p_query.add_argument("--settings", default=None,

@@ -96,7 +96,7 @@ handle_post_tool() {
       local collection="${repo_name}-sprint"
 
       # Upsert to ChromaDB if backend is chromadb or auto
-      if [[ "$GERDSEN_VECTOR_DB_BACKEND" == "chromadb" ]] || [[ -z "$GERDSEN_VECTOR_DB_BACKEND" ]]; then
+      if [[ "$GERDSEN_VECTOR_DB_PRIMARY" == "chromadb" ]] || [[ -z "$GERDSEN_VECTOR_DB_PRIMARY" ]]; then
         "$VENV_PY" "$PLUGIN_ROOT/scripts/chromadb-store.py" store "$collection" "$summary" \
           --metadata "{\"type\":\"commit\",\"hash\":\"${short_hash}\"}" \
           >/dev/null 2>&1 || true
@@ -130,7 +130,7 @@ handle_session_end() {
 
   local summary="Session ended at ${timestamp}."
 
-  if [[ "$GERDSEN_VECTOR_DB_BACKEND" == "chromadb" ]] || [[ -z "$GERDSEN_VECTOR_DB_BACKEND" ]]; then
+  if [[ "$GERDSEN_VECTOR_DB_PRIMARY" == "chromadb" ]] || [[ -z "$GERDSEN_VECTOR_DB_PRIMARY" ]]; then
     "$VENV_PY" "$PLUGIN_ROOT/scripts/chromadb-store.py" store "$collection" "$summary" \
       --metadata "{\"type\":\"session-marker\",\"timestamp\":\"${timestamp}\"}" \
       >/dev/null 2>&1 || true

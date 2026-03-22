@@ -165,7 +165,14 @@ def resolve_settings(args):
 
 def cmd_init(args):
     """Create or connect to an integrated Pinecone index."""
-    from pinecone import ServerlessSpec
+    try:
+        from pinecone import ServerlessSpec
+    except ImportError:
+        print(json.dumps({
+            "success": False,
+            "error": "Pinecone package not installed. Run: pip install pinecone"
+        }))
+        sys.exit(1)
 
     index_name = normalize_name(args.repo_name)
     pc = get_pinecone_client()
@@ -277,12 +284,12 @@ def cmd_query(args):
     pc = get_pinecone_client()
     cfg = resolve_settings(args)
 
-    n_results = args.n_results if args.n_results else cfg.get("rerank_top_n", 5)
+    n_results = args.n_results if args.n_results is not None else cfg.get("default_results", 5)
 
-    # Determine reranking: CLI flag overrides settings
-    do_rerank = args.rerank if args.rerank else cfg["rerank_enabled"]
-    rerank_model = args.rerank_model if args.rerank_model else cfg["rerank_model"]
-    rerank_top_n = args.rerank_top_n if args.rerank_top_n else cfg["rerank_top_n"]
+    # Determine reranking: CLI flag overrides settings (None = not specified)
+    do_rerank = args.rerank if args.rerank is not None else cfg["rerank_enabled"]
+    rerank_model = args.rerank_model if args.rerank_model is not None else cfg["rerank_model"]
+    rerank_top_n = args.rerank_top_n if args.rerank_top_n is not None else cfg["rerank_top_n"]
 
     try:
         idx = pc.Index(index_name)
@@ -469,11 +476,11 @@ def main():
     p_query = subparsers.add_parser("query", help="Semantic search")
     p_query.add_argument("index", help="Index name")
     p_query.add_argument("query_text", help="Query text")
-    p_query.add_argument("--n-results", type=int, default=5,
-                         help="Number of results (default: 5)")
+    p_query.add_argument("--n-results", type=int, default=None,
+                         help="Number of results (default: 5 or from settings)")
     p_query.add_argument("--namespace", default=None,
                          help="Pinecone namespace to search")
-    p_query.add_argument("--rerank", action="store_true", default=False,
+    p_query.add_argument("--rerank", action="store_true", default=None,
                          help="Enable reranking of results")
     p_query.add_argument("--rerank-model", default=None,
                          help="Rerank model (default: pinecone-rerank-v0)")
@@ -502,7 +509,7 @@ def main():
         print(json.dumps({
             "success": False,
             "error": f"Unexpected error: {e}"
-        }), file=sys.stderr)
+        }))
         sys.exit(1)
 
 

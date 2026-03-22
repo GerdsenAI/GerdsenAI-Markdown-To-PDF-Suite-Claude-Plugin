@@ -71,7 +71,7 @@ if [[ -n "$GERDSEN_VECTOR_DB_MODE" ]] && [[ "$GERDSEN_VECTOR_DB_MODE" != "none" 
   vdb_ok=false
 
   # Check ChromaDB availability
-  if [[ "$GERDSEN_VECTOR_DB_BACKEND" == "chromadb" ]] || [[ -z "$GERDSEN_VECTOR_DB_BACKEND" ]]; then
+  if [[ "$GERDSEN_VECTOR_DB_PRIMARY" == "chromadb" ]] || [[ -z "$GERDSEN_VECTOR_DB_PRIMARY" ]]; then
     if "$VENV_PY" -c "import chromadb" 2>/dev/null; then
       vdb_status="ChromaDB available"
       vdb_ok=true
@@ -81,7 +81,7 @@ if [[ -n "$GERDSEN_VECTOR_DB_MODE" ]] && [[ "$GERDSEN_VECTOR_DB_MODE" != "none" 
   fi
 
   # Check Pinecone availability
-  if [[ "$GERDSEN_VECTOR_DB_BACKEND" == "pinecone" ]] || [[ -z "$GERDSEN_VECTOR_DB_BACKEND" ]]; then
+  if [[ "$GERDSEN_VECTOR_DB_PRIMARY" == "pinecone" ]] || [[ -z "$GERDSEN_VECTOR_DB_PRIMARY" ]]; then
     if [[ -n "${PINECONE_API_KEY:-}" ]]; then
       if [[ -n "$vdb_status" ]]; then
         vdb_status="${vdb_status}, Pinecone configured"

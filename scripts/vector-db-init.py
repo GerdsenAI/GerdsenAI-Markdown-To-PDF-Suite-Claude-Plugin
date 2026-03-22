@@ -113,8 +113,11 @@ def init_chromadb(collection_name):
         }
 
     try:
+        cmd = [sys.executable, script, "init", collection_name]
+        if settings_path:
+            cmd.extend(["--settings", settings_path])
         result = subprocess.run(
-            [sys.executable, script, "init", collection_name],
+            cmd,
             capture_output=True,
             text=True,
             timeout=30,
