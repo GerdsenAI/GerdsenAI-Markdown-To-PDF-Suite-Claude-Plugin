@@ -384,7 +384,7 @@ Skip this phase only if the user explicitly requests it (e.g., "skip the review"
    ```
 3. Report the result: PDF path, file size
 4. Offer revisions to content, structure, or formatting
-5. **Extreme Research mode**: Auto-register the report for source monitoring (equivalent to `/gerdsenai:monitor`). Inform the user that stale sources will be flagged at session start.
+5. **Extreme Research mode**: Auto-register the report for source monitoring (equivalent to `/gerdsenai:research-report`). Inform the user that stale sources will be flagged at session start.
 
 ### Multi-Document Handling
 
@@ -399,7 +399,7 @@ If a build fails:
 1. Read the error output carefully
 2. Common fixes: close unclosed front matter `---`, fix Mermaid syntax errors, resolve missing image paths
 3. Fix the markdown and rebuild
-4. If the error is in the builder itself, suggest the user run `/gerdsenai:update`
+4. If the error is in the builder itself, suggest the user run `/gerdsenai:setup` (choose "Update builder")
 
 If research tools fail or return no results:
 1. Try alternative search queries

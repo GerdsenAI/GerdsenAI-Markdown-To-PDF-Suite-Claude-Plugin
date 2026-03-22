@@ -184,8 +184,8 @@ Or use a horizontal rule as a visual section separator (does not force a page br
 
 Use these commands to build PDFs:
 
-- `/gerdsenai:build-pdf <file>` - Build a single file into a PDF
-- `/gerdsenai:build-recursive [dir]` - Build all .md files in a directory tree (PDFs placed alongside source files)
+- `/gerdsenai:build <file>` - Build a single file into a PDF
+- `/gerdsenai:build --recursive [dir]` - Build all .md files in a directory tree (PDFs placed alongside source files)
 
 ### Output Location
 
@@ -194,15 +194,15 @@ PDFs can be saved to different locations based on your settings:
 - **Custom directory** configured during setup
 - **Document Builder's PDFs/** folder (legacy behavior)
 
-Override for a single build: `/gerdsenai:build-pdf file.md --output-dir /path/to/dir`
+Override for a single build: `/gerdsenai:build file.md --output-dir /path/to/dir`
 
 ### Custom Filenames
 
-Override the output filename: `/gerdsenai:build-pdf file.md --output-name MyReport`
+Override the output filename: `/gerdsenai:build file.md --output-name MyReport`
 
 ### Logo Selection
 
-Cover and footer logos are configured via `/gerdsenai:configure`. The configure command lets you browse available logos in the Assets/ directory and add new ones.
+Cover and footer logos are configured via `/gerdsenai:setup` (choose "Configure settings"). The setup command lets you browse available logos in the Assets/ directory and add new ones.
 
 ## Quality Checklist
 

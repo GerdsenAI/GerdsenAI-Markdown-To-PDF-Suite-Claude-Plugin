@@ -79,9 +79,9 @@ Review your system context for loaded skills. Key families to look for:
 
 **GerdsenAI skills** (prefix `gerdsenai:`):
 - `pdf-document-authoring` — Professional PDF output with Mermaid diagrams
-- `build-pdf` / `build-recursive` — PDF build commands
+- `build` — PDF build command (supports `--recursive`)
 - `research-report` — Full research pipeline with parallel sub-agents
-- `configure` / `setup` / `update` — Document Builder management
+- `setup` — Document Builder installation, configuration, and updates
 
 **Other skills** (check system context for availability):
 - `firecrawl:firecrawl-cli` — Web operations

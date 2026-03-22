@@ -39,4 +39,4 @@ You are running an adversarial red team review on a markdown document.
 
 6. **After fixes** (if the user chose to fix):
    - Offer to re-run the review to verify fixes
-   - Offer to build the PDF via `/gerdsenai:build-pdf`
+   - Offer to build the PDF via `/gerdsenai:build`

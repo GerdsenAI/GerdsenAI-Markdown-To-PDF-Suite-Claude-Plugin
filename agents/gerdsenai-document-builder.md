@@ -89,4 +89,4 @@ If a build fails:
 1. Read the error output carefully
 2. Common fixes: close unclosed front matter `---`, fix Mermaid syntax errors, resolve missing image paths
 3. Fix the markdown and rebuild
-4. If the error is in the builder itself, suggest the user run `/gerdsenai:update`
+4. If the error is in the builder itself, suggest the user run `/gerdsenai:setup` (choose "Update builder")

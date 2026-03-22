@@ -37,7 +37,7 @@ fi
 
 # Check for incomplete configuration (missing key v0.2 settings)
 if [[ -z "$OUTPUT_MODE" ]]; then
-  echo "GerdsenAI Document Builder is installed but not fully configured (missing output preferences). Run /gerdsenai:configure to complete setup."
+  echo "GerdsenAI Document Builder is installed but not fully configured (missing output preferences). Run /gerdsenai:setup (choose \"Configure settings\") to complete setup."
   exit 0
 fi
 
@@ -59,7 +59,7 @@ if [[ -f "$SOURCE_TRACKER" ]]; then
   if [[ -n "$stale_output" ]]; then
     echo "Monitored reports with stale sources detected:"
     echo -e "$stale_output"
-    echo "Run /gerdsenai:check-freshness to review, or /gerdsenai:refresh <file> to update."
+    echo "Run /gerdsenai:research-report <file> to review and update."
   fi
 fi
 

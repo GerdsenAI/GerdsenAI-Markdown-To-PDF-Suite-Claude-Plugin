@@ -211,6 +211,6 @@ The `/gerdsenai:red-team <file.md>` command runs the review against any markdown
 - The reviewer reads the file and produces the structured review output
 - No automatic resolution occurs -- the review is presented to the user
 - The user decides which challenges to address
-- The user can then run `/gerdsenai:build-pdf` when satisfied
+- The user can then run `/gerdsenai:build` when satisfied
 
 This enables red-teaming of user-authored documents, not just agent-authored ones.
