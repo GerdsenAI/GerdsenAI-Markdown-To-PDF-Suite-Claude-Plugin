@@ -403,6 +403,16 @@ After all tasks complete:
    - Verify the page loads without console errors
    - Check that key UI elements render
 4. Review git log to verify commit history is clean and meaningful
+5. **Optional: Red-team code review** — dispatch the red-team reviewer for adversarial analysis of sprint output:
+   ```
+   Task prompt: "You are the adversarial red-team reviewer. Analyze the code changes
+   from this sprint. Target: '<project_root>'.
+   Focus domains: code, security, testing, deps.
+   Read your full protocol at '${CLAUDE_PLUGIN_ROOT}/agents/red-team-reviewer.md'.
+   Return findings only — do not modify files."
+   Sub-agent type: red-team-reviewer
+   ```
+   If BLOCK findings are returned, address them before proceeding to Phase 7.
 
 ## Phase 7: Sprint Report & Cleanup
 

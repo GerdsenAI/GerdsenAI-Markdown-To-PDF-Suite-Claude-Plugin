@@ -338,7 +338,7 @@ After the standard quality review passes, dispatch the dedicated red-team review
    - The reviewer will return a structured review with BLOCK/WARN/NOTE challenges
 
    ```
-   Task prompt: "You are the adversarial red-team reviewer. Read and review the markdown report at '<draft_file_path>'. Follow your full review protocol (Steps 1-7). Read the reference at '<red-team-reference-path>' for challenge categories, severity levels, and the source quality rubric. Return your structured review with summary statistics and all challenges by severity."
+   Task prompt: "You are the adversarial red-team reviewer. Analyze the markdown report at '<draft_file_path>'. Focus on document-relevant domains: document, strategic. Read your full protocol at '${CLAUDE_PLUGIN_ROOT}/agents/red-team-reviewer.md'. Read the reference at '${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/red-team-reference.md' for challenge categories, severity levels, and the source quality rubric. Return your structured review with summary statistics and all challenges by severity."
    Sub-agent type: red-team-reviewer
    ```
 
