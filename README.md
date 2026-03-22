@@ -119,17 +119,18 @@ Activates on requests like "research the AI chip market", "build a dossier on qu
 
 **Citation styles:** APA (default), MLA, Chicago, IEEE, Harvard. Configured via `/gerdsenai:setup` (choose "Configure settings").
 
-### Adversarial Quality Review
+### Adversarial Analysis Engine
 
-Research reports undergo automated adversarial review before PDF generation. The red-team step challenges every factual claim, evaluates source quality against a 1-5 rubric, checks citation completeness, and flags logical fallacies. Claims are assigned severity levels:
+The `/gerdsenai:red-team` command is a full adversarial analysis engine using Socratic reasoning chains. It covers 11 domains: code quality, security (OWASP Top 10), dependencies (CVEs), architecture, testing, DevOps/CI/CD, database, AI/ML, accessibility (WCAG 2.1 AA), documents, and strategic alignment.
 
-- **BLOCK** -- demonstrably false claims, broken citations, logical contradictions. Must be resolved before building.
-- **WARN** -- weakly supported claims, single-source assertions, language stronger than evidence warrants.
-- **NOTE** -- informational observations for quality improvement.
+```
+/gerdsenai:red-team ./src                              # Full repo analysis
+/gerdsenai:red-team report.md                          # Document review
+/gerdsenai:red-team ./src --domains security,deps      # Specific domains
+/gerdsenai:red-team ./src --depth deep --fix           # Deep analysis with auto-fix
+```
 
-All BLOCK challenges are resolved automatically. The final PDF includes an "Adversarial Quality Review" subsection in the Methodology section documenting the review process.
-
-Run `/gerdsenai:red-team <file>` to review any markdown file standalone, not just research reports.
+When an issue is found, the agent applies the **rabbit hole protocol**: if it's wrong here, where else? Pattern proliferation, dependency tracing, blast radius assessment, and STRIDE threat modeling. Research reports also undergo automated adversarial review before PDF generation.
 
 ### Living Intelligence Reports
 

@@ -11,6 +11,9 @@
 ### New Features
 - **`/gerdsenai:sprint-execute`** — autonomous sprint executor using the Socratic Method (Thesis → Antithesis → Synthesis). Plans development sprints, then autocodes them to completion with ChromaDB context management, auto-commit at planned points, permission injection to `.claude/settings.local.json`, and CLAUDE.md sprint state for context compaction resilience. Supports `resume` for interrupted sprints.
 
+### Red-Team Redesign
+- **`/gerdsenai:red-team`** — completely redesigned from document-only reviewer to full adversarial analysis engine. Now covers 11 domains: code quality, security (OWASP Top 10), dependencies (CVE scanning), architecture, testing, DevOps/CI/CD, database, AI/ML, accessibility (WCAG 2.1 AA), documents, and strategic alignment. Uses Socratic reasoning chains (5 stages) and rabbit hole investigation protocol (pattern proliferation → dependency tracing → blast radius → STRIDE threat modeling). Auto-detects technology stack and activates relevant domains. Supports `--domains`, `--depth`, and `--fix` flags. ChromaDB persistence for cross-session finding continuity. Re-integrated into research-report Phase 7.5, document-builder Step 5, and sprint-executor Phase 6 with domain scoping.
+
 ### Removed Commands
 - `/gerdsenai:build-pdf` → use `/gerdsenai:build`
 - `/gerdsenai:build-recursive` → use `/gerdsenai:build <directory>`
