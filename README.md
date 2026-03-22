@@ -1,18 +1,15 @@
 # GerdsenAI MD-to-PDF Suite - Claude Code Plugin
 
-A Claude Code plugin for creating professional PDFs from Markdown and conducting deep research with auto-generated intelligence reports, powered by the [GerdsenAI Document Builder](https://github.com/GerdsenAI/GerdsenAI_Document_Builder).
+A Claude Code plugin for autonomous sprint execution, adversarial analysis, deep research intelligence, and professional PDF generation. Powered by the [GerdsenAI Document Builder](https://github.com/GerdsenAI/GerdsenAI_Document_Builder).
 
 ## What It Does
 
-- **Deep research intelligence reports** - conduct multi-source research and generate professional reports with Mermaid visualizations and academic citations as PDFs
-- **Author PDF-ready markdown** with guidance on front matter, structure, code blocks, Mermaid diagrams, and formatting
-- **Build PDFs** directly from Claude Code with styled code blocks, cover pages, table of contents, headers/footers, and page numbers
-- **Flexible output** - place PDFs alongside source files, in a custom directory, or in the builder's PDFs/ folder
-- **Recursive builds** - build PDFs for all markdown files in a directory tree
-- **Logo selection** - browse and select cover page and footer logos from available assets
-- **Configure** the Document Builder's settings (logos, page size, colors, fonts, Mermaid themes, citation style)
-- **Autonomous document creation** via agents that handle the full workflow from requirements to finished PDF
-- **Guided first-run setup** - if you haven't configured the plugin, any command will offer to set it up inline
+- **Autonomous Sprint Execution (Autocoder)** — plan and execute entire development sprints using the Socratic Method. Writes thousands of lines of code, auto-commits at planned points, manages context via vector DB for resilience against compaction. `/gerdsenai:sprint-execute`
+- **Adversarial Red-Team Analysis** — 11-domain adversarial engine (code, security, deps, architecture, testing, DevOps, database, AI/ML, accessibility, documents, strategic) with Socratic reasoning chains and rabbit hole investigation. `/gerdsenai:red-team`
+- **Dual Vector DB Management** — run ChromaDB (local) and Pinecone (cloud) simultaneously with configurable re-ranking, embedding models, and automated hooks (auto-upsert on commit, health checks on session start). `/gerdsenai:vector-db`
+- **Deep Research Intelligence Reports** — multi-source research with parallel sub-agents, Mermaid visualizations, academic citations, adversarial quality review, and source freshness monitoring. `/gerdsenai:research-report`
+- **Professional PDF Generation** — styled code blocks, cover pages, table of contents, headers/footers, Mermaid diagrams, logos, and flexible output locations. `/gerdsenai:build`
+- **Guided Setup** — install, configure, or update the Document Builder with preferences for output, logos, page size, vector DB backends, and hooks. `/gerdsenai:setup`
 
 ## Prerequisites
 
