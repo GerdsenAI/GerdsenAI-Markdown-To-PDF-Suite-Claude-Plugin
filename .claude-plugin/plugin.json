@@ -9,5 +9,5 @@
   "homepage": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin",
   "repository": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin",
   "license": "MIT",
-  "keywords": ["pdf", "markdown", "document-builder", "reports", "mermaid", "red-team", "adversarial-analysis", "security", "socratic", "research", "intelligence", "sprint", "autocoder", "vector-db"]
+  "keywords": ["pdf", "markdown", "document-builder", "reports", "mermaid", "red-team", "adversarial-analysis", "security", "socratic", "research", "intelligence", "sprint", "autocoder", "vector-db", "dual-backend", "chromadb", "pinecone", "reranking", "hooks"]
 }

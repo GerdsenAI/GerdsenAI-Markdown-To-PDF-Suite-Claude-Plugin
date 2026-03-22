@@ -16,8 +16,8 @@ commands/                     ← Slash command definitions (6 commands)
   setup.md                    ← /setup - install, configure, or update Document Builder
   build.md                    ← /build - build single file or recursive directory
   research-report.md          ← /research-report - deep research + source monitoring
-  red-team.md                 ← /red-team - adversarial review of markdown documents
-  vector-db.md                ← /vector-db - report, store, query, configure vector DBs
+  red-team.md                 ← /red-team - adversarial analysis (code, security, docs, 11 domains)
+  vector-db.md                ← /vector-db - report, store, query, configure (dual-backend)
   sprint-execute.md           ← /sprint-execute - autonomous sprint planning + autocoding
 scripts/                      ← Shell scripts executed by commands
   setup.sh                    ← Downloads/clones builder, creates venv, installs deps
@@ -25,12 +25,15 @@ scripts/                      ← Shell scripts executed by commands
   update.sh                   ← Updates builder via git pull or release download
   verify-install.sh           ← Outputs JSON status of installation health
   chromadb-store.py           ← ChromaDB vector storage (init, store, query, list, clear)
+  pinecone-store.py           ← Pinecone SDK wrapper (init, store, query, list, clear)
+  vector-db-init.py           ← Unified vector DB initializer (reads settings, sets up backends)
   chromadb-report.py          ← ChromaDB reporting (report, health)
   source-tracker.py           ← Source monitoring (extract, check, update, list-stale)
   lib/
     parse-settings.sh         ← Shared library: platform detection + YAML parser
 hooks/
-  hooks.json                  ← SessionStart hook registration
+  hooks.json                  ← SessionStart, PostToolUse, Stop hook registration
+  vector-db-hooks.sh          ← Vector DB automation (commit upsert, session flush)
   session-start               ← Checks install status, silently exits if not configured
 agents/
   gerdsenai-document-builder.md  ← Autonomous agent: requirements → authoring → PDF
@@ -40,7 +43,7 @@ agents/
 skills/
   pdf-document-authoring/
     SKILL.md                  ← Authoring rules (front matter, headings, Mermaid, etc.)
-    references/               ← Config options, formatting, front matter, Mermaid, red-team, research, architecture
+    references/               ← Config, formatting, front matter, Mermaid, red-team, research, architecture, vector-db
   using-superpowers/
     SKILL.md                  ← Tool discovery and orchestration meta-skill
     references/               ← Tool discovery probes, orchestration examples

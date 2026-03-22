@@ -2,6 +2,18 @@
 
 ## 0.7.0
 
+### Vector DB Infrastructure Overhaul
+- **Dual-backend support** — run ChromaDB (local) and Pinecone (cloud) simultaneously with configurable routing (mirror, split, primary-only)
+- **`scripts/pinecone-store.py`** — Python SDK wrapper mirroring chromadb-store.py interface (init, store, query, list, clear) with re-ranking support
+- **`scripts/vector-db-init.py`** — unified initializer that reads settings and sets up the correct backend(s) for any context (research, sprint, redteam)
+- **Configurable embedding models** — ChromaDB: all-MiniLM-L6-v2 or all-mpnet-base-v2. Pinecone: llama-text-embed-v2, multilingual-e5-large, or sparse
+- **Re-ranking** — Pinecone supports pinecone-rerank-v0, bge-reranker-v2-m3, or cohere-rerank-3.5 with configurable top-N
+- **Automated hooks** — PostToolUse hook auto-upserts git commit summaries, Stop hook flushes on session end, SessionStart hook checks vector DB health
+- **Repo-scoped isolation** — collections/indexes named `<repo-basename>-<context>`, data from different repos NEVER mixed
+- **Expanded `/gerdsenai:vector-db configure`** — full setup wizard for backend selection, embedding models, re-ranking, chunk settings, hook triggers
+- **Unified Phase 0.5** — all agents (research-report, red-team-reviewer, sprint-executor) use vector-db-init.py instead of inline backend selection
+- **Vector DB reference doc** — embedding model comparison, re-ranking models, metadata schema standard, dual-backend routing patterns
+
 ### Command Consolidation (11 → 6 commands)
 - **`/gerdsenai:build`** — merged `build-pdf` and `build-recursive` into a single command that auto-detects file vs directory targets. Supports `--recursive`, `--output-dir`, `--output-name` flags.
 - **`/gerdsenai:setup`** — merged `setup`, `configure`, and `update` into one command. Shows a menu when already installed (Configure settings / Update builder / Reinstall / Check health). Full wizard on first run.
