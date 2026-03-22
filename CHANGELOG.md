@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.7.0
+
+### Command Consolidation (11 → 6 commands)
+- **`/gerdsenai:build`** — merged `build-pdf` and `build-recursive` into a single command that auto-detects file vs directory targets. Supports `--recursive`, `--output-dir`, `--output-name` flags.
+- **`/gerdsenai:setup`** — merged `setup`, `configure`, and `update` into one command. Shows a menu when already installed (Configure settings / Update builder / Reinstall / Check health). Full wizard on first run.
+- **`/gerdsenai:research-report`** — absorbed `monitor`, `check-freshness`, and `refresh` with context auto-detection. Passing a file with `.sources.json` triggers freshness check; without triggers monitoring registration. New reports offer monitoring after build.
+- **`/gerdsenai:vector-db`** — expanded from `vector-db-report` to full vector DB management: report, store, query, and configure (index, re-ranking, embedding model, chunking). Supports Pinecone and ChromaDB.
+
+### New Features
+- **`/gerdsenai:sprint-execute`** — autonomous sprint executor using the Socratic Method (Thesis → Antithesis → Synthesis). Plans development sprints, then autocodes them to completion with ChromaDB context management, auto-commit at planned points, permission injection to `.claude/settings.local.json`, and CLAUDE.md sprint state for context compaction resilience. Supports `resume` for interrupted sprints.
+
+### Removed Commands
+- `/gerdsenai:build-pdf` → use `/gerdsenai:build`
+- `/gerdsenai:build-recursive` → use `/gerdsenai:build <directory>`
+- `/gerdsenai:configure` → use `/gerdsenai:setup` (choose "Configure settings")
+- `/gerdsenai:update` → use `/gerdsenai:setup` (choose "Update builder")
+- `/gerdsenai:monitor` → use `/gerdsenai:research-report <file>`
+- `/gerdsenai:check-freshness` → use `/gerdsenai:research-report <file>`
+- `/gerdsenai:refresh` → use `/gerdsenai:research-report <file>`
+- `/gerdsenai:vector-db-report` → use `/gerdsenai:vector-db report`
+
 ## 0.6.1
 
 ### Bug Fixes

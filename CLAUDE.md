@@ -12,26 +12,38 @@ The plugin is installed into Claude Code via `claude --plugin-dir <path>` and ex
 
 ```
 .claude-plugin/plugin.json   ← Plugin manifest (name, version, metadata)
-commands/                     ← Slash command definitions (markdown prompts)
-  setup.md                    ← /setup - install + configure Document Builder
-  build-pdf.md                ← /build-pdf - single file build
-  build-recursive.md          ← /build-recursive - recursive directory build
-  configure.md                ← /configure - edit config.yaml + settings
-  update.md                   ← /update - update Document Builder
+commands/                     ← Slash command definitions (6 commands)
+  setup.md                    ← /setup - install, configure, or update Document Builder
+  build.md                    ← /build - build single file or recursive directory
+  research-report.md          ← /research-report - deep research + source monitoring
+  red-team.md                 ← /red-team - adversarial review of markdown documents
+  vector-db.md                ← /vector-db - report, store, query, configure vector DBs
+  sprint-execute.md           ← /sprint-execute - autonomous sprint planning + autocoding
 scripts/                      ← Shell scripts executed by commands
   setup.sh                    ← Downloads/clones builder, creates venv, installs deps
-  build.sh                    ← Core build logic (single, --all, --recursive modes)
+  build.sh                    ← Core build logic (single + recursive modes)
   update.sh                   ← Updates builder via git pull or release download
   verify-install.sh           ← Outputs JSON status of installation health
+  chromadb-store.py           ← ChromaDB vector storage (init, store, query, list, clear)
+  chromadb-report.py          ← ChromaDB reporting (report, health)
+  source-tracker.py           ← Source monitoring (extract, check, update, list-stale)
+  lib/
+    parse-settings.sh         ← Shared library: platform detection + YAML parser
 hooks/
   hooks.json                  ← SessionStart hook registration
-  session-start               ← Checks install status, warns if not configured
+  session-start               ← Checks install status, silently exits if not configured
 agents/
   gerdsenai-document-builder.md  ← Autonomous agent: requirements → authoring → PDF
+  research-report.md          ← Research intelligence agent (8-phase workflow)
+  red-team-reviewer.md        ← Adversarial quality review agent
+  sprint-executor.md          ← Autonomous sprint execution agent (Socratic planning)
 skills/
   pdf-document-authoring/
     SKILL.md                  ← Authoring rules (front matter, headings, Mermaid, etc.)
-    references/               ← Detailed references for config, front matter, diagrams
+    references/               ← Config options, formatting, front matter, Mermaid, red-team, research, architecture
+  using-superpowers/
+    SKILL.md                  ← Tool discovery and orchestration meta-skill
+    references/               ← Tool discovery probes, orchestration examples
 ```
 
 ### How It Works
@@ -80,4 +92,4 @@ bash scripts/setup.sh ~/TestBuilder         # Test fresh install
 - Build output location is determined by `output_mode` in settings, overridable per-build with `--output-dir`.
 - The `build.sh` `--recursive` mode auto-excludes `node_modules/`, `.git/`, `venv/`, `__pycache__/`, `.claude/`, and common non-document markdown files (README.md, CLAUDE.md, CHANGELOG.md, LICENSE.md).
 - Commands specify `allowed-tools` in their front matter to restrict which tools Claude Code can use during that command.
-- The agent and `build-recursive` command use `model: sonnet` for cost efficiency.
+- The document-builder agent uses `model: sonnet` for cost efficiency. The sprint-executor agent runs on the default model (requires maximum intelligence).

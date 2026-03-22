@@ -42,7 +42,7 @@ Restart Claude Code, then run `/gerdsenai:setup` inside any project to install t
 
 2. Build a PDF:
    ```
-   /gerdsenai:build-pdf my-document.md
+   /gerdsenai:build my-document.md
    ```
 
 3. Research a topic and generate an intelligence report:
@@ -54,51 +54,24 @@ Restart Claude Code, then run `/gerdsenai:setup` inside any project to install t
 
 | Command | Description |
 |---------|-------------|
-| `/gerdsenai:setup` | Install and configure the Document Builder with guided preferences |
-| `/gerdsenai:build-pdf <file>` | Build a single markdown file into a PDF |
-| `/gerdsenai:build-recursive [dir]` | Build PDFs for all .md files in a directory tree |
-| `/gerdsenai:research-report [topic]` | Conduct deep research and generate an intelligence report as PDF |
-| `/gerdsenai:red-team <file>` | Run adversarial review: challenge claims, verify citations, flag logical fallacies |
-| `/gerdsenai:monitor <file>` | Register a report for source monitoring (creates `.sources.json` manifest) |
-| `/gerdsenai:check-freshness [file]` | Check if monitored sources have changed since last check |
-| `/gerdsenai:refresh <file>` | Re-research stale sections and rebuild the PDF with revision history |
-| `/gerdsenai:vector-db-report [project]` | Report on vector DB contents: inventory, metadata analysis, data quality |
-| `/gerdsenai:configure` | Edit settings: logos, page size, output preferences, citation style, etc. |
-| `/gerdsenai:update` | Update the Document Builder to the latest version |
+| `/gerdsenai:setup` | Install, configure, or update the Document Builder |
+| `/gerdsenai:build <target>` | Build PDFs — single file or recursive directory (auto-detects) |
+| `/gerdsenai:research-report [topic\|file]` | Deep research + intelligence reports; source monitoring when given a file path |
+| `/gerdsenai:red-team <file>` | Adversarial review: challenge claims, verify citations, flag logical fallacies |
+| `/gerdsenai:vector-db [operation]` | Vector DB management: report, store, query, configure (ChromaDB + Pinecone) |
+| `/gerdsenai:sprint-execute [plan\|description\|resume]` | Autonomous sprint executor: Socratic planning, autocoding, auto-commit |
 
-### Output Location Options
+### Build Options
 
-PDFs can be saved to different locations based on your preferences (configured during setup):
-
-- **Same directory** as the source .md file - best for keeping PDFs with their source
-- **Custom directory** - a single folder for all generated PDFs
-- **Document Builder's PDFs/** folder - the legacy default
-
-Override for a single build:
 ```
-/gerdsenai:build-pdf report.md --output-dir ~/Reports
+/gerdsenai:build report.md                        # Single file
+/gerdsenai:build report.md --output-dir ~/Reports  # Custom output directory
+/gerdsenai:build report.md --output-name Q4-Review  # Custom filename
+/gerdsenai:build ./docs                            # Recursive directory build
+/gerdsenai:build ./docs --recursive                # Explicit recursive flag
 ```
 
-### Custom Filenames
-
-Override the output filename for a single build:
-```
-/gerdsenai:build-pdf report.md --output-name Q4-Business-Review
-```
-
-### Recursive Builds
-
-Build PDFs for all markdown files in the current project:
-```
-/gerdsenai:build-recursive
-```
-
-Or specify a directory:
-```
-/gerdsenai:build-recursive ./docs
-```
-
-Automatically excludes `node_modules/`, `.git/`, `venv/`, `__pycache__/`, `.claude/`, and common non-document files (README.md, CLAUDE.md, etc.).
+Recursive mode auto-excludes `node_modules/`, `.git/`, `venv/`, `__pycache__/`, `.claude/`, and common non-document files (README.md, CLAUDE.md, etc.).
 
 ## Skill: PDF Document Authoring
 
@@ -144,7 +117,7 @@ Activates on requests like "research the AI chip market", "build a dossier on qu
 
 **Report types:** Executive Brief (5-10 pages), Standard Report (15-30 pages), Deep-Dive Technical (30-50+ pages), Academic White Paper, Software Architecture Blueprint (40-70+ pages), Extreme Research (50-100+ pages).
 
-**Citation styles:** APA (default), MLA, Chicago, IEEE, Harvard. Configured via `/gerdsenai:configure`.
+**Citation styles:** APA (default), MLA, Chicago, IEEE, Harvard. Configured via `/gerdsenai:setup` (choose "Configure settings").
 
 ### Adversarial Quality Review
 
@@ -160,15 +133,26 @@ Run `/gerdsenai:red-team <file>` to review any markdown file standalone, not jus
 
 ### Living Intelligence Reports
 
-Research reports are not static. After building a report, register it for source monitoring:
+Research reports are not static. Source monitoring is built into `/gerdsenai:research-report`:
 
 ```
-/gerdsenai:monitor my-report.md          # Extract source URLs, compute content hashes
-/gerdsenai:check-freshness my-report.md  # Check if any sources have changed
-/gerdsenai:refresh my-report.md          # Re-research stale sections, rebuild PDF
+/gerdsenai:research-report my-report.md   # Auto-detects .sources.json → checks freshness
+                                           # No .sources.json → offers to register monitoring
 ```
 
-The session-start hook automatically alerts you when monitored reports have stale sources. The refresh command updates only affected sections, adds a Revision History, and rebuilds the PDF.
+After building a new report, you'll be offered to register it for monitoring. The session-start hook automatically alerts you when monitored reports have stale sources. The refresh flow updates only affected sections, adds a Revision History, and rebuilds the PDF.
+
+### Sprint Execution
+
+Plan and execute development sprints autonomously with `/gerdsenai:sprint-execute`:
+
+```
+/gerdsenai:sprint-execute "Add user authentication with JWT"  # New sprint
+/gerdsenai:sprint-execute todo.md                              # Execute from plan
+/gerdsenai:sprint-execute resume                               # Resume interrupted sprint
+```
+
+Uses the Socratic Method (Thesis → Antithesis → Synthesis) for sprint planning, then autocodes the entire sprint: writes code, runs tests, commits at planned points, and manages context via ChromaDB for resilience against context compaction.
 
 ## Local Infrastructure (Optional)
 
@@ -188,16 +172,19 @@ The research pipeline discovers ChromaDB automatically. Priority: Pinecone > Chr
 
 Features: automatic document chunking (500-char default with 100-char overlap), cosine distance filtering (`--max-distance`), metadata where filters, and data quality reporting.
 
-### Vector DB Reporting
+### Vector DB Management
 
-Inspect your vector database contents with `/gerdsenai:vector-db-report`:
+Manage vector databases with `/gerdsenai:vector-db`:
 
 ```
-/gerdsenai:vector-db-report my-project   # Detailed single-project report
-/gerdsenai:vector-db-report --all        # Cross-project overview
+/gerdsenai:vector-db report my-project   # Detailed single-project report
+/gerdsenai:vector-db report --all        # Cross-project overview
+/gerdsenai:vector-db store <file>        # Store documents with chunking
+/gerdsenai:vector-db query "search text" # Semantic search
+/gerdsenai:vector-db configure           # Set backend, index, re-ranking, chunking
 ```
 
-Reports include metadata schema analysis, sample documents, data quality metrics (duplicates, empty documents, metadata completeness), and system health. Works with both ChromaDB and Pinecone backends.
+Supports both ChromaDB (local) and Pinecone (cloud) backends. Reports include metadata schema analysis, sample documents, data quality metrics, and system health.
 
 ### Ollama (Local AI Inference)
 
@@ -252,7 +239,7 @@ The Document Builder's `config.yaml` controls PDF output styling:
 - **Mermaid**: Theme, viewport, fallback behavior, label length limits
 - **Export**: PDF/A variant, image compression, font embedding
 
-Use `/gerdsenai:configure` to edit these interactively, including a logo browser for selecting from available assets.
+Use `/gerdsenai:setup` (choose "Configure settings") to edit these interactively, including a logo browser for selecting from available assets.
 
 ## Installation Methods
 
@@ -269,7 +256,7 @@ Both methods include full automated setup: venv creation, dependency installatio
 Run `/gerdsenai:setup` to install and configure it. Or just run any build command - it will offer to set up inline.
 
 **"Document Builder is installed but not fully configured"**
-Run `/gerdsenai:configure` to complete setup with output preferences and logo selection.
+Run `/gerdsenai:setup` and choose "Configure settings" to complete setup with output preferences and logo selection.
 
 **Mermaid diagrams not rendering**
 Playwright + Chromium must be installed. Run `/gerdsenai:setup` again, or manually:
@@ -288,13 +275,13 @@ Check the log files in `<document_builder_path>/Logs/` for details.
 Ensure your markdown starts with `---` delimiters containing at least a `title` field.
 
 **Quoted strings on title page**
-Update to the latest Document Builder version with `/gerdsenai:update`. The YAML parser was fixed in v0.2.
+Run `/gerdsenai:setup` and choose "Update builder". The YAML parser was fixed in v0.2.
 
 **No logo on cover page**
-Run `/gerdsenai:configure` and select a valid logo from the Assets/ directory.
+Run `/gerdsenai:setup` (choose "Configure settings") and select a valid logo from the Assets/ directory.
 
 **Settings not being read on Windows**
-The settings file may have CRLF line endings. The parser handles this automatically since v0.6.1. If using an older version, run `/gerdsenai:update`.
+The settings file may have CRLF line endings. The parser handles this automatically since v0.6.1. If using an older version, run `/gerdsenai:setup` and choose "Update builder".
 
 **ChromaDB queries miss content from long documents**
 Documents longer than ~256 tokens are silently truncated by the embedding model. Since v0.6.1, `chromadb-store.py` auto-chunks documents (500-char chunks with 100-char overlap). Re-store existing documents to benefit from chunking.

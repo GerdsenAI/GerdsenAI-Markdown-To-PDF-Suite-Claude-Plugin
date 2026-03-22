@@ -1,7 +1,7 @@
 {
   "name": "gerdsenai",
-  "version": "0.6.1",
-  "description": "Professional Markdown-to-PDF document creation with deep research intelligence reports, adversarial red-team quality review, living intelligence monitoring, Extreme Research mode, vector DB reporting, and optional local infrastructure (ChromaDB, Ollama). Powered by GerdsenAI Document Builder. Features multi-source research with citations, automated fact-checking, source freshness tracking, local vector storage with auto-chunking, flexible output locations, recursive builds, and guided setup.",
+  "version": "0.7.0",
+  "description": "Professional Markdown-to-PDF document creation with deep research intelligence, adversarial red-team review, living intelligence monitoring, autonomous sprint execution, vector DB management, and optional local infrastructure (ChromaDB, Ollama). Powered by GerdsenAI Document Builder. Features Socratic sprint planning with autocoding, multi-source research with citations, automated fact-checking, source freshness tracking, vector DB store/query/configure, flexible output locations, and guided setup.",
   "author": {
     "name": "Garrett Gerdsen",
     "email": "garrett@gerdsen.ai"
@@ -9,5 +9,5 @@
   "homepage": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin",
   "repository": "https://github.com/GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin",
   "license": "MIT",
-  "keywords": ["pdf", "markdown", "document-builder", "reports", "mermaid", "red-team", "research", "intelligence"]
+  "keywords": ["pdf", "markdown", "document-builder", "reports", "mermaid", "red-team", "research", "intelligence", "sprint", "autocoder", "vector-db"]
 }
