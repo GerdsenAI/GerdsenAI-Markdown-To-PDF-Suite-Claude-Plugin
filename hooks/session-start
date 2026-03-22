@@ -63,5 +63,47 @@ if [[ -f "$SOURCE_TRACKER" ]]; then
   fi
 fi
 
+# --- Vector DB health check (only if configured) ---
+VENV_PY="$DOC_BUILDER_PATH/$VENV_PYTHON_REL"
+
+if [[ -n "$GERDSEN_VECTOR_DB_MODE" ]] && [[ "$GERDSEN_VECTOR_DB_MODE" != "none" ]]; then
+  vdb_status=""
+  vdb_ok=false
+
+  # Check ChromaDB availability
+  if [[ "$GERDSEN_VECTOR_DB_BACKEND" == "chromadb" ]] || [[ -z "$GERDSEN_VECTOR_DB_BACKEND" ]]; then
+    if "$VENV_PY" -c "import chromadb" 2>/dev/null; then
+      vdb_status="ChromaDB available"
+      vdb_ok=true
+    else
+      vdb_status="ChromaDB not importable"
+    fi
+  fi
+
+  # Check Pinecone availability
+  if [[ "$GERDSEN_VECTOR_DB_BACKEND" == "pinecone" ]] || [[ -z "$GERDSEN_VECTOR_DB_BACKEND" ]]; then
+    if [[ -n "${PINECONE_API_KEY:-}" ]]; then
+      if [[ -n "$vdb_status" ]]; then
+        vdb_status="${vdb_status}, Pinecone configured"
+      else
+        vdb_status="Pinecone configured"
+      fi
+      vdb_ok=true
+    else
+      if [[ -n "$vdb_status" ]]; then
+        vdb_status="${vdb_status}, Pinecone API key not set"
+      else
+        vdb_status="Pinecone API key not set"
+      fi
+    fi
+  fi
+
+  if $vdb_ok; then
+    echo "Vector DB: ${vdb_status}"
+  else
+    echo "Vector DB configured but no backends available. Run /gerdsenai:vector-db configure to fix."
+  fi
+fi
+
 # Installed and fully configured - stay silent
 exit 0
