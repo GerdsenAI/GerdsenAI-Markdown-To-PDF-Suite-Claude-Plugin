@@ -1,14 +1,19 @@
 ---
-description: "Install and configure the GerdsenAI Document Builder with guided preferences"
-allowed-tools: Bash, Read, Write, AskUserQuestion, Glob
-model: sonnet
+description: "Install, configure, or update the GerdsenAI Document Builder"
+allowed-tools: Bash, Read, Write, Edit, AskUserQuestion, Glob
 ---
 
-You are setting up the GerdsenAI Document Builder for this project.
+You are managing the GerdsenAI Document Builder installation and configuration.
 
 ## Steps
 
-1. Check if already installed by reading `.claude/gerdsenai.local.md`. If it exists, read it and check if the path is valid. If installed and working, ask the user if they want to reinstall or reconfigure.
+1. **Detect state**: Read `.claude/gerdsenai.local.md` to check if the Document Builder is already configured.
+
+---
+
+### If NOT configured (first-time setup)
+
+Follow the full setup wizard:
 
 2. Ask the user where to install the Document Builder. Suggest `~/.gerdsenai/document-builder` as the default (hidden directory, keeps home folder clean). If the directory already exists and contains `document_builder_reportlab.py`, offer to use the existing installation instead of downloading/cloning.
 
@@ -35,7 +40,7 @@ You are setting up the GerdsenAI Document Builder for this project.
    - Legal
    - A3
 
-7. Create or update the settings file at `.claude/gerdsenai.local.md`:
+7. Create the settings file at `.claude/gerdsenai.local.md`. **IMPORTANT on Windows**: Use Python to write this file with LF line endings (`newline='\n'`), not the Write tool, because CRLF breaks the bash YAML parser:
    ```yaml
    ---
    document_builder_path: "<install_path>"
@@ -61,25 +66,82 @@ You are setting up the GerdsenAI Document Builder for this project.
      - macOS/Linux: `<install_path>/venv/bin/python`
    - Run: `'<venv_python>' -m pip install chromadb -q`
    - If pip fails, show the error and suggest: "If installation failed, you can try again later with: `<venv_python> -m pip install chromadb`"
-   - Report success or failure
 
 10. **Optional: Local AI detection (Ollama)** — detect automatically, never install:
     - Check if `ollama` is in PATH: `which ollama 2>/dev/null`
-    - If found, also run `ollama list` to check for available models:
-      - If models are found: "Ollama detected with N model(s): [model names]. Local AI pre-screening and counter-argument generation are available for Extreme Research mode."
-      - If no models found: "Ollama is installed but has no models. Run `ollama pull llama3.1:8b` to download a recommended model for local AI pre-screening."
-    - If not found, inform: "Ollama not detected. For local AI capabilities (optional), visit ollama.com to install it."
+    - If found, run `ollama list` to check for available models
+    - If not found, inform: "Ollama not detected. For local AI capabilities (optional), visit ollama.com."
 
-11. Verify the installation by running:
+11. Verify the installation:
+    ```
+    bash '${CLAUDE_PLUGIN_ROOT}/scripts/verify-install.sh'
+    ```
+
+12. Report success with a summary and next steps: "Use `/gerdsenai:build <file>` to build a PDF."
+
+---
+
+### If ALREADY configured
+
+The Document Builder is installed. Present a menu using AskUserQuestion:
+
+- **Configure settings** — Change logos, output mode, page size, margins, typography, colors, research citation style
+- **Update builder** — Update the Document Builder to the latest version
+- **Reinstall** — Re-run the full setup wizard (with current values as defaults)
+- **Check health** — Verify the installation is working correctly
+
+#### Configure settings
+
+2. Verify `<document_builder_path>` exists and contains `document_builder_reportlab.py`. If unreachable, offer to reinstall.
+
+3. Read the current `config.yaml` from `<document_builder_path>/config.yaml`. If it doesn't exist, offer to create one.
+
+4. Present the current configuration in a readable summary, organized by section:
+   - **Default metadata**: author, company, version, confidential, watermark, filename_prefix
+   - **Logos**: cover logo, footer logo (list available images in `<document_builder_path>/Assets/`)
+   - **Page**: size (A4/Letter/Legal/A3), orientation
+   - **Margins**: top, right, bottom, left (in mm)
+   - **Header/Footer**: height, show_title, show_page_numbers, show_logo, show_date
+   - **Typography**: font families, sizes, line height
+   - **Colors**: primary, secondary, accent, code_background, link, table colors
+   - **Syntax highlighting**: enabled, theme (github/monokai/dracula/tomorrow), line numbers
+   - **Code blocks**: diff, treeview, shell, generic color schemes
+   - **Mermaid**: enabled, theme, viewport, max width, error handling
+   - **Export**: optimize_size, PDF variant, compress images, embed fonts
+   - **Research**: citation style (from `.claude/gerdsenai.local.md`, default: APA)
+
+5. Ask the user what they want to change. Use AskUserQuestion for common choices.
+
+6. **Logo browser**: When changing logos:
+   - List all image files in `<document_builder_path>/Assets/` using Glob (`*.png`, `*.jpg`, `*.jpeg`, `*.svg`)
+   - Show current selections, let user pick or add new logos
+   - Copy new logo files to `<document_builder_path>/Assets/`
+
+7. Apply config.yaml changes using the Edit tool. Apply settings changes by updating `.claude/gerdsenai.local.md`.
+
+8. After making changes, offer to do a test build to verify the configuration works.
+
+#### Update builder
+
+2. Run the update script:
+   ```
+   bash '${CLAUDE_PLUGIN_ROOT}/scripts/update.sh' '<document_builder_path>'
+   ```
+
+3. Report the results:
+   - If already up to date, say so
+   - If updated, show the commit range and summary of changes
+   - Report whether dependencies were updated
+   - Flag any potential breaking changes if the update touched `config.yaml` or `document_builder_reportlab.py`
+
+#### Reinstall
+
+2. Re-run the full setup wizard above (steps 2-12), using current settings as defaults.
+
+#### Check health
+
+2. Run the verification script:
    ```
    bash '${CLAUDE_PLUGIN_ROOT}/scripts/verify-install.sh'
    ```
-
-12. Report success with a summary:
-    - Install path
-    - Output mode and directory
-    - Selected logos
-    - Page size
-    - ChromaDB status (installed / not installed)
-    - Ollama status (detected / not detected)
-    - Next steps: Use `/gerdsenai:build-pdf <file>` to build a PDF
+3. Report the health status: installation path, venv status, config.yaml presence, available logos, output mode.
