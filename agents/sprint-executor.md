@@ -457,8 +457,8 @@ When the agent detects it has lost context:
    <venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' query 'sprint-<repo>' 'decision architecture' --where '{"type":"decision"}'
    ```
 6. Run `git log --oneline -10` to see recent commits
-6. Reconstruct execution state
-7. Continue from the last incomplete task
+7. Reconstruct execution state
+8. Continue from the last incomplete task
 
 ### Escalation (Unresolvable After 3 Attempts)
 1. Store full error context in vector DB

@@ -91,7 +91,7 @@ def derive_repo_name():
     return os.path.basename(cwd).lower().replace(" ", "-")
 
 
-def init_chromadb(collection_name):
+def init_chromadb(collection_name, settings_path=None):
     """Initialize a ChromaDB collection via chromadb-store.py interface.
 
     Returns a dict with collection info or error details.
@@ -277,7 +277,7 @@ def main():
 
     # Initialize ChromaDB
     if do_chromadb:
-        chromadb_result = init_chromadb(collection_name)
+        chromadb_result = init_chromadb(collection_name, settings_path)
         if "success" in chromadb_result and not chromadb_result["success"]:
             errors.append(f"ChromaDB: {chromadb_result['error']}")
             backends["chromadb"] = chromadb_result
