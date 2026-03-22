@@ -33,7 +33,10 @@ detect_platform() {
 # Usage: parse_settings "/path/to/settings.md"
 # Exports: GERDSEN_DOC_BUILDER_PATH, GERDSEN_OUTPUT_MODE, GERDSEN_OUTPUT_DIR,
 #          GERDSEN_FILENAME_PATTERN, GERDSEN_COVER_LOGO, GERDSEN_FOOTER_LOGO,
-#          GERDSEN_PAGE_SIZE, GERDSEN_CITATION_STYLE
+#          GERDSEN_PAGE_SIZE, GERDSEN_CITATION_STYLE,
+#          GERDSEN_VECTOR_DB_MODE, GERDSEN_VECTOR_DB_BACKEND,
+#          GERDSEN_VECTOR_DB_HOOK_ON_COMMIT, GERDSEN_VECTOR_DB_HOOK_ON_FILE_CHANGE,
+#          GERDSEN_VECTOR_DB_HOOK_ON_SESSION_END
 
 parse_settings() {
   local settings_file="$1"
@@ -46,6 +49,11 @@ parse_settings() {
   GERDSEN_FOOTER_LOGO=""
   GERDSEN_PAGE_SIZE=""
   GERDSEN_CITATION_STYLE=""
+  GERDSEN_VECTOR_DB_MODE=""
+  GERDSEN_VECTOR_DB_BACKEND=""
+  GERDSEN_VECTOR_DB_HOOK_ON_COMMIT=""
+  GERDSEN_VECTOR_DB_HOOK_ON_FILE_CHANGE=""
+  GERDSEN_VECTOR_DB_HOOK_ON_SESSION_END=""
 
   local in_frontmatter=false
   while IFS= read -r line; do
@@ -85,6 +93,21 @@ parse_settings() {
       if [[ "$line" =~ ^citation_style:[[:space:]]*\"?([^\"]*)\"? ]]; then
         GERDSEN_CITATION_STYLE="${BASH_REMATCH[1]}"
       fi
+      if [[ "$line" =~ ^vector_db_mode:[[:space:]]*\"?([^\"]*)\"? ]]; then
+        GERDSEN_VECTOR_DB_MODE="${BASH_REMATCH[1]}"
+      fi
+      if [[ "$line" =~ ^vector_db_backend:[[:space:]]*\"?([^\"]*)\"? ]]; then
+        GERDSEN_VECTOR_DB_BACKEND="${BASH_REMATCH[1]}"
+      fi
+      if [[ "$line" =~ ^vector_db_hook_on_commit:[[:space:]]*\"?([^\"]*)\"? ]]; then
+        GERDSEN_VECTOR_DB_HOOK_ON_COMMIT="${BASH_REMATCH[1]}"
+      fi
+      if [[ "$line" =~ ^vector_db_hook_on_file_change:[[:space:]]*\"?([^\"]*)\"? ]]; then
+        GERDSEN_VECTOR_DB_HOOK_ON_FILE_CHANGE="${BASH_REMATCH[1]}"
+      fi
+      if [[ "$line" =~ ^vector_db_hook_on_session_end:[[:space:]]*\"?([^\"]*)\"? ]]; then
+        GERDSEN_VECTOR_DB_HOOK_ON_SESSION_END="${BASH_REMATCH[1]}"
+      fi
     fi
   done < "$settings_file"
 
@@ -98,6 +121,11 @@ parse_settings() {
   GERDSEN_FOOTER_LOGO="${GERDSEN_FOOTER_LOGO%"${GERDSEN_FOOTER_LOGO##*[![:space:]]}"}"
   GERDSEN_PAGE_SIZE="${GERDSEN_PAGE_SIZE%"${GERDSEN_PAGE_SIZE##*[![:space:]]}"}"
   GERDSEN_CITATION_STYLE="${GERDSEN_CITATION_STYLE%"${GERDSEN_CITATION_STYLE##*[![:space:]]}"}"
+  GERDSEN_VECTOR_DB_MODE="${GERDSEN_VECTOR_DB_MODE%"${GERDSEN_VECTOR_DB_MODE##*[![:space:]]}"}"
+  GERDSEN_VECTOR_DB_BACKEND="${GERDSEN_VECTOR_DB_BACKEND%"${GERDSEN_VECTOR_DB_BACKEND##*[![:space:]]}"}"
+  GERDSEN_VECTOR_DB_HOOK_ON_COMMIT="${GERDSEN_VECTOR_DB_HOOK_ON_COMMIT%"${GERDSEN_VECTOR_DB_HOOK_ON_COMMIT##*[![:space:]]}"}"
+  GERDSEN_VECTOR_DB_HOOK_ON_FILE_CHANGE="${GERDSEN_VECTOR_DB_HOOK_ON_FILE_CHANGE%"${GERDSEN_VECTOR_DB_HOOK_ON_FILE_CHANGE##*[![:space:]]}"}"
+  GERDSEN_VECTOR_DB_HOOK_ON_SESSION_END="${GERDSEN_VECTOR_DB_HOOK_ON_SESSION_END%"${GERDSEN_VECTOR_DB_HOOK_ON_SESSION_END##*[![:space:]]}"}"
 
   # Validate output_mode if set
   if [[ -n "$GERDSEN_OUTPUT_MODE" ]]; then
