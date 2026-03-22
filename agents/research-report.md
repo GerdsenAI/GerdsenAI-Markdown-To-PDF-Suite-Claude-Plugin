@@ -67,59 +67,32 @@ If NO search tools are found at all, warn the user and offer to proceed with lim
 
 ## Phase 0.5: Research Memory Setup
 
-Set up persistent research memory using the best available backend. Priority order: **Pinecone > ChromaDB > in-context**.
+Run the unified vector DB initializer to set up the configured backend(s):
 
-### Backend Selection
+```
+<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/vector-db-init.py' '.claude/gerdsenai.local.md' 'research'
+```
 
-Use this decision tree — never use both Pinecone and ChromaDB simultaneously. Only one backend is active per session.
+Parse the JSON output to determine active backends, collection/index names, and document counts.
 
-1. Pinecone tools discovered in Phase 0c?
-   - **YES** → `VECTOR_BACKEND = "pinecone"` — skip ChromaDB entirely, do not check for it
-   - **NO** → proceed to step 2
-2. ChromaDB available (Phase 0c.5 import check passed)?
-   - **YES** → `VECTOR_BACKEND = "chromadb"`
-   - **NO** → proceed to step 3
-3. Neither available → `VECTOR_BACKEND = "in-context"` — all findings stay in conversation context (works but risks context window overflow on long reports)
+- **Dual mode**: Write to both backends. Query primary first, fall back to secondary.
+- **Single mode**: Use the configured backend (ChromaDB or Pinecone).
+- **In-context mode**: All findings stay in conversation context. In Extreme Research mode, strongly recommend configuring a vector DB via `/gerdsenai:vector-db configure`.
 
-In Extreme Research mode (see Phase 2), strongly recommend installing ChromaDB if `VECTOR_BACKEND = "in-context"`.
-
-### Pinecone Setup (when Pinecone is the backend)
-
-#### Naming Convention (repo-scoped isolation)
-Derive a unique assistant name from the current project directory:
-- Take the current working directory basename (e.g., `my-saas-app`)
-- Prefix with `research-`: `research-my-saas-app`
-- This ensures each repo gets its own dedicated Pinecone assistant — never overwrite or pollute another project's research data
-
-#### Setup Steps
-1. **List existing assistants**: Use Pinecone assistant-list to check if `research-<repo-name>` already exists
-2. **If it exists**: Reuse it — prior research for this project is available for cross-referencing
-3. **If it does NOT exist**: Create it using Pinecone assistant-create with name `research-<repo-name>`, configured for document Q&A with citations
-4. **NEVER reuse or write to assistants belonging to other projects** — each project is isolated
-
-### ChromaDB Setup (when ChromaDB is the backend)
-
-1. Derive a project name from the current working directory basename
-2. Initialize the collection:
-   ```
-   <venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' init '<project-name>'
-   ```
-3. If the collection already exists with documents, prior research is available for cross-referencing
+The initializer handles repo-scoped isolation automatically — each repo gets its own collections/indexes named `<repo-basename>-research`. Data from different repos is NEVER mixed.
 
 ### Prior Research Check
 
-After backend setup, run a quick status check to discover existing research data:
-- **Pinecone**: Query the assistant with a broad topic match. Report: "Found prior research assistant with existing documents. Will cross-reference during synthesis."
-- **ChromaDB**: Run `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' init '<project-name>'` and check the `document_count` in the JSON output. If > 0, report: "Found N documents from prior sessions. Cross-referencing during synthesis."
-- **In-context**: No prior data available. Proceed normally.
+After initialization, check document counts in the JSON output. If > 0: "Found N documents from prior sessions. Will cross-reference during synthesis."
 
-### Usage Throughout Research (both backends)
-- After each sub-agent returns findings → store a structured summary
-  - Pinecone: upload to the project's research assistant
-  - ChromaDB: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' store '<project>' '<summary>' --metadata '{"phase": "4", "facet": "..."}'`
-- During synthesis (Phase 6) → query for specific facts, citations, and data points instead of re-reading everything
-- After PDF delivery → store the final report for future cross-referencing
-- Benefits: prevents context window overflow, enables cross-session knowledge, preserves source URLs
+### Usage Throughout Research
+
+- **Store**: After each sub-agent returns findings, store a structured summary:
+  - ChromaDB: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' store '<collection>' '<summary>' --metadata '{"phase": "4", "facet": "..."}' --settings '.claude/gerdsenai.local.md'`
+  - Pinecone: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/pinecone-store.py' store '<index>' '<summary>' --metadata '{"phase": "4", "facet": "..."}' --settings '.claude/gerdsenai.local.md'`
+  - Dual mode: store to both backends
+- **Query**: During synthesis (Phase 6), query for specific facts and data points instead of re-reading all context
+- **Persist**: After PDF delivery, store the final report for future cross-referencing
 
 If NO vector DB is available, proceed normally — all findings stay in conversation context.
 
@@ -338,7 +311,7 @@ After the standard quality review passes, dispatch the dedicated red-team review
    - The reviewer will return a structured review with BLOCK/WARN/NOTE challenges
 
    ```
-   Task prompt: "You are the adversarial red-team reviewer. Read and review the markdown report at '<draft_file_path>'. Follow your full review protocol (Steps 1-7). Read the reference at '<red-team-reference-path>' for challenge categories, severity levels, and the source quality rubric. Return your structured review with summary statistics and all challenges by severity."
+   Task prompt: "You are the adversarial red-team reviewer. Analyze the markdown report at '<draft_file_path>'. Focus on document-relevant domains: document, strategic. Read your full protocol at '${CLAUDE_PLUGIN_ROOT}/agents/red-team-reviewer.md'. Read the reference at '${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/red-team-reference.md' for challenge categories, severity levels, and the source quality rubric. Return your structured review with summary statistics and all challenges by severity."
    Sub-agent type: red-team-reviewer
    ```
 
@@ -384,7 +357,7 @@ Skip this phase only if the user explicitly requests it (e.g., "skip the review"
    ```
 3. Report the result: PDF path, file size
 4. Offer revisions to content, structure, or formatting
-5. **Extreme Research mode**: Auto-register the report for source monitoring (equivalent to `/gerdsenai:monitor`). Inform the user that stale sources will be flagged at session start.
+5. **Extreme Research mode**: Auto-register the report for source monitoring (equivalent to `/gerdsenai:research-report`). Inform the user that stale sources will be flagged at session start.
 
 ### Multi-Document Handling
 
@@ -399,7 +372,7 @@ If a build fails:
 1. Read the error output carefully
 2. Common fixes: close unclosed front matter `---`, fix Mermaid syntax errors, resolve missing image paths
 3. Fix the markdown and rebuild
-4. If the error is in the builder itself, suggest the user run `/gerdsenai:update`
+4. If the error is in the builder itself, suggest the user run `/gerdsenai:setup` (choose "Update builder")
 
 If research tools fail or return no results:
 1. Try alternative search queries

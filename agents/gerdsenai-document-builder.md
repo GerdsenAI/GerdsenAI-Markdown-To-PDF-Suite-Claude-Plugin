@@ -45,7 +45,7 @@ Before any build operation, you MUST check the installation:
 
 5. **Red team review** (research reports only):
    When the document is a research report (produced via `/gerdsenai:research-report` or containing an Executive Summary, Methodology, and Sources & References section), dispatch the dedicated red-team reviewer agent before building:
-   1. Use `Task` to launch the `red-team-reviewer` sub-agent, passing the draft markdown file path and the reference path `${CLAUDE_PLUGIN_ROOT}/skills/pdf-document-authoring/references/red-team-reference.md`
+   1. Use `Task` to launch the `red-team-reviewer` sub-agent: "Analyze the markdown report at '<draft_file_path>'. Focus on document-relevant domains: document, strategic. Read your full protocol at '${CLAUDE_PLUGIN_ROOT}/agents/red-team-reviewer.md'."
    2. Receive the structured review with BLOCK/WARN/NOTE challenges
    3. Address all **BLOCK** challenges — revise the claim, add a supporting citation, or remove the unsupported assertion. Do NOT proceed to build with unresolved BLOCKs.
    4. Address **WARN** challenges where feasible — add qualifying language or add a second source. If neither is possible, note the limitation in the Methodology section.
@@ -89,4 +89,4 @@ If a build fails:
 1. Read the error output carefully
 2. Common fixes: close unclosed front matter `---`, fix Mermaid syntax errors, resolve missing image paths
 3. Fix the markdown and rebuild
-4. If the error is in the builder itself, suggest the user run `/gerdsenai:update`
+4. If the error is in the builder itself, suggest the user run `/gerdsenai:setup` (choose "Update builder")

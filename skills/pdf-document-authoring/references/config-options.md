@@ -2,7 +2,7 @@
 
 Complete reference for `config.yaml` in the GerdsenAI Document Builder.
 
-Edit this file directly or use `/gerdsenai:configure`.
+Edit this file directly or use `/gerdsenai:setup` (choose "Configure settings").
 
 ## default
 

@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.7.0
+
+### Vector DB Infrastructure Overhaul
+- **Dual-backend support** — run ChromaDB (local) and Pinecone (cloud) simultaneously with configurable routing (mirror, split, primary-only)
+- **`scripts/pinecone-store.py`** — Python SDK wrapper mirroring chromadb-store.py interface (init, store, query, list, clear) with re-ranking support
+- **`scripts/vector-db-init.py`** — unified initializer that reads settings and sets up the correct backend(s) for any context (research, sprint, redteam)
+- **Configurable embedding models** — ChromaDB: all-MiniLM-L6-v2 or all-mpnet-base-v2. Pinecone: llama-text-embed-v2, multilingual-e5-large, or sparse
+- **Re-ranking** — Pinecone supports pinecone-rerank-v0, bge-reranker-v2-m3, or cohere-rerank-3.5 with configurable top-N
+- **Automated hooks** — PostToolUse hook auto-upserts git commit summaries, Stop hook flushes on session end, SessionStart hook checks vector DB health
+- **Repo-scoped isolation** — collections/indexes named `<repo-basename>-<context>`, data from different repos NEVER mixed
+- **Expanded `/gerdsenai:vector-db configure`** — full setup wizard for backend selection, embedding models, re-ranking, chunk settings, hook triggers
+- **Unified Phase 0.5** — all agents (research-report, red-team-reviewer, sprint-executor) use vector-db-init.py instead of inline backend selection
+- **Vector DB reference doc** — embedding model comparison, re-ranking models, metadata schema standard, dual-backend routing patterns
+
+### Command Consolidation (11 → 6 commands)
+- **`/gerdsenai:build`** — merged `build-pdf` and `build-recursive` into a single command that auto-detects file vs directory targets. Supports `--recursive`, `--output-dir`, `--output-name` flags.
+- **`/gerdsenai:setup`** — merged `setup`, `configure`, and `update` into one command. Shows a menu when already installed (Configure settings / Update builder / Reinstall / Check health). Full wizard on first run.
+- **`/gerdsenai:research-report`** — absorbed `monitor`, `check-freshness`, and `refresh` with context auto-detection. Passing a file with `.sources.json` triggers freshness check; without triggers monitoring registration. New reports offer monitoring after build.
+- **`/gerdsenai:vector-db`** — expanded from `vector-db-report` to full vector DB management: report, store, query, and configure (index, re-ranking, embedding model, chunking). Supports Pinecone and ChromaDB.
+
+### New Features
+- **`/gerdsenai:sprint-execute`** — autonomous sprint executor using the Socratic Method (Thesis → Antithesis → Synthesis). Plans development sprints, then autocodes them to completion with ChromaDB context management, auto-commit at planned points, permission injection to `.claude/settings.local.json`, and CLAUDE.md sprint state for context compaction resilience. Supports `resume` for interrupted sprints.
+
+### Red-Team Redesign
+- **`/gerdsenai:red-team`** — completely redesigned from document-only reviewer to full adversarial analysis engine. Now covers 11 domains: code quality, security (OWASP Top 10), dependencies (CVE scanning), architecture, testing, DevOps/CI/CD, database, AI/ML, accessibility (WCAG 2.1 AA), documents, and strategic alignment. Uses Socratic reasoning chains (5 stages) and rabbit hole investigation protocol (pattern proliferation → dependency tracing → blast radius → STRIDE threat modeling). Auto-detects technology stack and activates relevant domains. Supports `--domains`, `--depth`, and `--fix` flags. ChromaDB persistence for cross-session finding continuity. Re-integrated into research-report Phase 7.5, document-builder Step 5, and sprint-executor Phase 6 with domain scoping.
+
+### Removed Commands
+- `/gerdsenai:build-pdf` → use `/gerdsenai:build`
+- `/gerdsenai:build-recursive` → use `/gerdsenai:build <directory>`
+- `/gerdsenai:configure` → use `/gerdsenai:setup` (choose "Configure settings")
+- `/gerdsenai:update` → use `/gerdsenai:setup` (choose "Update builder")
+- `/gerdsenai:monitor` → use `/gerdsenai:research-report <file>`
+- `/gerdsenai:check-freshness` → use `/gerdsenai:research-report <file>`
+- `/gerdsenai:refresh` → use `/gerdsenai:research-report <file>`
+- `/gerdsenai:vector-db-report` → use `/gerdsenai:vector-db report`
+
 ## 0.6.1
 
 ### Bug Fixes

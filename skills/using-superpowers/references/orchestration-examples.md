@@ -48,7 +48,7 @@ After subagents return:
 - Create Mermaid diagrams: browser support timeline, architecture flowchart, performance comparison chart
 - Invoke `pdf-document-authoring` skill for formatting rules
 - Write markdown with YAML front matter, citations, diagrams
-- Build PDF via `/gerdsenai:build-pdf`
+- Build PDF via `/gerdsenai:build`
 
 ### Phase 4 — Output: PDF report + inline summary
 

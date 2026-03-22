@@ -79,7 +79,7 @@ The `scripts/chromadb-report.py` utility provides detailed Vector DB reporting:
 <venv_python> scripts/chromadb-report.py health
 ```
 
-Reports include metadata schema analysis, sample documents, data quality metrics (duplicates, empties, metadata completeness), and optional query tests. Use `/gerdsenai:vector-db-report` for formatted output.
+Reports include metadata schema analysis, sample documents, data quality metrics (duplicates, empties, metadata completeness), and optional query tests. Use `/gerdsenai:vector-db report` for formatted output.
 
 ### Storage Location
 
