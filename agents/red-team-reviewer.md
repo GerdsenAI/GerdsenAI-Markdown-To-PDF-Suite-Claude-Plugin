@@ -70,32 +70,24 @@ Build a structured manifest categorizing every discovered tool:
 
 ### Settings Resolution
 
-Read `.claude/gerdsenai.local.md` to get the `document_builder_path`. If it exists, determine the venv Python path:
+Read `.claude/gerdsenai.local.md` to get the `document_builder_path`. Determine the venv Python path:
 - Windows: `<document_builder_path>/venv/Scripts/python.exe`
 - macOS/Linux: `<document_builder_path>/venv/bin/python`
 
-If settings or Document Builder not installed, ChromaDB unavailable — use Pinecone or in-context only.
+### Vector DB Setup
 
-### Vector Backend Selection
+Run the unified vector DB initializer:
+```
+<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/vector-db-init.py' '.claude/gerdsenai.local.md' 'redteam'
+```
 
-Priority: **Pinecone > ChromaDB > in-context**.
-
-1. Pinecone tools discovered? → `VECTOR_BACKEND = "pinecone"`
-2. ChromaDB available? → `VECTOR_BACKEND = "chromadb"`
-3. Neither → `VECTOR_BACKEND = "in-context"`
-
-### Collection: `redteam-<repo-basename>`
-
-Initialize:
-- **ChromaDB**: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' init 'redteam-<repo-name>'`
-- **Pinecone**: Check for existing assistant, create if needed
+Parse the JSON output to determine active backends and collection/index names. Supports dual mode (ChromaDB + Pinecone simultaneously), single mode, or in-context fallback.
 
 ### Prior Findings Check
 
-Query for existing red-team data from prior sessions:
-```
-<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' query 'redteam-<repo>' 'prior findings unresolved BLOCK WARN' --n-results 10
-```
+Query for existing red-team data from prior sessions using the initialized backend(s):
+- ChromaDB: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' query '<collection>' 'prior findings unresolved BLOCK WARN' --n-results 10 --settings '.claude/gerdsenai.local.md'`
+- Pinecone: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/pinecone-store.py' query '<index>' 'prior findings unresolved BLOCK WARN' --n-results 10 --settings '.claude/gerdsenai.local.md'`
 
 If prior findings exist: "Found N prior findings. Will cross-reference and check for regressions."
 

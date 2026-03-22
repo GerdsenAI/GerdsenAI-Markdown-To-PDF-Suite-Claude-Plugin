@@ -67,59 +67,32 @@ If NO search tools are found at all, warn the user and offer to proceed with lim
 
 ## Phase 0.5: Research Memory Setup
 
-Set up persistent research memory using the best available backend. Priority order: **Pinecone > ChromaDB > in-context**.
+Run the unified vector DB initializer to set up the configured backend(s):
 
-### Backend Selection
+```
+<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/vector-db-init.py' '.claude/gerdsenai.local.md' 'research'
+```
 
-Use this decision tree — never use both Pinecone and ChromaDB simultaneously. Only one backend is active per session.
+Parse the JSON output to determine active backends, collection/index names, and document counts.
 
-1. Pinecone tools discovered in Phase 0c?
-   - **YES** → `VECTOR_BACKEND = "pinecone"` — skip ChromaDB entirely, do not check for it
-   - **NO** → proceed to step 2
-2. ChromaDB available (Phase 0c.5 import check passed)?
-   - **YES** → `VECTOR_BACKEND = "chromadb"`
-   - **NO** → proceed to step 3
-3. Neither available → `VECTOR_BACKEND = "in-context"` — all findings stay in conversation context (works but risks context window overflow on long reports)
+- **Dual mode**: Write to both backends. Query primary first, fall back to secondary.
+- **Single mode**: Use the configured backend (ChromaDB or Pinecone).
+- **In-context mode**: All findings stay in conversation context. In Extreme Research mode, strongly recommend configuring a vector DB via `/gerdsenai:vector-db configure`.
 
-In Extreme Research mode (see Phase 2), strongly recommend installing ChromaDB if `VECTOR_BACKEND = "in-context"`.
-
-### Pinecone Setup (when Pinecone is the backend)
-
-#### Naming Convention (repo-scoped isolation)
-Derive a unique assistant name from the current project directory:
-- Take the current working directory basename (e.g., `my-saas-app`)
-- Prefix with `research-`: `research-my-saas-app`
-- This ensures each repo gets its own dedicated Pinecone assistant — never overwrite or pollute another project's research data
-
-#### Setup Steps
-1. **List existing assistants**: Use Pinecone assistant-list to check if `research-<repo-name>` already exists
-2. **If it exists**: Reuse it — prior research for this project is available for cross-referencing
-3. **If it does NOT exist**: Create it using Pinecone assistant-create with name `research-<repo-name>`, configured for document Q&A with citations
-4. **NEVER reuse or write to assistants belonging to other projects** — each project is isolated
-
-### ChromaDB Setup (when ChromaDB is the backend)
-
-1. Derive a project name from the current working directory basename
-2. Initialize the collection:
-   ```
-   <venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' init '<project-name>'
-   ```
-3. If the collection already exists with documents, prior research is available for cross-referencing
+The initializer handles repo-scoped isolation automatically — each repo gets its own collections/indexes named `<repo-basename>-research`. Data from different repos is NEVER mixed.
 
 ### Prior Research Check
 
-After backend setup, run a quick status check to discover existing research data:
-- **Pinecone**: Query the assistant with a broad topic match. Report: "Found prior research assistant with existing documents. Will cross-reference during synthesis."
-- **ChromaDB**: Run `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' init '<project-name>'` and check the `document_count` in the JSON output. If > 0, report: "Found N documents from prior sessions. Cross-referencing during synthesis."
-- **In-context**: No prior data available. Proceed normally.
+After initialization, check document counts in the JSON output. If > 0: "Found N documents from prior sessions. Will cross-reference during synthesis."
 
-### Usage Throughout Research (both backends)
-- After each sub-agent returns findings → store a structured summary
-  - Pinecone: upload to the project's research assistant
-  - ChromaDB: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' store '<project>' '<summary>' --metadata '{"phase": "4", "facet": "..."}'`
-- During synthesis (Phase 6) → query for specific facts, citations, and data points instead of re-reading everything
-- After PDF delivery → store the final report for future cross-referencing
-- Benefits: prevents context window overflow, enables cross-session knowledge, preserves source URLs
+### Usage Throughout Research
+
+- **Store**: After each sub-agent returns findings, store a structured summary:
+  - ChromaDB: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' store '<collection>' '<summary>' --metadata '{"phase": "4", "facet": "..."}' --settings '.claude/gerdsenai.local.md'`
+  - Pinecone: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/pinecone-store.py' store '<index>' '<summary>' --metadata '{"phase": "4", "facet": "..."}' --settings '.claude/gerdsenai.local.md'`
+  - Dual mode: store to both backends
+- **Query**: During synthesis (Phase 6), query for specific facts and data points instead of re-reading all context
+- **Persist**: After PDF delivery, store the final report for future cross-referencing
 
 If NO vector DB is available, proceed normally — all findings stay in conversation context.
 

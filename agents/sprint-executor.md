@@ -57,36 +57,26 @@ Build a structured manifest categorizing every discovered tool:
 
 ### Settings Resolution
 
-Read `.claude/gerdsenai.local.md` to get the `document_builder_path`. If it exists, determine the venv Python path:
+Read `.claude/gerdsenai.local.md` to get the `document_builder_path`. Determine the venv Python path:
 - Windows: `<document_builder_path>/venv/Scripts/python.exe`
 - macOS/Linux: `<document_builder_path>/venv/bin/python`
 
-If the settings file or Document Builder is not installed, ChromaDB will be unavailable. Proceed with Pinecone or in-context only.
+### Vector DB Setup
 
-### Vector Backend Selection
+Run the unified vector DB initializer:
+```
+<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/vector-db-init.py' '.claude/gerdsenai.local.md' 'sprint'
+```
 
-Set up persistent sprint context using the best available backend. Priority: **Pinecone > ChromaDB > in-context**.
+Parse the JSON output to determine active backends and collection/index names. Supports dual mode (ChromaDB + Pinecone simultaneously), single mode, or in-context fallback.
 
-### Backend Selection
-
-1. Pinecone tools discovered in Phase 0c? → `VECTOR_BACKEND = "pinecone"`
-2. ChromaDB available? → `VECTOR_BACKEND = "chromadb"`
-3. Neither → `VECTOR_BACKEND = "in-context"` (works but risks context loss on long sprints)
-
-### Collection Naming
-
-- ChromaDB: `sprint-<repo-basename>` (isolates sprint context from research context)
-- Pinecone: `sprint-<repo-basename>` assistant
-
-### Initialize
-
-- **ChromaDB**: `<venv_python> '${CLAUDE_PLUGIN_ROOT}/scripts/chromadb-store.py' init 'sprint-<repo-name>'`
-- **Pinecone**: Check for existing assistant, create if needed
-- **In-context**: No setup needed, but warn: "No vector DB available. Sprint state will be tracked via todo.md and CLAUDE.md only. For long sprints, consider installing ChromaDB."
+- **Dual mode**: Write to both backends. Query primary first, fall back to secondary.
+- **Single mode**: Use the configured backend.
+- **In-context**: Warn: "No vector DB configured. Sprint state tracked via todo.md and CLAUDE.md only. For long sprints, run `/gerdsenai:vector-db configure`."
 
 ### Prior Sprint Check
 
-Query for existing sprint data. If found: "Found prior sprint context with N documents. Will use for continuity."
+Check document counts from the init output. If > 0: "Found prior sprint context with N documents. Will use for continuity."
 
 ## Phase 1: Sprint Intake & Todo Detection
 

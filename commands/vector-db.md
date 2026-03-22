@@ -1,5 +1,5 @@
 ---
-description: "Manage vector databases — report, store, query, and configure ChromaDB or Pinecone backends"
+description: "Manage vector databases — report, store, query, and configure ChromaDB and/or Pinecone backends with dual-backend, re-ranking, and hook automation"
 allowed-tools: Bash, Read, Write, Edit, Glob, AskUserQuestion, ToolSearch
 argument-hint: "[report | store | query | configure] [options]"
 ---
@@ -12,10 +12,12 @@ You are managing vector database operations for GerdsenAI.
    - Windows: `<document_builder_path>/venv/Scripts/python.exe`
    - macOS/Linux: `<document_builder_path>/venv/bin/python`
 
-2. **Discover backend** — use only one, never both:
-   a. Check if ChromaDB is available: `'<venv_python>' -c "import chromadb; print('available')" 2>/dev/null`
-   b. If ChromaDB is NOT available, probe for Pinecone: `ToolSearch("pinecone")`
-   c. If neither is available, report "No vector database backend configured" and offer to configure one (see Configure operation below).
+2. **Discover backends** — check both, respecting user configuration:
+   - Read `vector_db_mode` from settings (chromadb | pinecone | dual | none). If not set, auto-detect:
+     a. Check ChromaDB: `'<venv_python>' -c "import chromadb; print('available')" 2>/dev/null`
+     b. Probe for Pinecone: `ToolSearch("pinecone")` and check `PINECONE_API_KEY`
+   - If neither available, offer to configure (see Configure operation below)
+   - **Dual mode**: both backends active. User's `vector_db_primary` determines query preference.
 
 3. **Auto-detect intent** from `$ARGUMENTS`:
    - Starts with `report` or `--all` or is a project name → **Report**
@@ -112,43 +114,86 @@ Search the vector database with natural language.
 
 ### Configure
 
-Configure vector DB settings — backend, index, re-ranking, chunking.
+Full vector DB setup wizard — backends, indexes, embeddings, re-ranking, hooks.
 
 4. **Read current config** from `.claude/gerdsenai.local.md` for any existing vector DB settings.
 
-5. **Present configuration options** using AskUserQuestion:
+5. **Backend selection** using AskUserQuestion:
+   - "ChromaDB only (local, no API keys)" — check if installed, offer `pip install chromadb` if not
+   - "Pinecone only (cloud, requires API key)" — verify PINECONE_API_KEY is set
+   - "Dual: ChromaDB (local) + Pinecone (cloud)" — both backends active
+   - "None (disable vector DB)"
 
-   **Backend selection:**
-   - "ChromaDB (local, no API key needed)" — check if installed, offer to install via pip if not
-   - "Pinecone (cloud, requires API key)" — check if MCP tools available via ToolSearch
-
-   **Index/Collection settings:**
-   - Collection/index name (default: project name)
-   - Embedding model (ChromaDB: default all-MiniLM-L6-v2; Pinecone: model specified at index creation)
-
-   **Chunking settings:**
+6. **If ChromaDB enabled**, configure:
+   - Embedding model using AskUserQuestion:
+     - "all-MiniLM-L6-v2 (384d, fast, ~50MB download)" — recommended for most use cases
+     - "sentence-transformers/all-mpnet-base-v2 (768d, better quality, ~400MB)" — for higher precision
    - Chunk size (default: 500 characters)
    - Chunk overlap (default: 100 characters)
-
-   **Query settings:**
+   - Max distance threshold (default: 1.5, range 0-2 for cosine)
    - Default result count (default: 10)
-   - Maximum distance threshold (default: 1.5)
 
-   **Re-ranking (Pinecone only):**
-   - Enable/disable re-ranking
-   - Re-ranking model selection
-   - Top-N after re-ranking
+7. **If Pinecone enabled**, configure:
+   - Verify PINECONE_API_KEY is set in environment
+   - Index name: auto-generate from repo basename, or let user specify
+   - Embedding model using AskUserQuestion:
+     - "llama-text-embed-v2 (high-performance dense, best for structured docs)"
+     - "multilingual-e5-large (efficient, good for messy data)"
+     - "pinecone-sparse-english-v0 (sparse/hybrid search)"
+   - Cloud and region (default: aws us-east-1)
+   - Re-ranking using AskUserQuestion:
+     - "Enable re-ranking" → then select model:
+       - "pinecone-rerank-v0 (state-of-the-art, up to 512 tokens)"
+       - "bge-reranker-v2-m3 (multilingual, good on messy data)"
+       - "cohere-rerank-3.5 (enterprise-focused, multi-field)"
+     - "Disable re-ranking"
+   - Re-rank top-N (default: 5)
 
-6. **Save configuration** to `.claude/gerdsenai.local.md` by adding/updating vector DB fields. **IMPORTANT on Windows**: Use Python to write settings with LF line endings (`newline='\n'`), not the Write tool, because CRLF breaks the bash YAML parser:
-   ```yaml
-   vector_db_backend: "chromadb|pinecone"
-   vector_db_collection: "<name>"
-   vector_db_chunk_size: 500
-   vector_db_chunk_overlap: 100
-   vector_db_default_results: 10
-   vector_db_max_distance: 1.5
-   vector_db_rerank_enabled: false
-   vector_db_rerank_model: ""
-   ```
+8. **If dual mode**, configure:
+   - Primary backend for queries using AskUserQuestion:
+     - "ChromaDB (local, faster response)"
+     - "Pinecone (cloud, better quality with re-ranking)"
+   - Sync mode using AskUserQuestion:
+     - "Mirror (write to both simultaneously)" — recommended for reliability
+     - "Split (route by context — e.g., sprint→local, research→cloud)" — ask for routing rules
+     - "Primary only (write to primary, manual sync to secondary)"
 
-7. **Verify configuration** by running a test operation (init collection or list indexes).
+9. **Hook configuration** using AskUserQuestion:
+   - "Auto-upsert on git commit?" (recommended: yes)
+   - "Health check on session start?" (recommended: yes)
+   - "Flush on session end?" (recommended: yes)
+   - "Auto-index file changes?" (warn: expensive, default: no)
+
+10. **Save all settings** to `.claude/gerdsenai.local.md`. **IMPORTANT on Windows**: Use Python to write with LF line endings (`newline='\n'`):
+    ```yaml
+    vector_db_mode: "dual"
+    vector_db_chromadb_enabled: true
+    vector_db_pinecone_enabled: true
+    vector_db_primary: "chromadb"
+    vector_db_sync_mode: "mirror"
+    vector_db_collection_prefix: ""
+    vector_db_chromadb_embedding_model: "all-MiniLM-L6-v2"
+    vector_db_chromadb_chunk_size: 500
+    vector_db_chromadb_chunk_overlap: 100
+    vector_db_chromadb_max_distance: 1.5
+    vector_db_chromadb_default_results: 10
+    vector_db_pinecone_index: ""
+    vector_db_pinecone_embedding_model: "llama-text-embed-v2"
+    vector_db_pinecone_cloud: "aws"
+    vector_db_pinecone_region: "us-east-1"
+    vector_db_pinecone_rerank_enabled: false
+    vector_db_pinecone_rerank_model: "pinecone-rerank-v0"
+    vector_db_pinecone_rerank_top_n: 5
+    vector_db_hook_on_commit: true
+    vector_db_hook_on_session_start: true
+    vector_db_hook_on_session_end: true
+    vector_db_hook_on_file_change: false
+    ```
+
+11. **Verify configuration** by running the unified init:
+    ```
+    '<venv_python>' '${CLAUDE_PLUGIN_ROOT}/scripts/vector-db-init.py' '.claude/gerdsenai.local.md' 'research'
+    ```
+    Report: backends initialized, collection/index names, document counts.
+
+12. **Data isolation guarantee**: Each repo gets its own collections/indexes derived from the repo directory basename. Collections are named `<repo-basename>-<context>` (e.g., `my-app-research`, `my-app-sprint`, `my-app-redteam`). Data from different repos is NEVER mixed.
