@@ -53,14 +53,15 @@ skills/
 
 1. **Commands** are markdown files that define the prompt and allowed tools for each slash command. They reference `${CLAUDE_PLUGIN_ROOT}/scripts/` to run shell scripts.
 2. **Scripts** do the actual work: `build.sh` copies the markdown to the builder's `To_Build/` dir, runs `document_builder_reportlab.py` via the venv Python, then copies the output PDF to the configured location.
-3. **Settings** are stored per-project at `.claude/gerdsenai.local.md` (YAML front matter with `document_builder_path`, `output_mode`, logos, page size). This file is gitignored.
-4. **The agent** handles end-to-end document creation autonomously (gather requirements → author markdown → build PDF).
+3. **Settings** are stored per-project at `.claude/gerdsenai.local.md` (YAML front matter with `document_builder_path`, `output_mode`, logos, page size, vector DB config). This file is gitignored.
+4. **Agents** handle autonomous workflows: document creation, research reports, adversarial red-team review (11 domains), and sprint execution (Socratic autocoder).
 5. **The skill** activates when authoring PDF-targeted markdown, providing rules for front matter, heading hierarchy, Mermaid diagrams, code blocks, and quality checks.
-6. **The session-start hook** runs on every new session, silently succeeding if configured or warning if setup is needed.
+6. **Hooks** run on session start (health check + vector DB status), after Bash tool use (auto-upsert git commits to vector DB), and on session end (flush pending vector DB operations).
+7. **Vector DB** supports dual-backend mode (ChromaDB local + Pinecone cloud simultaneously). Collections are repo-scoped (`<repo-basename>-<context>`). Configured via `/gerdsenai:vector-db configure`.
 
 ### Settings YAML Front Matter Format
 
-The settings file (`.claude/gerdsenai.local.md`) uses YAML front matter parsed by bash regex in all scripts. The parser is line-by-line `key: value` — no nested structures. Key fields: `document_builder_path`, `output_mode` (`same_directory`|`custom`|`builder_pdfs`), `default_output_dir`, `cover_logo`, `footer_logo`, `preferred_page_size`.
+The settings file (`.claude/gerdsenai.local.md`) uses YAML front matter parsed by bash regex in all scripts. The parser is line-by-line `key: value` — no nested structures. Key fields: `document_builder_path`, `output_mode` (`same_directory`|`custom`|`builder_pdfs`), `default_output_dir`, `cover_logo`, `footer_logo`, `preferred_page_size`, plus `vector_db_*` fields for backend config (mode, embedding models, chunking, re-ranking, hooks).
 
 ### Build Script Output
 
@@ -96,3 +97,5 @@ bash scripts/setup.sh ~/TestBuilder         # Test fresh install
 - The `build.sh` `--recursive` mode auto-excludes `node_modules/`, `.git/`, `venv/`, `__pycache__/`, `.claude/`, and common non-document markdown files (README.md, CLAUDE.md, CHANGELOG.md, LICENSE.md).
 - Commands specify `allowed-tools` in their front matter to restrict which tools Claude Code can use during that command.
 - The document-builder agent uses `model: sonnet` for cost efficiency. The sprint-executor agent runs on the default model (requires maximum intelligence).
+- Vector DB collections are named `<repo-basename>-<context>` (e.g., `my-app-research`, `my-app-sprint`, `my-app-redteam`). All agents use `scripts/vector-db-init.py` for unified backend initialization.
+- Vector DB hooks (PostToolUse, Stop) auto-upsert git commits and flush on session end. Configured via `vector_db_hook_*` settings.

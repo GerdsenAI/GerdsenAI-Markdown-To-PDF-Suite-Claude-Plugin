@@ -16,22 +16,30 @@ A Claude Code plugin for creating professional PDFs from Markdown and conducting
 
 ## Prerequisites
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI installed
+- [Claude Code](https://code.claude.com/docs/en/overview) CLI installed
 - Python 3.9+
 - **Windows:** Git for Windows (provides Git Bash, which all scripts run under)
+- **Optional:** Pinecone API key (for cloud vector DB), Ollama (for local AI inference)
 
 ## Install
 
-Inside a Claude Code session, run these two commands:
+### From within Claude Code (recommended)
+
+1. Open Claude Code in any project
+2. Run `/plugin` to open the plugin manager
+3. Go to the **Marketplaces** tab
+4. Add the marketplace: `GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin`
+5. Go to the **Discover** tab
+6. Select **gerdsenai** and install (User scope recommended)
+7. Run `/reload-plugins` to activate
+
+### Local development
 
 ```
-/plugin marketplace add GerdsenAI/GerdsenAI-Markdown-To-PDF-Suite-Claude-Plugin
-/plugin install gerdsenai@gerdsenai-marketplace
+claude --plugin-dir /path/to/this/repo
 ```
 
-Restart Claude Code, then run `/gerdsenai:setup` inside any project to install the Document Builder and configure your preferences.
-
-> **Local development:** `claude --plugin-dir /path/to/this/repo`
+After installing, run `/gerdsenai:setup` in any project to configure the Document Builder, vector DB backends, and preferences.
 
 ## Quick Start
 
@@ -57,8 +65,8 @@ Restart Claude Code, then run `/gerdsenai:setup` inside any project to install t
 | `/gerdsenai:setup` | Install, configure, or update the Document Builder |
 | `/gerdsenai:build <target>` | Build PDFs — single file or recursive directory (auto-detects) |
 | `/gerdsenai:research-report [topic\|file]` | Deep research + intelligence reports; source monitoring when given a file path |
-| `/gerdsenai:red-team <file>` | Adversarial review: challenge claims, verify citations, flag logical fallacies |
-| `/gerdsenai:vector-db [operation]` | Vector DB management: report, store, query, configure (ChromaDB + Pinecone) |
+| `/gerdsenai:red-team <target>` | Adversarial analysis: 11 domains (code, security, deps, architecture, testing, DevOps, DB, AI/ML, a11y, docs, strategic) with Socratic reasoning |
+| `/gerdsenai:vector-db [operation]` | Vector DB management: report, store, query, configure — dual-backend (ChromaDB + Pinecone) with hooks |
 | `/gerdsenai:sprint-execute [plan\|description\|resume]` | Autonomous sprint executor: Socratic planning, autocoding, auto-commit |
 
 ### Build Options
@@ -169,7 +177,7 @@ An alternative to Pinecone for research memory. Uses SQLite persistence and buil
 <document_builder_path>/venv/Scripts/python.exe -m pip install chromadb  # Windows
 ```
 
-The research pipeline discovers ChromaDB automatically. Priority: Pinecone > ChromaDB > in-context (only one backend active per session).
+The research pipeline discovers ChromaDB automatically. Supports dual-backend mode (ChromaDB + Pinecone simultaneously) — configure via `/gerdsenai:vector-db configure`.
 
 Features: automatic document chunking (500-char default with 100-char overlap), cosine distance filtering (`--max-distance`), metadata where filters, and data quality reporting.
 
@@ -185,7 +193,7 @@ Manage vector databases with `/gerdsenai:vector-db`:
 /gerdsenai:vector-db configure           # Set backend, index, re-ranking, chunking
 ```
 
-Supports both ChromaDB (local) and Pinecone (cloud) backends. Reports include metadata schema analysis, sample documents, data quality metrics, and system health.
+Supports dual-backend mode (ChromaDB local + Pinecone cloud simultaneously) with configurable routing (mirror, split, primary-only). Hooks auto-upsert on git commits and check health on session start. Re-ranking available via Pinecone (3 models). Each repo gets isolated collections — data is never mixed across repos.
 
 ### Ollama (Local AI Inference)
 
