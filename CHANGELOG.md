@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.8.0
+
+### Auto-Initialize Vector DB on Plugin Install
+- **ChromaDB auto-installed** during `/gerdsenai:setup` — no longer an optional step. Users get local vector memory out of the box with zero configuration.
+- **Settings auto-populated** with 12 `vector_db_*` defaults (mode: chromadb, hooks enabled, all-MiniLM-L6-v2 embedding model). No manual `/gerdsenai:vector-db configure` required.
+- **Auto-repair on session start** — if the ChromaDB package goes missing after a venv rebuild, a detached background `pip install` restores it silently with platform-aware process detach (DETACHED_PROCESS on Windows, start_new_session on Unix).
+- **update.sh re-ensures** ChromaDB after dependency updates (plugin dependency not in Builder's requirements.txt).
+
+### Red-Team Audit Hardening
+- **`install_chromadb_locked()` shared helper** — all 3 pip install sites (setup.sh, update.sh, session-start) now use a locked installer with a 5-minute staleness check to prevent concurrent pip races across sessions.
+- **`vector_db_hook_on_session_start` wired end-to-end** — was documented in vector-db.md and vector-db-reference.md but never parsed or checked. Now parsed by `parse-settings.sh`, checked by `session-start` hook, and included in the setup template.
+- **Version pinning** — `chromadb>=0.5,<1.0` and `sentence-transformers>=2.2,<4.0` in the shared helper.
+- **Error capture** in update.sh pip failure (matching setup.sh pattern).
+- **Dead code removed** — unreachable `|| [[ -z "$GERDSEN_VECTOR_DB_MODE" ]]` branches removed from session-start and vector-db-hooks.sh.
+- **Quoting normalized** across all settings templates (vector-db.md configure template now uses quoted values matching setup.md).
+- **Default values harmonized** — `max_distance: 1.0` and `default_results: 5` consistent across chromadb-store.py, vector-db.md, and vector-db-reference.md.
+
 ## 0.7.0
 
 ### Vector DB Infrastructure Overhaul

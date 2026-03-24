@@ -119,7 +119,7 @@ Full vector DB setup wizard — backends, indexes, embeddings, re-ranking, hooks
 4. **Read current config** from `.claude/gerdsenai.local.md` for any existing vector DB settings.
 
 5. **Backend selection** using AskUserQuestion:
-   - "ChromaDB only (local, no API keys)" — check if installed, offer `pip install chromadb` if not
+   - "ChromaDB only (local, no API keys)" — installed by default during setup
    - "Pinecone only (cloud, requires API key)" — verify PINECONE_API_KEY is set
    - "Dual: ChromaDB (local) + Pinecone (cloud)" — both backends active
    - "None (disable vector DB)"
@@ -167,27 +167,27 @@ Full vector DB setup wizard — backends, indexes, embeddings, re-ranking, hooks
 10. **Save all settings** to `.claude/gerdsenai.local.md`. **IMPORTANT on Windows**: Use Python to write with LF line endings (`newline='\n'`):
     ```yaml
     vector_db_mode: "dual"
-    vector_db_chromadb_enabled: true
-    vector_db_pinecone_enabled: true
+    vector_db_chromadb_enabled: "true"
+    vector_db_pinecone_enabled: "true"
     vector_db_primary: "chromadb"
     vector_db_sync_mode: "mirror"
     vector_db_collection_prefix: ""
     vector_db_chromadb_embedding_model: "all-MiniLM-L6-v2"
-    vector_db_chromadb_chunk_size: 500
-    vector_db_chromadb_chunk_overlap: 100
-    vector_db_chromadb_max_distance: 1.5
-    vector_db_chromadb_default_results: 10
+    vector_db_chromadb_chunk_size: "500"
+    vector_db_chromadb_chunk_overlap: "100"
+    vector_db_chromadb_max_distance: "1.0"
+    vector_db_chromadb_default_results: "5"
     vector_db_pinecone_index: ""
     vector_db_pinecone_embedding_model: "llama-text-embed-v2"
     vector_db_pinecone_cloud: "aws"
     vector_db_pinecone_region: "us-east-1"
-    vector_db_pinecone_rerank_enabled: false
+    vector_db_pinecone_rerank_enabled: "false"
     vector_db_pinecone_rerank_model: "pinecone-rerank-v0"
-    vector_db_pinecone_rerank_top_n: 5
-    vector_db_hook_on_commit: true
-    vector_db_hook_on_session_start: true
-    vector_db_hook_on_session_end: true
-    vector_db_hook_on_file_change: false
+    vector_db_pinecone_rerank_top_n: "5"
+    vector_db_hook_on_commit: "true"
+    vector_db_hook_on_session_start: "true"
+    vector_db_hook_on_session_end: "true"
+    vector_db_hook_on_file_change: "false"
     ```
 
 11. **Verify configuration** by running the unified init:

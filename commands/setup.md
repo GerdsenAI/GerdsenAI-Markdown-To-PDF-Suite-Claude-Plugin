@@ -51,33 +51,38 @@ Follow the full setup wizard:
    cover_logo: "<chosen_logo_or_empty>"
    footer_logo: "<chosen_logo_or_empty>"
    preferred_page_size: "<A4|Letter|Legal|A3>"
+   vector_db_mode: "chromadb"
+   vector_db_primary: "chromadb"
+   vector_db_chromadb_enabled: "true"
+   vector_db_chromadb_embedding_model: "all-MiniLM-L6-v2"
+   vector_db_chromadb_chunk_size: "500"
+   vector_db_chromadb_chunk_overlap: "100"
+   vector_db_chromadb_max_distance: "1.0"
+   vector_db_chromadb_default_results: "5"
+   vector_db_hook_on_commit: "true"
+   vector_db_hook_on_session_start: "true"
+   vector_db_hook_on_session_end: "true"
+   vector_db_hook_on_file_change: "false"
    ---
    # GerdsenAI Document Builder Settings
    Local configuration for the MD-to-PDF plugin.
    ```
 
+   ChromaDB is installed automatically during setup. The vector DB defaults above enable local research memory out of the box. Use `/gerdsenai:vector-db configure` to customize backends, embedding models, or disable.
+
 8. If the user selected a page size different from config.yaml's default, update `<install_path>/config.yaml` to match.
 
-9. **Optional: Local research memory (ChromaDB)** using AskUserQuestion:
-   - Ask: "Install ChromaDB for local research memory? This enables context window relief for 50+ page reports without needing a cloud vector DB. [Yes/No]"
-   - If yes, warn the user: "ChromaDB installation may take several minutes as it includes ML dependencies (onnxruntime, tokenizers). Please be patient."
-   - Determine the venv Python path:
-     - Windows: `<install_path>/venv/Scripts/python.exe`
-     - macOS/Linux: `<install_path>/venv/bin/python`
-   - Run: `'<venv_python>' -m pip install chromadb -q`
-   - If pip fails, show the error and suggest: "If installation failed, you can try again later with: `<venv_python> -m pip install chromadb`"
-
-10. **Optional: Local AI detection (Ollama)** — detect automatically, never install:
+9. **Optional: Local AI detection (Ollama)** — detect automatically, never install:
     - Check if `ollama` is in PATH: `which ollama 2>/dev/null`
     - If found, run `ollama list` to check for available models
     - If not found, inform: "Ollama not detected. For local AI capabilities (optional), visit ollama.com."
 
-11. Verify the installation:
+10. Verify the installation:
     ```
     bash '${CLAUDE_PLUGIN_ROOT}/scripts/verify-install.sh'
     ```
 
-12. Report success with a summary and next steps: "Use `/gerdsenai:build <file>` to build a PDF."
+11. Report success with a summary and next steps: "Use `/gerdsenai:build <file>` to build a PDF."
 
 ---
 
@@ -136,7 +141,7 @@ The Document Builder is installed. Present a menu using AskUserQuestion:
 
 #### Reinstall
 
-2. Re-run the full setup wizard above (steps 2-12), using current settings as defaults.
+2. Re-run the full setup wizard above (steps 2-11), using current settings as defaults.
 
 #### Check health
 

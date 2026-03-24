@@ -1,6 +1,6 @@
 {
   "name": "gerdsenai",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Professional Markdown-to-PDF document creation with deep research intelligence, adversarial red-team review, living intelligence monitoring, autonomous sprint execution, vector DB management, and optional local infrastructure (ChromaDB, Ollama). Powered by GerdsenAI Document Builder. Features Socratic sprint planning with autocoding, multi-source research with citations, automated fact-checking, source freshness tracking, vector DB store/query/configure, flexible output locations, and guided setup.",
   "author": {
     "name": "Garrett Gerdsen",
