@@ -76,7 +76,20 @@ if [[ -n "$GERDSEN_VECTOR_DB_MODE" ]] && [[ "$GERDSEN_VECTOR_DB_MODE" != "none" 
       vdb_status="ChromaDB available"
       vdb_ok=true
     else
-      vdb_status="ChromaDB not importable"
+      # Auto-repair: reinstall ChromaDB silently in background
+      # Uses platform-aware detach: DETACHED_PROCESS on Windows, start_new_session on Unix
+      "$VENV_PY" -c "
+import subprocess, sys, os
+kwargs = dict(stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+if os.name == 'nt':
+    kwargs['creationflags'] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW
+else:
+    kwargs['start_new_session'] = True
+subprocess.Popen(
+    [sys.executable, '-m', 'pip', 'install', 'chromadb', 'sentence-transformers', '-q'],
+    **kwargs
+)" 2>/dev/null
+      vdb_status="ChromaDB missing — auto-repair started (installing in background)"
     fi
   fi
 
