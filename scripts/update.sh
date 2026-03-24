@@ -161,6 +161,14 @@ if [[ -f "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" ]]; then
     fi
   fi
   echo "Dependencies updated."
+
+  # Re-ensure ChromaDB is installed (plugin dependency, not in Builder's requirements.txt)
+  if ! "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -c "import chromadb" 2>/dev/null; then
+    echo "Reinstalling ChromaDB for vector memory..."
+    if ! "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -m pip install chromadb sentence-transformers -q; then
+      echo "WARNING: ChromaDB reinstall failed. Vector DB features may be unavailable."
+    fi
+  fi
 else
   echo "WARNING: Virtual environment not found. Run /gerdsenai:setup to recreate it."
 fi
