@@ -155,8 +155,8 @@ vector_db_collection_prefix: ""               # empty = auto-detect from repo ba
 vector_db_chromadb_embedding_model: "all-MiniLM-L6-v2"
 vector_db_chromadb_chunk_size: 500
 vector_db_chromadb_chunk_overlap: 100
-vector_db_chromadb_max_distance: 1.5
-vector_db_chromadb_default_results: 10
+vector_db_chromadb_max_distance: 1.0
+vector_db_chromadb_default_results: 5
 
 # Pinecone
 vector_db_pinecone_index: ""                  # empty = auto-create from repo basename
