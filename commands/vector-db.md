@@ -119,7 +119,7 @@ Full vector DB setup wizard — backends, indexes, embeddings, re-ranking, hooks
 4. **Read current config** from `.claude/gerdsenai.local.md` for any existing vector DB settings.
 
 5. **Backend selection** using AskUserQuestion:
-   - "ChromaDB only (local, no API keys)" — check if installed, offer `pip install chromadb` if not
+   - "ChromaDB only (local, no API keys)" — installed by default during setup
    - "Pinecone only (cloud, requires API key)" — verify PINECONE_API_KEY is set
    - "Dual: ChromaDB (local) + Pinecone (cloud)" — both backends active
    - "None (disable vector DB)"
@@ -175,8 +175,8 @@ Full vector DB setup wizard — backends, indexes, embeddings, re-ranking, hooks
     vector_db_chromadb_embedding_model: "all-MiniLM-L6-v2"
     vector_db_chromadb_chunk_size: 500
     vector_db_chromadb_chunk_overlap: 100
-    vector_db_chromadb_max_distance: 1.5
-    vector_db_chromadb_default_results: 10
+    vector_db_chromadb_max_distance: 1.0
+    vector_db_chromadb_default_results: 5
     vector_db_pinecone_index: ""
     vector_db_pinecone_embedding_model: "llama-text-embed-v2"
     vector_db_pinecone_cloud: "aws"
