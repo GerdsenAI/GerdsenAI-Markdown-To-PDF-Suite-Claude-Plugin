@@ -96,7 +96,7 @@ handle_post_tool() {
       local collection="${repo_name}-sprint"
 
       # Upsert to ChromaDB if mode includes it (chromadb or dual or unset)
-      if [[ "$GERDSEN_VECTOR_DB_MODE" == "chromadb" ]] || [[ "$GERDSEN_VECTOR_DB_MODE" == "dual" ]] || [[ -z "$GERDSEN_VECTOR_DB_MODE" ]]; then
+      if [[ "$GERDSEN_VECTOR_DB_MODE" == "chromadb" ]] || [[ "$GERDSEN_VECTOR_DB_MODE" == "dual" ]]; then
         "$VENV_PY" "$PLUGIN_ROOT/scripts/chromadb-store.py" store "$collection" "$summary" \
           --metadata "{\"type\":\"commit\",\"hash\":\"${short_hash}\"}" \
           >/dev/null 2>&1 || true
@@ -131,7 +131,7 @@ handle_session_end() {
   local summary="Session ended at ${timestamp}."
 
   # Upsert to ChromaDB if mode includes it (chromadb or dual or unset)
-  if [[ "$GERDSEN_VECTOR_DB_MODE" == "chromadb" ]] || [[ "$GERDSEN_VECTOR_DB_MODE" == "dual" ]] || [[ -z "$GERDSEN_VECTOR_DB_MODE" ]]; then
+  if [[ "$GERDSEN_VECTOR_DB_MODE" == "chromadb" ]] || [[ "$GERDSEN_VECTOR_DB_MODE" == "dual" ]]; then
     "$VENV_PY" "$PLUGIN_ROOT/scripts/chromadb-store.py" store "$collection" "$summary" \
       --metadata "{\"type\":\"session-marker\",\"timestamp\":\"${timestamp}\"}" \
       >/dev/null 2>&1 || true

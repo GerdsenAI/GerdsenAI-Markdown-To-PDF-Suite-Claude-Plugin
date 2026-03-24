@@ -165,8 +165,9 @@ if [[ -f "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" ]]; then
   # Re-ensure ChromaDB is installed (plugin dependency, not in Builder's requirements.txt)
   if ! "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -c "import chromadb" 2>/dev/null; then
     echo "Reinstalling ChromaDB for vector memory..."
-    if ! "$DOC_BUILDER_PATH/$VENV_PYTHON_REL" -m pip install chromadb sentence-transformers -q; then
+    if ! CHROMADB_ERR=$(install_chromadb_locked "$DOC_BUILDER_PATH/$VENV_PYTHON_REL"); then
       echo "WARNING: ChromaDB reinstall failed. Vector DB features may be unavailable."
+      [[ -n "$CHROMADB_ERR" ]] && echo "         Error: $CHROMADB_ERR"
     fi
   fi
 else

@@ -60,6 +60,7 @@ Follow the full setup wizard:
    vector_db_chromadb_max_distance: "1.0"
    vector_db_chromadb_default_results: "5"
    vector_db_hook_on_commit: "true"
+   vector_db_hook_on_session_start: "true"
    vector_db_hook_on_session_end: "true"
    vector_db_hook_on_file_change: "false"
    ---

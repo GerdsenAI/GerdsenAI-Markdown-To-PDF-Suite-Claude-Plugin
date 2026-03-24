@@ -188,16 +188,16 @@ if ! "$VENV_PYTHON" -m playwright install chromium; then
   echo "         To install manually: $VENV_PYTHON -m playwright install chromium"
 fi
 
+# Create required directories
+mkdir -p "$INSTALL_PATH/To_Build" "$INSTALL_PATH/PDFs" "$INSTALL_PATH/Logs" "$INSTALL_PATH/Assets"
+
 # Install ChromaDB for local vector memory (plugin dependency)
 echo "Installing ChromaDB for local vector memory..."
-if ! CHROMADB_ERR=$("$VENV_PYTHON" -m pip install chromadb sentence-transformers -q 2>&1); then
+if ! CHROMADB_ERR=$(install_chromadb_locked "$VENV_PYTHON"); then
   echo "WARNING: ChromaDB installation failed. Vector DB features will be unavailable."
   [[ -n "$CHROMADB_ERR" ]] && echo "         Error: $CHROMADB_ERR"
   echo "         You can try later with: $VENV_PYTHON -m pip install chromadb sentence-transformers"
 fi
-
-# Create required directories
-mkdir -p "$INSTALL_PATH/To_Build" "$INSTALL_PATH/PDFs" "$INSTALL_PATH/Logs" "$INSTALL_PATH/Assets"
 
 # Sanity check
 if [[ -f "$INSTALL_PATH/document_builder_reportlab.py" ]] && [[ -f "$VENV_PYTHON" ]]; then

@@ -63,38 +63,27 @@ if [[ -f "$SOURCE_TRACKER" ]]; then
   fi
 fi
 
-# --- Vector DB health check (only if configured) ---
+# --- Vector DB health check (only if configured and hook enabled) ---
 VENV_PY="$DOC_BUILDER_PATH/$VENV_PYTHON_REL"
 
-if [[ -n "$GERDSEN_VECTOR_DB_MODE" ]] && [[ "$GERDSEN_VECTOR_DB_MODE" != "none" ]]; then
+if [[ -n "$GERDSEN_VECTOR_DB_MODE" ]] && [[ "$GERDSEN_VECTOR_DB_MODE" != "none" ]] && [[ "$GERDSEN_VECTOR_DB_HOOK_ON_SESSION_START" != "false" ]]; then
   vdb_status=""
   vdb_ok=false
 
   # Check ChromaDB availability (if mode includes it)
-  if [[ "$GERDSEN_VECTOR_DB_MODE" == "chromadb" ]] || [[ "$GERDSEN_VECTOR_DB_MODE" == "dual" ]] || [[ -z "$GERDSEN_VECTOR_DB_MODE" ]]; then
+  if [[ "$GERDSEN_VECTOR_DB_MODE" == "chromadb" ]] || [[ "$GERDSEN_VECTOR_DB_MODE" == "dual" ]]; then
     if "$VENV_PY" -c "import chromadb" 2>/dev/null; then
       vdb_status="ChromaDB available"
       vdb_ok=true
     else
-      # Auto-repair: reinstall ChromaDB silently in background
-      # Uses platform-aware detach: DETACHED_PROCESS on Windows, start_new_session on Unix
-      "$VENV_PY" -c "
-import subprocess, sys, os
-kwargs = dict(stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-if os.name == 'nt':
-    kwargs['creationflags'] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW
-else:
-    kwargs['start_new_session'] = True
-subprocess.Popen(
-    [sys.executable, '-m', 'pip', 'install', 'chromadb', 'sentence-transformers', '-q'],
-    **kwargs
-)" 2>/dev/null
+      # Auto-repair: reinstall ChromaDB silently in background (with lock)
+      install_chromadb_locked "$VENV_PY" --background
       vdb_status="ChromaDB missing — auto-repair started (installing in background)"
     fi
   fi
 
   # Check Pinecone availability (if mode includes it)
-  if [[ "$GERDSEN_VECTOR_DB_MODE" == "pinecone" ]] || [[ "$GERDSEN_VECTOR_DB_MODE" == "dual" ]] || [[ -z "$GERDSEN_VECTOR_DB_MODE" ]]; then
+  if [[ "$GERDSEN_VECTOR_DB_MODE" == "pinecone" ]] || [[ "$GERDSEN_VECTOR_DB_MODE" == "dual" ]]; then
     if [[ -n "${PINECONE_API_KEY:-}" ]]; then
       if [[ -n "$vdb_status" ]]; then
         vdb_status="${vdb_status}, Pinecone configured"
