@@ -98,8 +98,29 @@ build_single_file() {
   local source_dir
   source_dir=$(dirname "$markdown_file")
 
-  # Copy file to To_Build/ directory
-  cp "$markdown_file" "$DOC_BUILDER_PATH/To_Build/$filename"
+  # Pre-process: convert mermaid fenced blocks to raw HTML so codehilite
+  # doesn't strip the language-mermaid class (belt-and-suspenders with the
+  # same fix in document_builder_reportlab.py)
+  "$VENV_PYTHON" -c "
+import re, sys, pathlib
+src = pathlib.Path(sys.argv[1])
+content = src.read_text(encoding='utf-8')
+pattern = re.compile(r'\`\`\`mermaid\s*\n(.*?)\`\`\`', re.DOTALL)
+count = len(pattern.findall(content))
+if count:
+    def to_html(m):
+        code = m.group(1).strip().replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
+        return '\n<pre><code class=\"language-mermaid\">' + code + '</code></pre>\n'
+    content = pattern.sub(to_html, content)
+    dst = pathlib.Path(sys.argv[2])
+    dst.write_text(content, encoding='utf-8')
+    print(f'Pre-processed {count} mermaid block(s)', file=sys.stderr)
+else:
+    import shutil; shutil.copy2(sys.argv[1], sys.argv[2])
+" "$markdown_file" "$DOC_BUILDER_PATH/To_Build/$filename"
+
+  # Set source directory env var for image path resolution
+  export GERDSENAI_SOURCE_DIR="$source_dir"
 
   # Build the PDF
   local build_args=("$filename")
