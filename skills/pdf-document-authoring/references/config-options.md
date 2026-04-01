@@ -10,7 +10,7 @@ Default metadata applied to documents without front matter overrides.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `author` | string | `"Garrett Gerdsen"` | Default author name |
+| `author` | string | `"Author"` | Default author name |
 | `company` | string | `"GerdsenAI"` | Default company name |
 | `version` | string | `"1.0.0"` | Default version number |
 | `confidential` | boolean | `false` | Mark documents as confidential |
