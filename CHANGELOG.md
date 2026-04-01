@@ -12,6 +12,16 @@
 ### Enhanced Mermaid Sanitization
 - Expanded edge case handling in `_sanitize_mermaid_diagram()`: emoji removal, multi-line label fixes, triple-arrow edge label cleanup, subgraph title handling, long label auto-wrapping, and arrow syntax normalization.
 
+### Red-Team Audit Fixes (36 issues)
+- **Page break enforcement** -- `page_break_avoid` config now actually enforced; headings grouped with following content via KeepTogether; CondPageBreak before h1/h2
+- **Table column widths** -- replaced character-count estimation with `stringWidth()` for accurate rendered text measurement; configurable `tables:` section in config.yaml
+- **HR rendering** -- horizontal rules (`---`) now render in PDFs (previously silently dropped)
+- **Image hardening** -- HTML-escaped alt text, SVG/format detection, RGBA transparency handling, permission validation, URL rejection
+- **Mermaid robustness** -- temp PNG cleanup, specific error messages, `html.escape()`, xychart-beta safety
+- **build.sh regex** -- anchored mermaid pattern to line boundaries with `re.MULTILINE`, path validation guard
+- **Nested lists** -- 5 levels of depth (up from 3), configurable bullet character
+- **Public readiness** -- untracked `settings.local.json`, expanded `.gitignore`, removed client asset names
+
 ## 0.8.0
 
 ### Auto-Initialize Vector DB on Plugin Install
