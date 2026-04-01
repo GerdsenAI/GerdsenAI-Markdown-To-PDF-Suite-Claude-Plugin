@@ -98,8 +98,36 @@ build_single_file() {
   local source_dir
   source_dir=$(dirname "$markdown_file")
 
-  # Copy file to To_Build/ directory
-  cp "$markdown_file" "$DOC_BUILDER_PATH/To_Build/$filename"
+  # Pre-process: convert mermaid fenced blocks to raw HTML so codehilite
+  # doesn't strip the language-mermaid class (belt-and-suspenders with the
+  # same fix in document_builder_reportlab.py)
+  #
+  # Validate path doesn't contain characters that break inline Python
+  if printf '%s' "$markdown_file" | grep -qP '[\n\r]' 2>/dev/null; then
+    # Fall back to simple copy without pre-processing
+    cp "$markdown_file" "$DOC_BUILDER_PATH/To_Build/$filename"
+  else
+    "$VENV_PYTHON" -c "
+import re, sys, pathlib, shutil, html
+src = pathlib.Path(sys.argv[1])
+dst = pathlib.Path(sys.argv[2])
+content = src.read_text(encoding='utf-8')
+pattern = re.compile(r'^\x60{3}mermaid\s*\n(.*?)^\x60{3}\s*$', re.DOTALL | re.MULTILINE)
+count = len(pattern.findall(content))
+if count:
+    def to_html(m):
+        code = html.escape(m.group(1).strip())
+        return '\n<pre><code class=\"language-mermaid\">' + code + '</code></pre>\n'
+    content = pattern.sub(to_html, content)
+    dst.write_text(content, encoding='utf-8')
+    print(f'Pre-processed {count} mermaid block(s)', file=sys.stderr)
+else:
+    shutil.copy2(sys.argv[1], sys.argv[2])
+" "$markdown_file" "$DOC_BUILDER_PATH/To_Build/$filename"
+  fi
+
+  # Set source directory env var for image path resolution
+  export GERDSENAI_SOURCE_DIR="$source_dir"
 
   # Build the PDF
   local build_args=("$filename")

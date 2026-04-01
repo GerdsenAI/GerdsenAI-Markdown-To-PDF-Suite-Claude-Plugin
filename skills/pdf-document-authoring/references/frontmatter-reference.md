@@ -43,8 +43,8 @@ The builder will use the current date and version `1.0.0`.
 ---
 title: "GerdsenAI Platform Architecture"
 subtitle: "Technical Design Document"
-author: "Garrett Gerdsen"
-company: "GerdsenAI"
+author: "Jane Smith"
+company: "Acme Corp"
 date: "February 24, 2026"
 version: "2.1.0"
 confidential: true

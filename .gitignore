@@ -1,12 +1,38 @@
+# Claude Code local settings (contain machine-specific paths)
 .claude/*.local.md
+.claude/*.local.json
 .claude/plans/
+
+# Build outputs
 *.pdf
+*.sources.json
+
+# Python
 __pycache__/
+*.pyc
+venv/
+
+# Environment and secrets
+.env
+.env.*
+secrets.yaml
+credentials.*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# OS
 .DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Project-specific
 todo.md
 .firecrawl/
-.env
-*.log
-venv/
 node_modules/
-*.sources.json
+*.log
